@@ -7,11 +7,14 @@ assignees: newjanson, UserC2
 
 ---
 
-**Describe your improvement**
-A clear and concise description of what you want to happen.
+**How does this improve the repo?**
+Describe the advantages of this improvement.
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+**Applies to**
+Describe what you are improving.
 
-**Ideas**
-If you have any ideas on how to implement this, add them here.
+**Improvement Description**
+Describe the improvement.
+
+**Potential Implementation**
+If you have any ideas on how to implement this improvment, describe them.

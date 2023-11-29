@@ -8,20 +8,22 @@ assignees: newjanson, UserC2
 ---
 
 **Bug Description**
-A clear and concise description of what the bug is.
+Describe what the problem is.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+**Steps to Reproduce**
+(If you don't know how to reproduce the problem, leave this blank.)
+1. ...
+2. ...
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**Expected Behavior**
+Describe what you expected to happen.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**Applicable Logs**
+* Add the filenames of any relevant logs.
+* Make sure to upload the logs to Google Drive or OneDrive.
+
+**Images**
+If applicable, add screenshots or pictures to help explain the problem.
 
 **Ideas**
-If you have any ideas how to implement this fix, add them here.
+If you have any ideas how to fix this problem, add them here.
