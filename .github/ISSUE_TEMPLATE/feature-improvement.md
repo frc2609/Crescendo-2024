@@ -7,11 +7,8 @@ assignees: newjanson, UserC2
 
 ---
 
-**How does this improve the repo?**
+**How does this improve the robot or repo?**
 Describe the advantages of this improvement.
-
-**Applies to**
-Describe what you are improving.
 
 **Improvement Description**
 Describe the improvement.

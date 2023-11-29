@@ -7,7 +7,7 @@ assignees: newjanson, UserC2
 
 ---
 
-**How does this improve the repo?**
+**How does this improve the robot or repo?**
 Describe the advantages of this feature.
 
 **Feature Description**
