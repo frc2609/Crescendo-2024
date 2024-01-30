@@ -1,0 +1,14 @@
+{
+  "NetworkTables Settings": {
+    "mode": "Client (NT3)",
+    "serverTeam": "10.26.9.2"
+  },
+  "Retained Values": {
+    "open": false
+  },
+  "transitory": {
+    "limelight": {
+      "open": true
+    }
+  }
+}

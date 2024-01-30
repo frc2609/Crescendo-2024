@@ -1,0 +1,72 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.5287318695975283,
+        "y": 4.955071334703217
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.384579618755049,
+        "y": 4.856957652622446
+      },
+      "isLocked": false
+    },
+    {
+      "anchor": {
+        "x": 6.79,
+        "y": 4.59
+      },
+      "prevControl": {
+        "x": 6.798435631376471,
+        "y": 4.585299039847213
+      },
+      "nextControl": null,
+      "isLocked": false
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.0,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": -90.0
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "RetractHigh"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -0.26895219885449445
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": null
+}

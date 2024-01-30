@@ -1,0 +1,107 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.0,
+        "y": 0.0
+      },
+      "isLocked": false
+    },
+    {
+      "anchor": {
+        "x": 2.0,
+        "y": 0.0
+      },
+      "prevControl": {
+        "x": 1.0000000000000062,
+        "y": -1.1164460706300227e-8
+      },
+      "nextControl": {
+        "x": 2.0003991436613164,
+        "y": 4.456223722936192e-12
+      },
+      "isLocked": false
+    },
+    {
+      "anchor": {
+        "x": 2.0,
+        "y": 2.0
+      },
+      "prevControl": {
+        "x": 2.0,
+        "y": 1.001418860223965
+      },
+      "nextControl": {
+        "x": 2.0,
+        "y": 2.0040835618965764
+      },
+      "isLocked": false
+    },
+    {
+      "anchor": {
+        "x": 0.0,
+        "y": 2.0
+      },
+      "prevControl": {
+        "x": 0.9999999999999889,
+        "y": 2.0
+      },
+      "nextControl": {
+        "x": -0.010886174495436274,
+        "y": 2.0
+      },
+      "isLocked": false
+    },
+    {
+      "anchor": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "prevControl": {
+        "x": -6.059653249443324e-17,
+        "y": 1.0
+      },
+      "nextControl": null,
+      "isLocked": false
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.0,
+      "rotationDegrees": 0
+    },
+    {
+      "waypointRelativePos": 1.0,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 2.0,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 3.0,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 1.0,
+    "maxAcceleration": 0.5,
+    "maxAngularVelocity": 200.0,
+    "maxAngularAcceleration": 250.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": null
+}
