@@ -120,12 +120,15 @@ public class Drive extends SubsystemBase {
   }
 
   /**
-   * 
-   * @param xTranslation
-   * @param yTranslation
-   * @return
+   * Some joysticks (like ours) map joystick positions to a square, meaning that if you use them to
+   * drive the robot, the robot will try to move faster diagonally than normal.
+   * This function maps the joystick values to a circle so the robot moves evenly.
+   * @param x x value of joystick.
+   * @param y y value of joystick.
+   * @return Corrected joystick values. First element is x, second element is y.
    */
-  public double[] correctJoystickError(double xTranslation, double yTranslation) {
+  public double[] correctForSquareJoystickMapping(double xTranslation, double yTranslation) {
+    // method from https://mathproofs.blogspot.com/2005/07/mapping-square-to-circle.html
     double xCorrected = xTranslation * Math.sqrt(1 - ((Math.pow(yTranslation, 2)) / 2));
     double yCorrected = yTranslation * Math.sqrt(1 - ((Math.pow(xTranslation, 2)) / 2));
     return new double[]{ xCorrected, yCorrected };
