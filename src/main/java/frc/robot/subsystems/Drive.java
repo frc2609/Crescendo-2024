@@ -43,9 +43,9 @@ public class Drive extends SubsystemBase {
   public Drive() {
     // uncomment to add human-readable data to NetworkTables
     // SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
+
     try {
       drive = new SwerveParser(new File(Filesystem.getDeployDirectory(), "swerve")).createSwerveDrive(getMaxLinearSpeed(), Swerve.angleConversionFactor, Swerve.driveConversionFactor);
-      // drive.setMaximumSpeeds(getMaxLinearSpeed(), getMaxLinearSpeed(), getMaxAngularSpeed());
       originalMaxAngularVelocity = drive.getSwerveController().config.maxAngularVelocity;
     } catch (IOException e) {
       DataLogManager.log("Swerve Drive File Error: " + e.getMessage());
@@ -67,10 +67,7 @@ public class Drive extends SubsystemBase {
           new ReplanningConfig() // customize this as desired
       ),
       () -> {
-        // Boolean supplier that controls when the path will be mirrored for the red alliance
-        // This will flip the path being followed to the red side of the field.
-        // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
+        // mirror the path (drawn on blue side) if we are on the red alliance
         var alliance = DriverStation.getAlliance();
         if (alliance.isPresent()) {
           return alliance.get() == DriverStation.Alliance.Red;
@@ -95,6 +92,11 @@ public class Drive extends SubsystemBase {
     logger.logAll();
   }
 
+  /**
+   * Get the max angular speed in rad/s from SwerveController. Use this to scale desired rotation
+   * velocity if you aren't using SwerveController to drive the robot.
+   * @return The max angular speed in rad/s
+   */
   public double getMaxAngularSpeed() {
     return drive.getSwerveController().config.maxAngularVelocity;
   }
@@ -115,5 +117,17 @@ public class Drive extends SubsystemBase {
     // add boost/subtract precision according to button state
     final double multiplier = normalMultiplier.get() + (boost ? boostIncrease.get() : 0) - (precision ? precisionReduction.get() : 0);
     return getMaxLinearSpeed() * multiplier;
+  }
+
+  /**
+   * 
+   * @param xTranslation
+   * @param yTranslation
+   * @return
+   */
+  public double[] correctJoystickError(double xTranslation, double yTranslation) {
+    double xCorrected = xTranslation * Math.sqrt(1 - ((Math.pow(yTranslation, 2)) / 2));
+    double yCorrected = yTranslation * Math.sqrt(1 - ((Math.pow(xTranslation, 2)) / 2));
+    return new double[]{ xCorrected, yCorrected };
   }
 }

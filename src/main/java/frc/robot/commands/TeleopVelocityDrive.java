@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.Xbox;
@@ -27,7 +28,9 @@ public class TeleopVelocityDrive extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    RobotContainer.drive.drive.setHeadingCorrection(true);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -39,8 +42,16 @@ public class TeleopVelocityDrive extends Command {
     // controller is +ve right (CW+), YAGSL expects CCW+ (+ve left)
     final double desiredAngularVelocity = MathUtil.applyDeadband(-RobotContainer.driverController.getRightX(), Xbox.joystickDeadband);
 
+    SmartDashboard.putNumber("uncorrected x", desiredXTranslation);
+    SmartDashboard.putNumber("uncorrected y", desiredYTranslation);
+    SmartDashboard.putNumber("uncorrected mag", Math.sqrt(desiredXTranslation*desiredXTranslation + desiredYTranslation*desiredYTranslation));
+    final double[] correctedTranslation = RobotContainer.drive.correctJoystickError(desiredXTranslation, desiredYTranslation);
+    SmartDashboard.putNumber("corrected x", correctedTranslation[0]);
+    SmartDashboard.putNumber("corrected y", correctedTranslation[1]);
+    SmartDashboard.putNumber("corrected mag", Math.sqrt(correctedTranslation[0]*correctedTranslation[0] + correctedTranslation[1]*correctedTranslation[1]));
+
     RobotContainer.drive.drive.drive(
-      new Translation2d(desiredXTranslation, desiredYTranslation).times(RobotContainer.drive.getTeleopMaxLinearSpeed()),
+      new Translation2d(correctedTranslation[0], correctedTranslation[1]).times(RobotContainer.drive.getTeleopMaxLinearSpeed()),
       desiredAngularVelocity * RobotContainer.drive.getMaxAngularSpeed(),
       isFieldRelative,
       false
