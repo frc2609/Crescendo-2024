@@ -33,6 +33,9 @@
     }
   },
   "NetworkTables": {
+    "Retained Values": {
+      "open": false
+    },
     "transitory": {
       "PathPlanner": {
         "open": true
@@ -55,7 +58,6 @@
           "double[]##v_/SmartDashboard/swerve/measuredStates": {
             "open": true
           },
-          "open": true,
           "teleop": {
             "angularSpeedLimit (rad": {
               "open": true
