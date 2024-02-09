@@ -31,7 +31,7 @@ public final class Constants {
     /** Converts rotations -> degrees per rotation. */
     public static final double angleConversionFactor = SwerveMath.calculateDegreesPerSteeringRotation(angleGearRatio, 1);
     /** The maximum linear speed a swerve module can achieve in m/s. */
-    public static final double maxAttainableLinearSpeed = (maxNEORPM / 60.0) * driveConversionFactor;
+    public static final double maxModuleSpeed = (maxNEORPM / 60.0) * driveConversionFactor;
   }
 
   /**

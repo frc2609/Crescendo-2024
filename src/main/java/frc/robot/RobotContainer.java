@@ -16,7 +16,7 @@ import frc.robot.commands.VisionTrackDrive;
 import frc.robot.subsystems.Drive;
 
 public class RobotContainer {
-  public static final Drive drive = new Drive();
+  public static final Drive drive = new Drive(false);
   public static final CommandXboxController driverController = new CommandXboxController(0);
   private final SendableChooser<Command> autoChooser;
 
