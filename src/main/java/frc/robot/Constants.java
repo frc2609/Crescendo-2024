@@ -16,47 +16,6 @@ import swervelib.math.SwerveMath;
 public final class Constants {
   /** Swerve drive related constants. */
   public final static class Swerve {
-    /**
-     * Calculates module positions for YAGSL configuration files. Put your
-     * mouse over a variable to see its value, then add it to the appropriate
-     * YAGSL .json file.
-     */
-    public final static class Dimensions {
-      /* Directions:
-                +X (Front)
-            FL       ^       FR
-                    |
-      +Y (Left) <-------> -Y (Right)
-                    |
-            RL       v       RR
-                -X (Rear)
-        * Direction  | X | Y |
-        * Front Left   +   +
-        * Front Right  +   -
-        * Rear Left    -   +
-        * Rear Right   -   -
-        */
-      /** Front-rear (X) distance between two swerve modules measured from center of wheel in inches. */
-      public static final double trackSizeX = 24;
-      /** Left-right (Y) distance between two swerve modules measured from center of wheel in inches. */
-      public static final double trackSizeY = 24;
-      /** Front-rear (X) distance from center of wheel to center of robot in inches. */
-      public static final double xFromCenter = trackSizeX / 2;
-      /** Left-right (Y) distance from center of wheel to center of robot in inches. */
-      public static final double yFromCenter = trackSizeY / 2;
-      public static final double frontLeftX   = xFromCenter;
-      public static final double frontLeftY   = yFromCenter;
-      public static final double frontRightX  = xFromCenter;
-      public static final double frontRightY  = -yFromCenter;
-      public static final double rearLeftX    = -xFromCenter;
-      public static final double rearLeftY    = yFromCenter;
-      public static final double rearRightX   = -xFromCenter;
-      public static final double rearRightY   = -yFromCenter;
-      /** Diagonal distance in inches between opposite swerve modules. */
-      public static final double driveDiameter = Math.sqrt(trackSizeX * trackSizeX + trackSizeY * trackSizeY);
-      /** Distance travelled in inches when spinning in a circle. */
-      public static final double circularDistance = Math.PI * driveDiameter;
-    }
     /** The maximum possible RPM of a REV NEO v1.0/v1.1 motor. */
     public static final double maxNEORPM = 5676;
     /** Make sure to adjust this as the wheels wear. */
