@@ -4,15 +4,21 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.RobotContainer;
+import frc.robot.utils.DriveUtil;
 
 /**
  * Drive the robot using translational and angular velocity from the driver controller.
  */
 public class TeleopVelocityDrive extends Command {
+  public final boolean isFieldRelative;
+
   /** Creates a new TeleopVelocityDrive. */
-  public TeleopVelocityDrive() {
-    // Use addRequirements() here to declare subsystem dependencies.
+  public TeleopVelocityDrive(boolean isFieldRelative) {
+    this.isFieldRelative = isFieldRelative;
+    addRequirements(RobotContainer.drive);
   }
 
   // Called when the command is initially scheduled.
@@ -22,7 +28,22 @@ public class TeleopVelocityDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // TODO: implement
+    double[] driverInputs = DriveUtil.getDriverInputs(
+      RobotContainer.driverController,
+      true,
+      false,
+      false,
+      true,
+      DriveUtil.getSensitivity(RobotContainer.driverController)
+    );
+
+    RobotContainer.drive.drive.drive(
+      new Translation2d(driverInputs[0], driverInputs[1])
+        .times(RobotContainer.drive.getLimitedTeleopLinearSpeed()),
+      driverInputs[2] * RobotContainer.drive.getLimitedTeleopAngularSpeed(),
+      isFieldRelative,
+      false
+    );
   }
 
   // Called once the command ends or is interrupted.
