@@ -4,20 +4,16 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
-import frc.robot.Constants.Xbox;
+import frc.robot.utils.DriveUtil;
 
 /**
- * Drive the robot using translational and rotational velocity from the driver
- * controller.
- * <p>Left bumper slows robot down, right bumper speeds it up.
- * Precision/Boost amount can be adjusted through NetworkTables.
+ * Drive the robot using translational and angular velocity from the driver controller.
  */
 public class TeleopVelocityDrive extends Command {
-  private final boolean isFieldRelative;
+  public final boolean isFieldRelative;
 
   /** Creates a new TeleopVelocityDrive. */
   public TeleopVelocityDrive(boolean isFieldRelative) {
@@ -32,16 +28,19 @@ public class TeleopVelocityDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // controller is +ve backwards, field coordinates are +ve forward
-    final double desiredXTranslation = MathUtil.applyDeadband(-RobotContainer.driverController.getLeftY(), Xbox.joystickDeadband);
-    // controller is +ve right, field coordinates are +ve left
-    final double desiredYTranslation = MathUtil.applyDeadband(-RobotContainer.driverController.getLeftX(), Xbox.joystickDeadband);
-    // controller is +ve right (CW+), YAGSL expects CCW+ (+ve left)
-    final double desiredAngularVelocity = MathUtil.applyDeadband(-RobotContainer.driverController.getRightX(), Xbox.joystickDeadband);
+    double[] driverInputs = DriveUtil.getDriverInputs(
+      RobotContainer.driverController,
+      true,
+      false,
+      false,
+      true,
+      DriveUtil.getSensitivity(RobotContainer.driverController)
+    );
 
     RobotContainer.drive.drive.drive(
-      new Translation2d(desiredXTranslation, desiredYTranslation).times(RobotContainer.drive.getTeleopMaxLinearSpeed()),
-      desiredAngularVelocity * RobotContainer.drive.getMaxAngularSpeed(),
+      new Translation2d(driverInputs[0], driverInputs[1])
+        .times(RobotContainer.drive.getLimitedTeleopLinearSpeed()),
+      driverInputs[2] * RobotContainer.drive.getLimitedTeleopAngularSpeed(),
       isFieldRelative,
       false
     );

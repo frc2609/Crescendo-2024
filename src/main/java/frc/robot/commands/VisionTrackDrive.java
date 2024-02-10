@@ -60,7 +60,7 @@ public class VisionTrackDrive extends Command {
       // controller is +ve right (CW+), YAGSL expects CCW+ (+ve left)
       RobotContainer.drive.drive.getYaw().getRadians()+Math.toRadians(tx), // -PI to PI radians
       RobotContainer.drive.drive.getYaw().getRadians(),
-      RobotContainer.drive.getTeleopMaxLinearSpeed()
+      RobotContainer.drive.getLimitedTeleopLinearSpeed()
     );
     RobotContainer.drive.drive.drive(speeds);
   }
