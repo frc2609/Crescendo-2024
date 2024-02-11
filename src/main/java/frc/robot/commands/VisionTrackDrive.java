@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.utils.DriveUtil;
 import frc.robot.utils.LimeLightHelpers;
-import frc.robot.utils.TunableNumber;
 
 /**
  * TODO: Actual docs
@@ -20,18 +19,14 @@ public class VisionTrackDrive extends Command {
   private final boolean isFieldRelative;
   private double tx;
 
-  TunableNumber kP = new TunableNumber("kP", 0.05);
-  TunableNumber kI = new TunableNumber("kI", 0.0);
-  TunableNumber kD = new TunableNumber("kD", 0.0);
-
-  PIDController headingPID = new PIDController(kP.get(), kI.get(), kD.get());
+  PIDController headingPID = new PIDController(0.05, 0.0, 0.0);
 
   /** Creates a new VisionTrackDrive. */
   public VisionTrackDrive(boolean isFieldRelative) {
     addRequirements(RobotContainer.drive);
     this.isFieldRelative = isFieldRelative;
-    // SmartDashboard.putData("Heading PID", headingPID); // TODO: look into how to do this
-
+    // TODO: add this to a table (e.g. vision/)
+    SmartDashboard.putData("Angular Velocity PID", headingPID);
   }
 
   // Called when the command is initially scheduled.
@@ -44,23 +39,10 @@ public class VisionTrackDrive extends Command {
   @Override
   public void execute() {
     tx = LimeLightHelpers.getTX("limelight");
-
-    if (kP.hasChanged(hashCode())) {
-      headingPID.setP(kP.get());
-    }
-
-    if (kI.hasChanged(hashCode())) {
-      headingPID.setI(kI.get());
-    }
-    
-    if (kD.hasChanged(hashCode())) {
-      headingPID.setD(kD.get());
-    }
-
     double calculatedAngularVelocity = headingPID.calculate(tx);
 
     // TODO: add this to a table (e.g. vision/)
-    SmartDashboard.putNumber("calculatedAngularVelocity", calculatedAngularVelocity);
+    SmartDashboard.putNumber("Calculated Angular Velocity", calculatedAngularVelocity);
 
     double[] driverInputs = DriveUtil.getDriverInputs(
       RobotContainer.driverController,
