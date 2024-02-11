@@ -19,27 +19,29 @@ public class VisionTrackDrive extends Command {
   private final boolean isFieldRelative;
   private double tx;
 
-  PIDController headingPID = new PIDController(0.05, 0.0, 0.0);
+  PIDController angularVelocityPID = new PIDController(0.05, 0.0, 0.0);
 
   /** Creates a new VisionTrackDrive. */
   public VisionTrackDrive(boolean isFieldRelative) {
     addRequirements(RobotContainer.drive);
     this.isFieldRelative = isFieldRelative;
     // TODO: add this to a table (e.g. vision/)
-    SmartDashboard.putData("Angular Velocity PID", headingPID);
+    SmartDashboard.putData("Angular Velocity PID", angularVelocityPID);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     tx = LimeLightHelpers.getTX("limelight");
+    // reset saved state when the command starts; useful if 'i' term is used
+    angularVelocityPID.reset();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     tx = LimeLightHelpers.getTX("limelight");
-    double calculatedAngularVelocity = headingPID.calculate(tx);
+    double calculatedAngularVelocity = angularVelocityPID.calculate(tx);
 
     // TODO: add this to a table (e.g. vision/)
     SmartDashboard.putNumber("Calculated Angular Velocity", calculatedAngularVelocity);
