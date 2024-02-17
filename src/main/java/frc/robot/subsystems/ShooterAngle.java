@@ -36,7 +36,7 @@ public class ShooterAngle extends SubsystemBase {
   // measure from lower hard stop
   public static final double angleEncoderOffset = 0.205 - reverseLimit.getRotations();
 
-  public static final double massKg = 5.0;
+  public static final double massKg = 7.5;
   public static final double comDistanceFromPivot = 0.25; // m
   public static final double armLength = 0.35; // m
 
@@ -68,6 +68,7 @@ public class ShooterAngle extends SubsystemBase {
   /** Creates a new ShooterAngle. */
   public ShooterAngle() {
     angleMotor.setNeutralMode(NeutralMode.Brake);
+    angleMotor.setInverted(true);
     angleEncoder.setPositionOffset(angleEncoderOffset);
     armSim.update(0); // setup simulation before periodic() runs for the first time
 
