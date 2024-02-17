@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.TeleopHeadingDrive;
 import frc.robot.commands.TeleopVelocityDrive;
+import frc.robot.subsystems.Limelight;
 import frc.robot.utils.TunableNumber;
 
 public class Robot extends TimedRobot {
@@ -76,6 +77,7 @@ public class Robot extends TimedRobot {
     }
     RobotContainer.drive.drive.setHeadingCorrection(true);
     RobotContainer.drive.setDefaultCommand(new TeleopVelocityDrive(true));
+    //RobotContainer.drive.drive.resetOdometry(Limelight.limelightPose);
   }
 
   @Override
