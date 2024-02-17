@@ -44,7 +44,7 @@ public class ShooterAngle extends SubsystemBase {
   public final DutyCycleEncoder angleEncoder = new DutyCycleEncoder(9);
   public final SingleJointedArmSim armSim = new SingleJointedArmSim(
     DCMotor.getBag(1),
-    50, // TODO: use actual ratio
+    162,
     SingleJointedArmSim.estimateMOI(armLengthMeters, massKg),
     // massKg * comDistanceFromPivot * comDistanceFromPivot,
     armLengthMeters,
