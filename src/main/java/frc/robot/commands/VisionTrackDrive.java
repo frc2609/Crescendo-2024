@@ -5,11 +5,13 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Limelight;
 import frc.robot.utils.DriveUtil;
@@ -38,7 +40,7 @@ public class VisionTrackDrive extends Command {
   public void initialize() {
     targetOffset = RobotContainer.drive.drive.swerveDrivePoseEstimator.getEstimatedPosition().minus(Limelight.getTargetPose2d(Constants.AprilTag.ID.kRedSpeakerCenter));
     
-    tx = Math.toDegrees(Math.atan(Math.abs(targetOffset.getY()/targetOffset.getX())));
+    tx = Math.toDegrees(Math.atan(targetOffset.getY()/targetOffset.getX()));
     // reset saved state when the command starts; useful if 'i' term is used
     angularVelocityPID.reset();
   }
@@ -47,18 +49,16 @@ public class VisionTrackDrive extends Command {
   @Override
   public void execute() {
     targetOffset = RobotContainer.drive.drive.swerveDrivePoseEstimator.getEstimatedPosition().minus(Limelight.getTargetPose2d(Constants.AprilTag.ID.kRedSpeakerCenter));
-    //TODO: Fix formulas below
-    tx = Math.toDegrees(Math.atan(Math.abs(targetOffset.getY()/targetOffset.getX())));
+    tx = Math.toDegrees(Math.atan(targetOffset.getY()/targetOffset.getX()));
     angularVelocityPID.setSetpoint(tx);
-    double calculatedAngularVelocity = angularVelocityPID.calculate(Math.toDegrees(RobotContainer.drive.drive.getGyroRotation3d().getAngle()));
+    double calculatedAngularVelocity = angularVelocityPID.calculate(RobotContainer.drive.drive.getPose().getRotation().getDegrees());
 
     // TODO: add this to a table (e.g. vision/)
     SmartDashboard.putNumber("Calculated Angular Velocity", calculatedAngularVelocity);
     SmartDashboard.putNumber("target tx", tx);
     SmartDashboard.putNumber("target offset x",targetOffset.getX());
     SmartDashboard.putNumber("target offset y", targetOffset.getY());
-    SmartDashboard.putNumber("target offset rotation", targetOffset.getRotation().getDegrees());
-    SmartDashboard.putNumber("gyro angle", Math.toDegrees(RobotContainer.drive.drive.getGyroRotation3d().getAngle()));
+    SmartDashboard.putNumber("gyro angle", RobotContainer.drive.drive.getPose().getRotation().getDegrees());
 
     double[] driverInputs = DriveUtil.getDriverInputs(
       RobotContainer.driverController,
