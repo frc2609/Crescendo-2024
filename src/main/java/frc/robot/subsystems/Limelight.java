@@ -8,6 +8,8 @@ import java.util.Optional;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
@@ -15,6 +17,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.utils.LimeLightHelpers;
 import frc.robot.utils.LimeLightHelpers.LimelightResults;
@@ -87,5 +90,16 @@ public class Limelight extends SubsystemBase {
       }
     }
     return largestArea;
+  }
+
+  public static Pose2d getTargetPose2d(Constants.AprilTag.ID targetID) {
+    Optional<Pose3d> targetPose3d = Constants.AprilTag.fieldLayout.getTagPose(targetID.getID());
+    Pose2d targetPose2d = new Pose2d();
+    if (targetPose3d.isPresent()) {
+      Rotation2d targetRotation = new Rotation2d(targetPose3d.get().getRotation().getX(), targetPose3d.get().getRotation().getY());
+      targetPose2d = new Pose2d(targetPose3d.get().getX(), targetPose3d.get().getY(), targetRotation);
+    }
+
+    return targetPose2d;
   }
 }

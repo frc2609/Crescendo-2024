@@ -4,11 +4,15 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.Limelight;
 import frc.robot.utils.DriveUtil;
 import frc.robot.utils.LimeLightHelpers;
 
@@ -18,6 +22,8 @@ import frc.robot.utils.LimeLightHelpers;
 public class VisionTrackDrive extends Command {
   private final boolean isFieldRelative;
   private double tx;
+
+  private Transform2d targetOffset;
 
   PIDController angularVelocityPID = new PIDController(0.05, 0.0, 0.0);
 
@@ -32,7 +38,9 @@ public class VisionTrackDrive extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    tx = LimeLightHelpers.getTX("limelight");
+    targetOffset = RobotContainer.drive.drive.swerveDrivePoseEstimator.getEstimatedPosition().minus(Limelight.getTargetPose2d(Constants.AprilTag.ID.kRedSpeakerCenter));
+    
+    tx = targetOffset.getRotation().getDegrees();
     // reset saved state when the command starts; useful if 'i' term is used
     angularVelocityPID.reset();
   }
@@ -40,11 +48,14 @@ public class VisionTrackDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    tx = LimeLightHelpers.getTX("limelight");
+    targetOffset = RobotContainer.drive.drive.swerveDrivePoseEstimator.getEstimatedPosition().minus(Limelight.getTargetPose2d(Constants.AprilTag.ID.kRedSpeakerCenter));
+
+    tx = targetOffset.getRotation().getDegrees();
     double calculatedAngularVelocity = angularVelocityPID.calculate(tx);
 
     // TODO: add this to a table (e.g. vision/)
     SmartDashboard.putNumber("Calculated Angular Velocity", calculatedAngularVelocity);
+    SmartDashboard.putNumber("target tx", tx);
 
     double[] driverInputs = DriveUtil.getDriverInputs(
       RobotContainer.driverController,
