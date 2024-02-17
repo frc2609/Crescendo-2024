@@ -33,7 +33,8 @@ public class ShooterAngle extends SubsystemBase {
   public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(7);
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(0.25);
 
-  public static final double angleEncoderOffset = 0.0;
+  // measure from lower hard stop
+  public static final double angleEncoderOffset = 0.205 - reverseLimit.getRotations();
 
   public static final double massKg = 5.0;
   public static final double comDistanceFromPivot = 0.25; // m
@@ -73,6 +74,7 @@ public class ShooterAngle extends SubsystemBase {
     SmartDashboard.putData("Shooter/Angle/PID", anglePID);
     SmartDashboard.putData("Shooter/Angle/FF", angleFF);
 
+    logger.addLoggable("Shooter/Angle/Raw Absolute (0-1)", this::getRawAbsolutePosition, true);
     logger.addLoggable("Shooter/Angle/Absolute (0-1)", this::getAbsolutePosition, true);
     logger.addLoggable("Shooter/Angle/Current (Deg)", () -> getAngle().getDegrees(), true);
     logger.addLoggable("Shooter/Angle/Target (Deg)", () -> targetAngle.getDegrees(), true);
@@ -142,6 +144,20 @@ public class ShooterAngle extends SubsystemBase {
     }
   }
 
+  /**
+   * Get absolute position of shooter without accounting for position offset.
+   * @return Absolute position of shooter.
+   */
+  private double getRawAbsolutePosition() {
+    return RobotBase.isReal()
+      ? angleEncoder.getAbsolutePosition()
+      : armSim.getAngleRads() / (2 * Math.PI);
+  }
+
+  /**
+   * Get absolute position of shooter, accounting for the position offset.
+   * @return Absolute position of shooter - position offset.
+   */
   private double getAbsolutePosition() {
     double position = RobotBase.isReal()
       ? angleEncoder.getAbsolutePosition() - angleEncoder.getPositionOffset()
