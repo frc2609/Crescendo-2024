@@ -54,12 +54,10 @@ public final class Constants {
     public static final double maxNEORPM = 5676;
     /** Make sure to adjust this as the wheels wear. */
     public static final double wheelDiameter = Units.inchesToMeters(4);
-    // 5 : 1 drives 4 : 1 ultraplanetary attached to 25T pulley spinning 75T module pulley
-    // divided by 1 because YAGSL divides by gear ratio
-    public static final double angleGearRatio = 1.0 / ((1.0 / 3.0) * UltraPlanetaryRatios.fiveToOne * UltraPlanetaryRatios.fourToOne);
-    // 12 tooth gear drives 32 tooth gear attached to 3 : 1 bevel gears
-    // divided by 1 because YAGSL divides by gear ratio
-    public static final double driveGearRatio = 1.0 / ((12.0 / 32.0) * (1.0 / 3.0));
+    // 5 : 1 drives 4 : 1 ultraplanetary attached to 22T pulley spinning 64T module pulley
+    public static final double angleGearRatio = 64.0 / 22.0 / UltraPlanetaryRatios.fiveToOne / UltraPlanetaryRatios.fourToOne;
+    // 16 : 24 gearing connected to 3 : 1 bevel gears
+    public static final double driveGearRatio = (24.0 / 16.0) / (1.0 / 3.0);
     /** Converts rotations -> meters per rotation. */
     public static final double driveConversionFactor = SwerveMath.calculateMetersPerRotation(wheelDiameter, driveGearRatio, 1);
     /** Converts rotations -> degrees per rotation. */
@@ -72,14 +70,15 @@ public final class Constants {
    * UltraPlanetary gearbox ratios differ from the ratio printed on
    * the gearbox's side. This class contains the actual ratios of the
    * UltraPlanetary cartridges.
+   * Units are input rotations per output rotation.
    */
   public static final class UltraPlanetaryRatios {
-    /** The ratio of a 3:1 UltraPlanetary cartridge used as a reduction. */
-    public static final double threeToOne = 1.0 / (84.0 / 29.0);
-    /** The ratio of a 4:1 UltraPlanetary cartridge used as a reduction. */
-    public static final double fourToOne = 1.0 / (76.0 / 21.0);
-    /** The ratio of a 5:1 UltraPlanetary cartridge used as a reduction. */
-    public static final double fiveToOne = 1.0 / (68.0 / 13.0);
+    /** The ratio of a 3:1 UltraPlanetary cartridge. */
+    public static final double threeToOne = 84.0 / 29.0;
+    /** The ratio of a 4:1 UltraPlanetary cartridge. */
+    public static final double fourToOne = 76.0 / 21.0;
+    /** The ratio of a 5:1 UltraPlanetary cartridge. */
+    public static final double fiveToOne = 68.0 / 13.0;
   }
 
   /** 
