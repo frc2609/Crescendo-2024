@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.util.Units;
 import swervelib.math.SwerveMath;
 
@@ -14,6 +16,38 @@ import swervelib.math.SwerveMath;
  * file—not here!
  */
 public final class Constants {
+  public final static class AprilTag {
+    public final static AprilTagFieldLayout fieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+    public enum ID {
+      kBlueSourceRight(1),
+      kBlueSourceLeft(2),
+      kRedSpeakerRight(3),
+      kRedSpeakerCenter(4),
+      kRedAmp(5),
+      kBlueAmp(6),
+      kBlueSpeakerCenter(7),
+      kBlueSpeakerLeft(8),
+      kRedSourceRight(9),
+      kRedSourceLeft(10),
+      kRedStageLeft(11),
+      kRedStageRight(12),
+      kRedStageCenter(13),
+      kBlueStageCenter(14),
+      kBlueStageLeft(15),
+      kBlueStageRight(16);
+
+      private final int id;
+
+      private ID(int id) {
+        this.id = id;
+      }
+
+      public int getID() {
+        return id;
+      } 
+    }
+  }
+
   /** Swerve drive related constants. */
   public final static class Swerve {
     /** The maximum possible RPM of a REV NEO v1.0/v1.1 motor. */
