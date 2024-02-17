@@ -37,17 +37,17 @@ public class ShooterAngle extends SubsystemBase {
   public static final double angleEncoderOffset = 0.205 - reverseLimit.getRotations();
 
   public static final double massKg = 7.5;
-  public static final double comDistanceFromPivot = 0.25; // m
-  public static final double armLength = 0.35; // m
+  public static final double comDistanceFromPivotMeters = 0.25; // estimate
+  public static final double armLengthMeters = 0.35;
 
   public final TalonSRX angleMotor = new TalonSRX(11);
   public final DutyCycleEncoder angleEncoder = new DutyCycleEncoder(9);
   public final SingleJointedArmSim armSim = new SingleJointedArmSim(
     DCMotor.getBag(1),
     50, // TODO: use actual ratio
-    SingleJointedArmSim.estimateMOI(armLength, massKg),
+    SingleJointedArmSim.estimateMOI(armLengthMeters, massKg),
     // massKg * comDistanceFromPivot * comDistanceFromPivot,
-    armLength,
+    armLengthMeters,
     reverseLimit.getRadians(),
     Math.toRadians(85), // can physically travel further than forward soft limit
     true,
@@ -55,7 +55,7 @@ public class ShooterAngle extends SubsystemBase {
   );
 
   public final PIDController anglePID = new PIDController(0.01, 0, 0.02);
-  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.032, comDistanceFromPivot, massKg, "Shooter/Angle");
+  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.032, comDistanceFromPivotMeters, massKg, "Shooter/Angle");
 
   // assumed to be at lower hard stop (natural resting place)
   private Rotation2d targetAngle = reverseLimit;
