@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.util.PathPlannerLogging;
 
 // import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -36,6 +37,14 @@ public class RobotContainer {
     NamedCommands.registerCommand("PickupPiece2", Commands.print("Picking Up Piece 2!"));
     NamedCommands.registerCommand("ScorePiece2", Commands.print("Scoring Piece 2!"));
     NamedCommands.registerCommand("WaitForButtonPress", Commands.waitUntil(driverController.a()::getAsBoolean));
+
+    PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
+      drive.drive.field.getObject("target pose").setPose(pose);
+    });
+
+    PathPlannerLogging.setLogActivePathCallback((poses) -> {
+      drive.drive.field.getObject("path").setPoses(poses);
+    });
 
     // the auto specified here is chosen by default
     autoChooser = AutoBuilder.buildAutoChooser("Two Piece & Balance");
