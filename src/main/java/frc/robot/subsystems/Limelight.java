@@ -36,25 +36,36 @@ public class Limelight extends SubsystemBase {
   public void periodic() {
 
     Results results = LimeLightHelpers.getLatestResults("limelight").targetingResults;
-    
+
+    // Only consider updating odometry if the reading from limelight is valid
+    // TODO: investigate exactly under what conditions this fails
     if(results.valid) {
-      
+
+      // Record recently detected pose
       limelightPose = results.getBotPose2d_wpiBlue();
       fieldPose.setRobotPose(limelightPose);
-      
+
+      // Calculate the vector between the current drivetrain pose and vision pose
       Transform2d odometryDifference = RobotContainer.drive.drive.field.getRobotPose().minus(limelightPose);
+      // Calculate the cartesian distance between poses
       double distance = Math.sqrt(Math.pow(odometryDifference.getX(), 2) + Math.pow(odometryDifference.getY(), 2));
+      // Record odometry error to smartdashboard
+      // TODO: Add this to beaverlogger instead?
       SmartDashboard.putNumber("odometry error", distance);
 
+      // reference: https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization
       double xyStds;
       double degStds;
       
       int numTargets = results.targets_Fiducials.length;
-
+      
       if (numTargets >= 2) {
+        // trust vision odometry more if we see more than one apriltag
+        // orientation should also be more accurate in this case
         xyStds = 0.5;
         degStds = 6;
       } else if (getBestTargetArea(results.targets_Fiducials) > 0.8 && distance < 0.5) {
+        // TODO: check the range of the target area returned by getBestTargetArea()
         xyStds = 1.0;
         degStds = 12;
       } else if (getBestTargetArea(results.targets_Fiducials) > 0.1 && distance < 0.3) {
@@ -65,24 +76,28 @@ public class Limelight extends SubsystemBase {
         return;
       }
 
+      // set the "trust factor" of the vision measurement
       RobotContainer.drive.drive.swerveDrivePoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(xyStds, xyStds, Units.degreesToRadians(degStds)));
       
       if (distance > 0.1) {
+        // add a vision measurement if the cartesian error in odometry is greater than 0.1m
+        // TODO, also subtract results.latency_pipeline/1000.0
         RobotContainer.drive.drive.swerveDrivePoseEstimator.addVisionMeasurement(limelightPose, Timer.getFPGATimestamp() - (results.latency_capture/1000.0));
       }
     }
 
-    Optional<Translation3d> acceleration = RobotContainer.drive.drive.getAccel();
-
-    if (acceleration.isPresent()) {
-      SmartDashboard.putNumber("drive accel", acceleration.get().getNorm());
-    }
 
     SmartDashboard.putData("limelightFieldPose", fieldPose);
 
   }
 
   public static double getBestTargetArea(LimelightTarget_Fiducial[] targets) {
+    /**
+   * Helper function to return the area of the largest target
+   * used for determining how accurate our pose estimation is
+   * @param targets the list of detected targets
+   * @return the area of the largest target
+   */
     double largestArea = 0;
     for (LimelightTarget_Fiducial target : targets) {
       if (target.ta > largestArea){
@@ -93,13 +108,18 @@ public class Limelight extends SubsystemBase {
   }
 
   public static Pose2d getTargetPose2d(Constants.AprilTag.ID targetID) {
+    /**
+   * Helper function that returns the 2d pose of the requested AprilTag ID
+   * @param targetID enum representing the desired target
+   * @return Pose2d of the requested target
+   */
     Optional<Pose3d> targetPose3d = Constants.AprilTag.fieldLayout.getTagPose(targetID.getID());
-    Pose2d targetPose2d = new Pose2d();
+    Pose2d targetPose2d = new Pose2d(); // NOTE: if targetPose3d is NOT present, we will just return this
     if (targetPose3d.isPresent()) {
+      // Convert to 2D
       Rotation2d targetRotation = new Rotation2d(targetPose3d.get().getRotation().getX(), targetPose3d.get().getRotation().getY());
       targetPose2d = new Pose2d(targetPose3d.get().getX(), targetPose3d.get().getY(), targetRotation);
     }
-
     return targetPose2d;
   }
 }
