@@ -2,7 +2,7 @@
 name: Bug report
 about: Report a problem with the code
 title: ''
-labels: bug, pending approval
+labels: bug
 assignees: newjanson, UserC2
 
 ---
