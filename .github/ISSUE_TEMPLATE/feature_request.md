@@ -2,7 +2,7 @@
 name: Feature request
 about: Suggest a new feature
 title: ''
-labels: new feature
+labels: new feature, pending approval
 assignees: newjanson, UserC2
 
 ---

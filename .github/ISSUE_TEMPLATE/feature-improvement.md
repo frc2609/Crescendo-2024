@@ -2,7 +2,7 @@
 name: Feature improvement
 about: Suggest an improvement for an existing part of this repository
 title: ''
-labels: improvement
+labels: improvement, pending approval
 assignees: newjanson, UserC2
 
 ---
