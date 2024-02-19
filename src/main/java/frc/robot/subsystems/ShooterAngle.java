@@ -131,6 +131,8 @@ public class ShooterAngle extends SubsystemBase {
     }
     if (pastForwardLimit() || pastReverseLimit()) {
       percentOutput = 0;
+      // reset PID while motor is disabled so integral doesn't build up
+      anglePID.reset();
       angleOutOfRange.set(true);
     }
     SmartDashboard.putNumber("Shooter/Angle/Actual Percent Output", percentOutput);
