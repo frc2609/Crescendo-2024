@@ -20,7 +20,6 @@ import frc.robot.utils.TunableNumber;
 
 public class Robot extends TimedRobot {
   private Command autonomousCommand;
-
   private RobotContainer robotContainer;
 
   @Override
@@ -100,8 +99,8 @@ public class Robot extends TimedRobot {
   public void testExit() {}
 
   /**
-   * Report current branch and commit SHA to SmartDashboard. Cannot report
-   * whether any files have been modified since the last commit.
+   * Report current branch and commit SHA to SmartDashboard. Cannot report whether any files have
+   * been modified since the last commit.
    */
   private void reportGitInfo() {
     File deployDir = Filesystem.getDeployDirectory();
