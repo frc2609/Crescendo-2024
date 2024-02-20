@@ -21,8 +21,6 @@ import frc.robot.utils.DriveUtil;
 public class AprilTagTrackDrive extends Command {
   private final boolean isFieldRelative;
   private final ID aprilTagID;
-  private double tx;
-  private Transform2d targetOffset;
   private PIDController angularVelocityPID = new PIDController(0.05, 0.0, 0.0);
 
   /**
@@ -34,14 +32,13 @@ public class AprilTagTrackDrive extends Command {
     addRequirements(RobotContainer.drive);
     this.isFieldRelative = isFieldRelative;
     this.aprilTagID = aprilTagID;
-    // TODO: add this to a table (e.g. vision/)
-    SmartDashboard.putData("Angular Velocity PID", angularVelocityPID);
+    SmartDashboard.putData("AprilTagTrack/Angular Velocity PID", angularVelocityPID);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    SmartDashboard.putNumber("AprilTag ID", aprilTagID.getID());
+    SmartDashboard.putNumber("AprilTagTrack/AprilTag ID", aprilTagID.getID());
     // reset saved state when the command starts; useful if 'i' term is used
     angularVelocityPID.reset();
   }
@@ -49,18 +46,16 @@ public class AprilTagTrackDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    targetOffset = RobotContainer.drive.drive.swerveDrivePoseEstimator.getEstimatedPosition().minus(Limelight.getTargetPose2d(aprilTagID));
-    tx = Math.toDegrees(Math.atan(targetOffset.getY()/targetOffset.getX()));
+    Transform2d targetOffset = RobotContainer.drive.drive.swerveDrivePoseEstimator.getEstimatedPosition().minus(Limelight.getTargetPose2d(aprilTagID));
+    double tx = Math.toDegrees(Math.atan(targetOffset.getY()/targetOffset.getX()));
     angularVelocityPID.setSetpoint(tx); // TODO: this can be given as a second parameter in 'calculate'
     double calculatedAngularVelocity = angularVelocityPID.calculate(RobotContainer.drive.drive.getPose().getRotation().getDegrees());
 
-    // TODO: add this to a table (e.g. vision/)
-    SmartDashboard.putNumber("Calculated Angular Velocity", calculatedAngularVelocity);
-    SmartDashboard.putNumber("target tx", tx);
-    SmartDashboard.putNumber("target offset x",targetOffset.getX());
-    SmartDashboard.putNumber("target offset y", targetOffset.getY());
-    // this is already logged
-    SmartDashboard.putNumber("gyro angle", RobotContainer.drive.drive.getPose().getRotation().getDegrees());
+    SmartDashboard.putNumber("AprilTagTrack/Target tx", tx);
+    SmartDashboard.putNumber("AprilTagTrack/Target Offset X", targetOffset.getX());
+    SmartDashboard.putNumber("AprilTagTrack/Target Offset Y", targetOffset.getY());
+    SmartDashboard.putNumber("AprilTagTrack/Current Heading (Deg)", RobotContainer.drive.drive.getYaw().getDegrees());
+    SmartDashboard.putNumber("AprilTagTrack/Calculated Angular Velocity", calculatedAngularVelocity);
 
     double[] driverInputs = DriveUtil.getDriverInputs(
       RobotContainer.driverController,
