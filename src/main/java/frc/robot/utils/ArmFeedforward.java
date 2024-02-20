@@ -38,7 +38,7 @@ public class ArmFeedforward implements Sendable {
 
   @Override
   public void initSendable(SendableBuilder builder) {
-    builder.setSmartDashboardType("ArmFeedForward");
+    builder.setSmartDashboardType("ArmFeedforward");
     builder.addDoubleProperty("kS", () -> { return kS; }, (double kS) -> { this.kS = kS; });
     builder.addDoubleProperty("kG", () -> { return kG; }, (double kG) -> { this.kG = kG; });
   }
