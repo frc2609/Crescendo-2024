@@ -57,7 +57,6 @@ public class Limelight extends SubsystemBase {
         xyStds = 0.5;
         degStds = 6;
       } else if (LimeLightHelpers.getTA("limelight") > 0.8 && distance < 0.5) {
-        // TODO: check the range of the target area returned
         xyStds = 1.0;
         degStds = 12;
       } else if (LimeLightHelpers.getTA("limelight") > 0.1 && distance < 0.3) {

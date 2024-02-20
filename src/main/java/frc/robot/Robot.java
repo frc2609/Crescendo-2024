@@ -47,8 +47,6 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     TunableNumber.updateAll();
-    //TODO: Don't forget to remove this after testing
-    RobotContainer.limelight.periodic();
   }
 
   @Override
