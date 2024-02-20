@@ -65,6 +65,9 @@ public class ShooterFlywheel extends SubsystemBase {
     leftMotor.getConfigurator().apply(slot0Configs);
     rightMotor.getConfigurator().apply(slot0Configs);
 
+    leftMotor.setInverted(true);
+    rightMotor.setInverted(false);
+
     leftMotor.setNeutralMode(NeutralModeValue.Coast);
     rightMotor.setNeutralMode(NeutralModeValue.Coast);
 
