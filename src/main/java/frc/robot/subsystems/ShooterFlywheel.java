@@ -32,6 +32,13 @@ public class ShooterFlywheel extends SubsystemBase {
   public static final double flywheelMOI = 0.5 * 1.1 * 0.08;
   public static final double flywheelGearing = 1.0;
 
+  private TunableNumber kS = new TunableNumber("kS", 0.0);
+  private TunableNumber kV = new TunableNumber("kV", 0.5);
+  private TunableNumber kP = new TunableNumber("kP", 0.0);
+  private TunableNumber kI = new TunableNumber("kI", 0.0);
+  private TunableNumber kD = new TunableNumber("kD", 0.0);
+  
+
   // left/right from perspective of shooter (i.e. pointing towards back of robot)
   public final TalonFX leftMotor = new TalonFX(12);
   public final TalonFX rightMotor = new TalonFX(13);
@@ -52,10 +59,11 @@ public class ShooterFlywheel extends SubsystemBase {
   private double lastLoopTime = Timer.getFPGATimestamp();
 
   private final BeaverLogger logger = new BeaverLogger();
+  
+  private Slot0Configs slot0Configs = new Slot0Configs();
 
   /** Creates a new ShooterFlywheel. */
   public ShooterFlywheel() {
-    Slot0Configs slot0Configs = new Slot0Configs();
     slot0Configs.kS = 0.0;
     slot0Configs.kV = 0.5;
     slot0Configs.kP = 0.0;
@@ -78,6 +86,15 @@ public class ShooterFlywheel extends SubsystemBase {
   public void periodic() {
     logger.logAll();
     SmartDashboard.putBoolean("Shooter/Flywheel/At Set Speed", atSetSpeed());
+    if(kS.hasChanged(hashCode()) || kV.hasChanged(hashCode()) || kP.hasChanged(hashCode()) || kI.hasChanged(hashCode()) || kD.hasChanged(hashCode())){
+      slot0Configs.kS = kS.get();
+      slot0Configs.kV = kV.get();
+      slot0Configs.kP = kP.get();
+      slot0Configs.kI = kI.get();
+      slot0Configs.kD = kD.get();
+      leftMotor.getConfigurator().apply(slot0Configs);
+      rightMotor.getConfigurator().apply(slot0Configs);
+    }
   }
 
   @Override
