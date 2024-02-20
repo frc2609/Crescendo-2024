@@ -67,15 +67,15 @@ public class Limelight extends SubsystemBase {
         // WARNING: Anything below this will not get executed if conditions don't match
         return;
       }
-
-      // set the "trust factor" of the vision measurement
-      RobotContainer.drive.drive.swerveDrivePoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(xyStds, xyStds, Units.degreesToRadians(degStds)));
       
       if (distance > 0.1) {
         // add a vision measurement if the cartesian error in odometry is greater than 0.1m
-        // TODO, also subtract results.latency_pipeline/1000.0
-        // TODO: line 79 (vision measurement std devs) can be set in this function
-        RobotContainer.drive.drive.swerveDrivePoseEstimator.addVisionMeasurement(limelightPose, Timer.getFPGATimestamp() - (results.latency_capture/1000.0));
+        RobotContainer.drive.drive.swerveDrivePoseEstimator.addVisionMeasurement(
+          limelightPose,
+          Timer.getFPGATimestamp() - (results.latency_capture/1000.0),
+          // set the "trust factor" of the vision measurement
+          VecBuilder.fill(xyStds, xyStds, Units.degreesToRadians(degStds))
+        );
       }
     }
 
