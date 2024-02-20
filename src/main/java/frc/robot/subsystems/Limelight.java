@@ -13,7 +13,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -24,8 +23,6 @@ import frc.robot.utils.LimeLightHelpers.Results;
 
 public class Limelight extends SubsystemBase {
   public static Pose2d limelightPose = new Pose2d();
-  // use YAGSL's, and add the estimated pose under a different entry.
-  public static Field2d fieldPose = new Field2d();
 
   /** Creates a new Limelight. */
   public Limelight() {}
@@ -39,7 +36,6 @@ public class Limelight extends SubsystemBase {
     if (results.valid) {
       // Record recently detected pose
       limelightPose = results.getBotPose2d_wpiBlue();
-      fieldPose.setRobotPose(limelightPose);
 
       // Calculate the vector between the current drivetrain pose and vision pose
       Transform2d odometryDifference = RobotContainer.drive.drive.field.getRobotPose().minus(limelightPose);
@@ -83,8 +79,7 @@ public class Limelight extends SubsystemBase {
       }
     }
 
-    // TODO: this should not be in periodic. You only need to call it once
-    SmartDashboard.putData("limelightFieldPose", fieldPose);
+    RobotContainer.drive.drive.field.getObject("Limelight Estimated Pose").setPose(limelightPose);
   }
 
   /**
