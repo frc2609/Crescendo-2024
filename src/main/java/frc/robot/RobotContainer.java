@@ -26,6 +26,7 @@ public class RobotContainer {
   public static final Limelight limelight = new Limelight();
   public static final ShooterAngle shooterAngle = new ShooterAngle();
   public static final Visualizer visualizer = new Visualizer();
+
   public static final CommandXboxController driverController = new CommandXboxController(0);
   private final SendableChooser<Command> autoChooser;
 

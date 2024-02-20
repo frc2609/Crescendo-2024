@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -20,27 +19,24 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.utils.LimeLightHelpers;
-import frc.robot.utils.LimeLightHelpers.LimelightResults;
 import frc.robot.utils.LimeLightHelpers.LimelightTarget_Fiducial;
 import frc.robot.utils.LimeLightHelpers.Results;
 
 public class Limelight extends SubsystemBase {
-  /** Creates a new Limelight. */
-
   public static Pose2d limelightPose = new Pose2d();
+  // use YAGSL's, and add the estimated pose under a different entry.
   public static Field2d fieldPose = new Field2d();
 
+  /** Creates a new Limelight. */
   public Limelight() {}
 
   @Override
   public void periodic() {
-
     Results results = LimeLightHelpers.getLatestResults("limelight").targetingResults;
 
     // Only consider updating odometry if the reading from limelight is valid
     // TODO: investigate exactly under what conditions this fails
-    if(results.valid) {
-
+    if (results.valid) {
       // Record recently detected pose
       limelightPose = results.getBotPose2d_wpiBlue();
       fieldPose.setRobotPose(limelightPose);
@@ -82,22 +78,22 @@ public class Limelight extends SubsystemBase {
       if (distance > 0.1) {
         // add a vision measurement if the cartesian error in odometry is greater than 0.1m
         // TODO, also subtract results.latency_pipeline/1000.0
+        // TODO: line 79 (vision measurement std devs) can be set in this function
         RobotContainer.drive.drive.swerveDrivePoseEstimator.addVisionMeasurement(limelightPose, Timer.getFPGATimestamp() - (results.latency_capture/1000.0));
       }
     }
 
-
+    // TODO: this should not be in periodic. You only need to call it once
     SmartDashboard.putData("limelightFieldPose", fieldPose);
-
   }
 
-  public static double getBestTargetArea(LimelightTarget_Fiducial[] targets) {
-    /**
-   * Helper function to return the area of the largest target
-   * used for determining how accurate our pose estimation is
+  /**
+   * Helper function to return the area of the largest target used for
+   * determining how accurate our pose estimation is.
    * @param targets the list of detected targets
    * @return the area of the largest target
    */
+  public static double getBestTargetArea(LimelightTarget_Fiducial[] targets) {
     double largestArea = 0;
     for (LimelightTarget_Fiducial target : targets) {
       if (target.ta > largestArea){
@@ -107,12 +103,12 @@ public class Limelight extends SubsystemBase {
     return largestArea;
   }
 
-  public static Pose2d getTargetPose2d(Constants.AprilTag.ID targetID) {
-    /**
+  /**
    * Helper function that returns the 2d pose of the requested AprilTag ID
    * @param targetID enum representing the desired target
    * @return Pose2d of the requested target
    */
+  public static Pose2d getTargetPose2d(Constants.AprilTag.ID targetID) {
     Optional<Pose3d> targetPose3d = Constants.AprilTag.fieldLayout.getTagPose(targetID.getID());
     Pose2d targetPose2d = new Pose2d(); // NOTE: if targetPose3d is NOT present, we will just return this
     if (targetPose3d.isPresent()) {

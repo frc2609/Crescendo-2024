@@ -5,13 +5,11 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Limelight;
 import frc.robot.utils.DriveUtil;
@@ -22,10 +20,8 @@ import frc.robot.utils.DriveUtil;
 public class VisionTrackDrive extends Command {
   private final boolean isFieldRelative;
   private double tx;
-
   private Transform2d targetOffset;
-
-  PIDController angularVelocityPID = new PIDController(0.05, 0.0, 0.0);
+  private PIDController angularVelocityPID = new PIDController(0.05, 0.0, 0.0);
 
   /** Creates a new VisionTrackDrive. */
   public VisionTrackDrive(boolean isFieldRelative) {
@@ -38,8 +34,8 @@ public class VisionTrackDrive extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    // TODO: not necessary to do these two lines in initialize?
     targetOffset = RobotContainer.drive.drive.swerveDrivePoseEstimator.getEstimatedPosition().minus(Limelight.getTargetPose2d(Constants.AprilTag.ID.kRedSpeakerCenter));
-    
     tx = Math.toDegrees(Math.atan(targetOffset.getY()/targetOffset.getX()));
     // reset saved state when the command starts; useful if 'i' term is used
     angularVelocityPID.reset();
@@ -50,7 +46,7 @@ public class VisionTrackDrive extends Command {
   public void execute() {
     targetOffset = RobotContainer.drive.drive.swerveDrivePoseEstimator.getEstimatedPosition().minus(Limelight.getTargetPose2d(Constants.AprilTag.ID.kRedSpeakerCenter));
     tx = Math.toDegrees(Math.atan(targetOffset.getY()/targetOffset.getX()));
-    angularVelocityPID.setSetpoint(tx);
+    angularVelocityPID.setSetpoint(tx); // TODO: this can be given as a second parameter in 'calculate'
     double calculatedAngularVelocity = angularVelocityPID.calculate(RobotContainer.drive.drive.getPose().getRotation().getDegrees());
 
     // TODO: add this to a table (e.g. vision/)
