@@ -32,7 +32,7 @@ public class Limelight extends SubsystemBase {
     Results results = LimeLightHelpers.getLatestResults("limelight").targetingResults;
 
     // Only consider updating odometry if the reading from limelight is valid
-    // TODO: investigate exactly under what conditions this fails
+    // False when no valid tags detected
     if (results.valid) {
       // Record recently detected pose
       limelightPose = results.getBotPose2d_wpiBlue();
@@ -42,25 +42,25 @@ public class Limelight extends SubsystemBase {
       // Calculate the cartesian distance between poses
       double distance = Math.sqrt(Math.pow(odometryDifference.getX(), 2) + Math.pow(odometryDifference.getY(), 2));
       // Record odometry error to smartdashboard
-      // TODO: Add this to beaverlogger instead?
-      SmartDashboard.putNumber("odometry error", distance);
+      SmartDashboard.putNumber("swerve/Odometry Error", distance);
 
       // reference: https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization
       double xyStds;
       double degStds;
       
       int numTargets = results.targets_Fiducials.length;
+      SmartDashboard.putNumber("Target area", getBestTargetArea(results.targets_Fiducials));
       
       if (numTargets >= 2) {
         // trust vision odometry more if we see more than one apriltag
         // orientation should also be more accurate in this case
         xyStds = 0.5;
         degStds = 6;
-      } else if (getBestTargetArea(results.targets_Fiducials) > 0.8 && distance < 0.5) {
-        // TODO: check the range of the target area returned by getBestTargetArea()
+      } else if (LimeLightHelpers.getTA("limelight") > 0.8 && distance < 0.5) {
+        // TODO: check the range of the target area returned
         xyStds = 1.0;
         degStds = 12;
-      } else if (getBestTargetArea(results.targets_Fiducials) > 0.1 && distance < 0.3) {
+      } else if (LimeLightHelpers.getTA("limelight") > 0.1 && distance < 0.3) {
         xyStds = 2.0;
         degStds = 30;
       } else {
