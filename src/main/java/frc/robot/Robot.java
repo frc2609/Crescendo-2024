@@ -99,11 +99,6 @@ public class Robot extends TimedRobot {
   @Override
   public void testExit() {}
 
-  @Override
-  public void simulationPeriodic() {
-    robotPeriodic(); // that really isn't necessary.
-  }
-
   /**
    * Report current branch and commit SHA to SmartDashboard. Cannot report
    * whether any files have been modified since the last commit.
