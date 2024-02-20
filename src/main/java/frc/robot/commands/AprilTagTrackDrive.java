@@ -41,10 +41,6 @@ public class AprilTagTrackDrive extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    // TODO: not necessary to do these two lines in initialize?
-    targetOffset = RobotContainer.drive.drive.swerveDrivePoseEstimator.getEstimatedPosition().minus(Limelight.getTargetPose2d(aprilTagID));
-    tx = Math.toDegrees(Math.atan(targetOffset.getY()/targetOffset.getX()));
-
     SmartDashboard.putNumber("AprilTag ID", aprilTagID.getID());
     // reset saved state when the command starts; useful if 'i' term is used
     angularVelocityPID.reset();
