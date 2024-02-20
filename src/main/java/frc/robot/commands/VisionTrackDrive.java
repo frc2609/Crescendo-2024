@@ -9,24 +9,31 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.AprilTag.ID;
 import frc.robot.subsystems.Limelight;
 import frc.robot.utils.DriveUtil;
 
 /**
- * TODO: Actual docs
+ * Drive the robot using translational velocity from the driver controller. Robot aligns heading to
+ * the specified AprilTag.
  */
 public class VisionTrackDrive extends Command {
   private final boolean isFieldRelative;
+  private final ID aprilTagID;
   private double tx;
   private Transform2d targetOffset;
   private PIDController angularVelocityPID = new PIDController(0.05, 0.0, 0.0);
 
-  /** Creates a new VisionTrackDrive. */
-  public VisionTrackDrive(boolean isFieldRelative) {
+  /**
+   * Creates a new VisionTrackDrive.
+   * @param isFieldRelative Whether or not to drive in field-relative mode.
+   * @param aprilTagID The AprilTag ID to align the heading to.
+   */
+  public VisionTrackDrive(boolean isFieldRelative, ID aprilTagID) {
     addRequirements(RobotContainer.drive);
     this.isFieldRelative = isFieldRelative;
+    this.aprilTagID = aprilTagID;
     // TODO: add this to a table (e.g. vision/)
     SmartDashboard.putData("Angular Velocity PID", angularVelocityPID);
   }
@@ -35,8 +42,10 @@ public class VisionTrackDrive extends Command {
   @Override
   public void initialize() {
     // TODO: not necessary to do these two lines in initialize?
-    targetOffset = RobotContainer.drive.drive.swerveDrivePoseEstimator.getEstimatedPosition().minus(Limelight.getTargetPose2d(Constants.AprilTag.ID.kRedSpeakerCenter));
+    targetOffset = RobotContainer.drive.drive.swerveDrivePoseEstimator.getEstimatedPosition().minus(Limelight.getTargetPose2d(aprilTagID));
     tx = Math.toDegrees(Math.atan(targetOffset.getY()/targetOffset.getX()));
+
+    SmartDashboard.putNumber("AprilTag ID", aprilTagID.getID());
     // reset saved state when the command starts; useful if 'i' term is used
     angularVelocityPID.reset();
   }
@@ -44,7 +53,7 @@ public class VisionTrackDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    targetOffset = RobotContainer.drive.drive.swerveDrivePoseEstimator.getEstimatedPosition().minus(Limelight.getTargetPose2d(Constants.AprilTag.ID.kRedSpeakerCenter));
+    targetOffset = RobotContainer.drive.drive.swerveDrivePoseEstimator.getEstimatedPosition().minus(Limelight.getTargetPose2d(aprilTagID));
     tx = Math.toDegrees(Math.atan(targetOffset.getY()/targetOffset.getX()));
     angularVelocityPID.setSetpoint(tx); // TODO: this can be given as a second parameter in 'calculate'
     double calculatedAngularVelocity = angularVelocityPID.calculate(RobotContainer.drive.drive.getPose().getRotation().getDegrees());
@@ -54,6 +63,7 @@ public class VisionTrackDrive extends Command {
     SmartDashboard.putNumber("target tx", tx);
     SmartDashboard.putNumber("target offset x",targetOffset.getX());
     SmartDashboard.putNumber("target offset y", targetOffset.getY());
+    // this is already logged
     SmartDashboard.putNumber("gyro angle", RobotContainer.drive.drive.getPose().getRotation().getDegrees());
 
     double[] driverInputs = DriveUtil.getDriverInputs(
