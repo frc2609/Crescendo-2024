@@ -38,8 +38,7 @@ public class ShooterFlywheel extends SubsystemBase {
   private TunableNumber kI = new TunableNumber("kI", 0.0);
   private TunableNumber kD = new TunableNumber("kD", 0.0);
   
-
-  // left/right from perspective of shooter (i.e. pointing towards back of robot)
+  // left/right are from perspective of robot (i.e. facing towards shooter)
   public final TalonFX leftMotor = new TalonFX(12);
   public final TalonFX rightMotor = new TalonFX(13);
 
@@ -72,6 +71,9 @@ public class ShooterFlywheel extends SubsystemBase {
 
     leftMotor.getConfigurator().apply(slot0Configs);
     rightMotor.getConfigurator().apply(slot0Configs);
+
+    leftMotor.setInverted(false);
+    rightMotor.setInverted(true);
 
     leftMotor.setNeutralMode(NeutralModeValue.Coast);
     rightMotor.setNeutralMode(NeutralModeValue.Coast);
