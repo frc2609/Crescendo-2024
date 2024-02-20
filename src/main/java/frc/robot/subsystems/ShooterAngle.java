@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Alert;
+import frc.robot.utils.ArmFeedforward;
 import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.Alert.AlertType;
 
