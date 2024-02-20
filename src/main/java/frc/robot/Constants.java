@@ -51,7 +51,7 @@ public final class Constants {
   /** Swerve drive related constants. */
   public final static class Swerve {
     /** The maximum possible RPM of a REV NEO v1.0/v1.1 motor. */
-    public static final double maxNEORPM = 5676;
+    public static final double maxDriveRPM = 5800;
     /** Make sure to adjust this as the wheels wear. */
     public static final double wheelDiameter = Units.inchesToMeters(4);
     // 5 : 1 drives 4 : 1 ultraplanetary attached to 22T pulley spinning 64T module pulley
@@ -63,7 +63,7 @@ public final class Constants {
     /** Converts rotations -> degrees per rotation. */
     public static final double angleConversionFactor = SwerveMath.calculateDegreesPerSteeringRotation(angleGearRatio, 1);
     /** The maximum linear speed a swerve module can achieve in m/s. */
-    public static final double maxModuleSpeed = (maxNEORPM / 60.0) * driveConversionFactor;
+    public static final double maxModuleSpeed = (maxDriveRPM / 60.0) * driveConversionFactor;
   }
 
   /**
