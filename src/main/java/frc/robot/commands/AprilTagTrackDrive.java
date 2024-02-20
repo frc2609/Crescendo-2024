@@ -47,9 +47,8 @@ public class AprilTagTrackDrive extends Command {
   @Override
   public void execute() {
     Transform2d targetOffset = RobotContainer.drive.drive.swerveDrivePoseEstimator.getEstimatedPosition().minus(Limelight.getTargetPose2d(aprilTagID));
-    double tx = Math.toDegrees(Math.atan(targetOffset.getY()/targetOffset.getX()));
-    angularVelocityPID.setSetpoint(tx); // TODO: this can be given as a second parameter in 'calculate'
-    double calculatedAngularVelocity = angularVelocityPID.calculate(RobotContainer.drive.drive.getPose().getRotation().getDegrees());
+    double tx = Math.toDegrees(Math.atan(targetOffset.getY() / targetOffset.getX()));
+    double calculatedAngularVelocity = angularVelocityPID.calculate(RobotContainer.drive.drive.getPose().getRotation().getDegrees(), tx);
 
     SmartDashboard.putNumber("AprilTagTrack/Target tx", tx);
     SmartDashboard.putNumber("AprilTagTrack/Target Offset X", targetOffset.getX());
