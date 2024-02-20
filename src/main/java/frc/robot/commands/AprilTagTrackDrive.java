@@ -18,7 +18,7 @@ import frc.robot.utils.DriveUtil;
  * Drive the robot using translational velocity from the driver controller. Robot aligns heading to
  * the specified AprilTag.
  */
-public class VisionTrackDrive extends Command {
+public class AprilTagTrackDrive extends Command {
   private final boolean isFieldRelative;
   private final ID aprilTagID;
   private double tx;
@@ -26,11 +26,11 @@ public class VisionTrackDrive extends Command {
   private PIDController angularVelocityPID = new PIDController(0.05, 0.0, 0.0);
 
   /**
-   * Creates a new VisionTrackDrive.
+   * Creates a new AprilTagTrackDrive.
    * @param isFieldRelative Whether or not to drive in field-relative mode.
    * @param aprilTagID The AprilTag ID to align the heading to.
    */
-  public VisionTrackDrive(boolean isFieldRelative, ID aprilTagID) {
+  public AprilTagTrackDrive(boolean isFieldRelative, ID aprilTagID) {
     addRequirements(RobotContainer.drive);
     this.isFieldRelative = isFieldRelative;
     this.aprilTagID = aprilTagID;
