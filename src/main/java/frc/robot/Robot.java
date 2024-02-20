@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.TeleopHeadingDrive;
 import frc.robot.commands.TeleopVelocityDrive;
 import frc.robot.subsystems.Limelight;
 import frc.robot.utils.TunableNumber;
@@ -40,6 +39,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    RobotContainer.visualizer.update();
   }
 
   @Override
@@ -77,7 +77,6 @@ public class Robot extends TimedRobot {
     }
     RobotContainer.drive.drive.setHeadingCorrection(true);
     RobotContainer.drive.setDefaultCommand(new TeleopVelocityDrive(true));
-    //RobotContainer.drive.drive.resetOdometry(Limelight.limelightPose);
   }
 
   @Override
@@ -103,7 +102,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void simulationPeriodic() {
-    robotPeriodic();
+    robotPeriodic(); // that really isn't necessary.
   }
 
   /**

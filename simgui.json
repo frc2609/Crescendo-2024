@@ -4,6 +4,7 @@
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/Auto Chooser": "String Chooser",
       "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/Shooter/Angle/PID": "PIDController",
       "/SmartDashboard/navX-Sensor[1]": "Gyro",
       "/SmartDashboard/navX-Sensor[4]": "Gyro"
     },
@@ -45,6 +46,12 @@
           "open": true
         },
         "Field": {
+          "open": true
+        },
+        "Shooter": {
+          "Angle": {
+            "open": true
+          },
           "open": true
         },
         "open": true,
