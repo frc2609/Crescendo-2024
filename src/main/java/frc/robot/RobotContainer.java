@@ -14,18 +14,22 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+// import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.AprilTag.ID;
 import frc.robot.commands.AprilTagTrackDrive;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterAngle;
+import frc.robot.subsystems.ShooterFlywheel;
+// import frc.robot.subsystems.ShooterFlywheel.SpinType;
 import frc.robot.utils.Visualizer;
 
 public class RobotContainer {
   public static final Drive drive = new Drive(false);
   public static final Limelight limelight = new Limelight();
   public static final ShooterAngle shooterAngle = new ShooterAngle();
+  public static final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
   public static final Visualizer visualizer = new Visualizer();
 
   public static final CommandXboxController driverController = new CommandXboxController(0);
@@ -70,6 +74,14 @@ public class RobotContainer {
     // driverController.x().onTrue(new InstantCommand(() -> {
     //   shooterAngle.setAngle(Rotation2d.fromDegrees(75));
     // }, shooterAngle));
+    // shooterFlywheel.setDefaultCommand(new RunCommand(() -> {
+    //   SpinType spinType = SpinType.disable;
+    //   if (driverController.leftBumper().getAsBoolean())
+    //     spinType = SpinType.slowLeftMotor;
+    //   if (driverController.rightBumper().getAsBoolean())
+    //     spinType = SpinType.slowRightMotor;
+    //   shooterFlywheel.setSpeed(driverController.getLeftX() * 6000, spinType);
+    // }, shooterFlywheel));
   }
 
   public Command getAutonomousCommand() {
