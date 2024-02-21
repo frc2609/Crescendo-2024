@@ -115,8 +115,9 @@ public class ShooterFlywheel extends SubsystemBase {
   }
 
   public boolean atSetSpeed() {
-    return Math.abs(leftMotor.getClosedLoopError().getValueAsDouble()) <= rpmTolerance
-      && Math.abs(rightMotor.getClosedLoopError().getValueAsDouble()) <= rpmTolerance;
+    // error is in rps, convert to rpm
+    return Math.abs(leftMotor.getClosedLoopError().getValueAsDouble() * 60) <= rpmTolerance
+      && Math.abs(rightMotor.getClosedLoopError().getValueAsDouble() * 60) <= rpmTolerance;
   }
 
   /**
