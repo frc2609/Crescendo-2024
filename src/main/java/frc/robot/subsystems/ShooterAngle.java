@@ -32,6 +32,7 @@ public class ShooterAngle extends SubsystemBase {
   public static final Rotation2d forwardTolerance = Rotation2d.fromDegrees(3);
   public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(10.3);
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(0.25);
+  public static final double motorPercentOutputLimit = 0.4;
 
   // measure at 90 degrees
   public static final double angleEncoderOffset = 0.435 - (90.0 / 360.0);
@@ -135,6 +136,7 @@ public class ShooterAngle extends SubsystemBase {
       anglePID.reset();
       angleOutOfRange.set(true);
     }
+    percentOutput = MathUtil.clamp(percentOutput, -motorPercentOutputLimit, motorPercentOutputLimit);
     SmartDashboard.putNumber("Shooter/Angle/Actual Percent Output", percentOutput);
     if (RobotBase.isReal()) {
       angleMotor.set(TalonSRXControlMode.PercentOutput, percentOutput);
