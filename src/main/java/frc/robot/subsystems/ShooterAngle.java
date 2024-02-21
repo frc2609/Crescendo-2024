@@ -30,11 +30,11 @@ public class ShooterAngle extends SubsystemBase {
   public static final Rotation2d forwardLimit = Rotation2d.fromDegrees(55);
   // motor is completely disabled if limit + tolerance is exceeded
   public static final Rotation2d forwardTolerance = Rotation2d.fromDegrees(3);
-  public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(7);
+  public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(10.3);
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(0.25);
 
-  // measure from lower hard stop
-  public static final double angleEncoderOffset = 0.205 - reverseLimit.getRotations();
+  // measure at 90 degrees
+  public static final double angleEncoderOffset = 0.435 - (90.0 / 360.0);
 
   public static final double massKg = 7.5;
   public static final double comDistanceFromPivotMeters = 0.25; // estimate
@@ -54,8 +54,8 @@ public class ShooterAngle extends SubsystemBase {
     reverseLimit.getRadians()
   );
 
-  public final PIDController anglePID = new PIDController(0.01, 0, 0.02);
-  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.032, comDistanceFromPivotMeters, massKg, "Shooter/Angle");
+  public final PIDController anglePID = new PIDController(0.022, 0, 0.0);
+  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.006, comDistanceFromPivotMeters, massKg, "Shooter/Angle");
 
   // assumed to be at lower hard stop (natural resting place)
   private Rotation2d targetAngle = reverseLimit;
@@ -68,7 +68,7 @@ public class ShooterAngle extends SubsystemBase {
   /** Creates a new ShooterAngle. */
   public ShooterAngle() {
     angleMotor.setNeutralMode(NeutralMode.Brake);
-    angleMotor.setInverted(true);
+    angleMotor.setInverted(false);
     angleEncoder.setPositionOffset(angleEncoderOffset);
     armSim.update(0); // setup simulation before periodic() runs for the first time
 
