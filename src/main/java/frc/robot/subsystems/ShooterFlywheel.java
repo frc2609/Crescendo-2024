@@ -33,7 +33,7 @@ public class ShooterFlywheel extends SubsystemBase {
   public static final double flywheelGearing = 1.0;
 
   private TunableNumber kS = new TunableNumber("kS", 0.0);
-  private TunableNumber kV = new TunableNumber("kV", 0.5);
+  private TunableNumber kV = new TunableNumber("kV", 0.14);
   private TunableNumber kP = new TunableNumber("kP", 0.0);
   private TunableNumber kI = new TunableNumber("kI", 0.0);
   private TunableNumber kD = new TunableNumber("kD", 0.0);
