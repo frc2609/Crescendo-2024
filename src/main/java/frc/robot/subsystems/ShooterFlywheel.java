@@ -64,7 +64,7 @@ public class ShooterFlywheel extends SubsystemBase {
   /** Creates a new ShooterFlywheel. */
   public ShooterFlywheel() {
     slot0Configs.kS = 0.0;
-    slot0Configs.kV = 0.5;
+    slot0Configs.kV = 0.14;
     slot0Configs.kP = 0.0;
     slot0Configs.kI = 0.0;
     slot0Configs.kD = 0.0;
