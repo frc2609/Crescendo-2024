@@ -69,6 +69,8 @@ public class ShooterFlywheel extends SubsystemBase {
     slot0Configs.kI = 0.0;
     slot0Configs.kD = 0.0;
 
+    velocityRequest.EnableFOC = true;
+
     leftMotor.getConfigurator().apply(slot0Configs);
     rightMotor.getConfigurator().apply(slot0Configs);
 
