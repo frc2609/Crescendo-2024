@@ -139,7 +139,7 @@ public class ShooterAngle extends SubsystemBase {
     percentOutput = MathUtil.clamp(percentOutput, -motorPercentOutputLimit, motorPercentOutputLimit);
     SmartDashboard.putNumber("Shooter/Angle/Actual Percent Output", percentOutput);
     if (RobotBase.isReal()) {
-      angleMotor.set(TalonSRXControlMode.PercentOutput, percentOutput);
+      // angleMotor.set(TalonSRXControlMode.PercentOutput, percentOutput);
     } else {
       if (DriverStation.isEnabled()) {
         armSim.setInputVoltage(percentOutput * 12); // convert to voltage
