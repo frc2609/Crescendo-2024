@@ -38,6 +38,16 @@ public class DriveUtil {
   }
 
   /**
+   * Scale a deadbanded value back to 0-1 so low speeds can still be achieved.
+   * (Accounts for the sign of the input value.)
+   * @param value Joystick value with deadband applied.
+   * @return Value scaled to 0-1.
+   */
+  public static double scaleDeadbandedValue(double value) {
+    return Math.signum(value) * ((Math.abs(value) - Xbox.joystickDeadband) / (1 - Xbox.joystickDeadband));
+  }
+
+  /**
    * Get driver inputs from provided controller, performing some optional operations.
    * @param controller Typically the driver controller.
    * @param correctForSquareJoystickMapping True for our Xbox controllers.
@@ -57,11 +67,11 @@ public class DriveUtil {
   ) {
     // all values inverted because they are positive in the opposite direction
     // XboxController x and y are swapped from WPILib's field x and y
-    double linearX = -MathUtil.applyDeadband(controller.getLeftY(), Xbox.joystickDeadband);
-    double linearY = -MathUtil.applyDeadband(controller.getLeftX(), Xbox.joystickDeadband);
+    double linearX = scaleDeadbandedValue(-MathUtil.applyDeadband(controller.getLeftY(), Xbox.joystickDeadband));
+    double linearY = scaleDeadbandedValue(-MathUtil.applyDeadband(controller.getLeftX(), Xbox.joystickDeadband));
     // but they are not for the rotation joystick
-    double headingX = -MathUtil.applyDeadband(controller.getRightX(), Xbox.joystickDeadband);
-    double headingY = -MathUtil.applyDeadband(controller.getRightY(), Xbox.joystickDeadband);
+    double headingX = scaleDeadbandedValue(-MathUtil.applyDeadband(controller.getRightX(), Xbox.joystickDeadband));
+    double headingY = scaleDeadbandedValue(-MathUtil.applyDeadband(controller.getRightY(), Xbox.joystickDeadband));
 
     if (correctForSquareJoystickMapping) {
       Translation2d correctedSpeeds = correctForSquareJoystickMapping(linearX, linearY);
