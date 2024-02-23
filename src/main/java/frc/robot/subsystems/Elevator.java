@@ -52,8 +52,8 @@ public class Elevator extends SubsystemBase {
   private final CANSparkMax liftMotor = new CANSparkMax(15, MotorType.kBrushless);
   private final RelativeEncoder liftEncoder = liftMotor.getEncoder();
 
-  private final PIDController liftPID = new PIDController(0.0, 0.0, 0.0);
-  private final SimpleElevatorFeedforward liftFF = new SimpleElevatorFeedforward(0.0, 0.0, 0.0, intakeMassKg);
+  private final PIDController liftPID = new PIDController(1.25, 0.0, 0.0);
+  private final SimpleElevatorFeedforward liftFF = new SimpleElevatorFeedforward(0.0, 0.03, 0.0, intakeMassKg);
 
   private final ElevatorSim intakeSim = new ElevatorSim(
     DCMotor.getNEO(1),
