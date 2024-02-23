@@ -44,6 +44,7 @@ public class Elevator extends SubsystemBase {
   public static final double elevatorGearing = (1.0 / 9.0);
   public static final double pulleySizeMeters = 0.04;
   public static final double positionConversion = elevatorGearing * pulleySizeMeters;
+  public static final double velocityConversion = positionConversion / 60.0; // convert from m/min -> m/s
   
   // TODO: intake mass sketchy
   public static final double intakeMassKg = 2.86;
@@ -88,17 +89,15 @@ public class Elevator extends SubsystemBase {
 
   /** Creates a new Elevator. */
   public Elevator() {
+    liftMotor.restoreFactoryDefaults();
     liftMotor.setIdleMode(IdleMode.kBrake);
     // TODO: test
     liftMotor.setInverted(true);
 
-    liftEncoder.setPositionConversionFactor(positionConversion);
-    // convert to m/s from m/min
-    liftEncoder.setVelocityConversionFactor(positionConversion / 60.0);
-    liftEncoder.setPosition(lowerLimitMeters);
+    liftEncoder.setPosition(lowerLimitMeters / positionConversion);
 
-    liftMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)lowerLimitMeters);
-    liftMotor.setSoftLimit(SoftLimitDirection.kForward, (float)upperLimitMeters);
+    liftMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)(lowerLimitMeters / positionConversion));
+    liftMotor.setSoftLimit(SoftLimitDirection.kForward, (float)(upperLimitMeters / positionConversion));
 
     intakeSim.update(0);
     stageSim.update(0);
@@ -165,7 +164,7 @@ public class Elevator extends SubsystemBase {
    * @return Intake height in meters.
    */
   public double getHeight() {
-    return RobotBase.isReal() ? liftEncoder.getPosition() : intakeSim.getPositionMeters() + stageSim.getPositionMeters();
+    return RobotBase.isReal() ? liftEncoder.getPosition() * positionConversion : intakeSim.getPositionMeters() + stageSim.getPositionMeters();
   }
 
   /**
@@ -174,7 +173,7 @@ public class Elevator extends SubsystemBase {
    */
   public double getVelocity() {
     double simVelocity = intakeAtMaxHeight() ? stageSim.getVelocityMetersPerSecond() : intakeSim.getVelocityMetersPerSecond();
-    return RobotBase.isReal() ? liftEncoder.getVelocity() : simVelocity;
+    return RobotBase.isReal() ? liftEncoder.getVelocity() * velocityConversion : simVelocity;
   }
 
   /**
