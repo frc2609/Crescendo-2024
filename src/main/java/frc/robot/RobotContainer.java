@@ -29,7 +29,6 @@ public class RobotContainer {
   public static final Visualizer visualizer = new Visualizer();
 
   public static final CommandXboxController driverController = new CommandXboxController(0);
-  public static final CommandXboxController operatorController = new CommandXboxController(1);
   private final SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
@@ -71,8 +70,8 @@ public class RobotContainer {
     // driverController.x().onTrue(new InstantCommand(() -> {
     //   shooterAngle.setAngle(Rotation2d.fromDegrees(75));
     // }, shooterAngle));
-    elevator.setDefaultCommand(new RunCommand(() -> elevator.setHeight(operatorController.getLeftY()), elevator));
-    shooterAngle.setDefaultCommand(new RunCommand(() -> shooterAngle.setAngle(Rotation2d.fromDegrees(operatorController.getRightY() * 60.0)), shooterAngle));
+    elevator.setDefaultCommand(new RunCommand(() -> elevator.setHeight(driverController.getLeftTriggerAxis()), elevator));
+    shooterAngle.setDefaultCommand(new RunCommand(() -> shooterAngle.setAngle(Rotation2d.fromDegrees(driverController.getRightTriggerAxis() * 60.0)), shooterAngle));
   }
 
   public Command getAutonomousCommand() {
