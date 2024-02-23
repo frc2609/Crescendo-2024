@@ -114,8 +114,8 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // if elevator is ~= at the bottom, the motor only feels the force from the mass of the intake
-    if (getElevatorStageHeight() <= lowerLimitMeters + lowerToleranceMeters) {
+    // if elevator is at the bottom, the motor only feels the force from the mass of the intake
+    if (stageAtMinHeight()) {
       liftFF.massKg = intakeMassKg;
     } else {
       liftFF.massKg = intakeMassKg + elevatorMassKg;
@@ -148,7 +148,6 @@ public class Elevator extends SubsystemBase {
     return heightOutOfRange.isActive(); // || other alerts...
   }
 
-  // TODO: simulation compatibility for below 3 functions
   /**
    * Get the height of the elevator stage in meters.
    * The elevator only moves once the intake reaches its max height.
@@ -174,8 +173,8 @@ public class Elevator extends SubsystemBase {
    * @return Elevator velocity in m/s.
    */
   public double getVelocity() {
-    // TODO: sim support (complex, not doing now)
-    return liftEncoder.getVelocity();
+    double simVelocity = intakeAtMaxHeight() ? stageSim.getVelocityMetersPerSecond() : intakeSim.getVelocityMetersPerSecond();
+    return RobotBase.isReal() ? liftEncoder.getVelocity() : simVelocity;
   }
 
   /**
@@ -201,8 +200,11 @@ public class Elevator extends SubsystemBase {
       liftMotor.set(percentOutput);
     } else {
       if (DriverStation.isEnabled()) {
-        intakeSim.setInputVoltage(percentOutput * 12);
-        stageSim.setInputVoltage(intakeAtMaxHeight() ? percentOutput * 12 : 0); // convert to voltage
+        // * 12 to convert to voltage
+        // simulate cascade rigging: force intake to max height when stage is lifted
+        intakeSim.setInputVoltage(stageAtMinHeight() ? percentOutput * 12 : 12);
+        // simulate cascade rigging: only power stage when intake is at max height
+        stageSim.setInputVoltage(intakeAtMaxHeight() ? percentOutput * 12 : 0);
       } else {
         intakeSim.setInputVoltage(0);
         stageSim.setInputVoltage(0);
@@ -212,6 +214,10 @@ public class Elevator extends SubsystemBase {
 
   private boolean intakeAtMaxHeight() {
     return getHeight() >= intakeMaxHeightMeters;
+  }
+
+  private boolean stageAtMinHeight() {
+    return getElevatorStageHeight() <= lowerLimitMeters + lowerToleranceMeters;
   }
 
   private boolean atUpperLimit() {
