@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.Elevator;
 
 /** Add your docs here. */
 public class Visualizer {
@@ -33,10 +32,11 @@ public class Visualizer {
     .getStructTopic("Visualizer/3_Targeting_Laser_Pose", Pose3d.struct).publish();
   
   public void update() {
-    double liftMeters = RobotContainer.elevator.getHeight();
+    double elevatorHeight = RobotContainer.elevator.getHeight();
+    intakePublisher.set(defaultIntakePose.plus(new Transform3d(new Translation3d(0.0, 0.0, elevatorHeight), new Rotation3d())));
+    // stage moves 1/2 of total movement
+    elevatorPublisher.set(defaultElevatorPose.plus(new Transform3d(new Translation3d(0.0, 0.0, Math.max(elevatorHeight / 2, 0)), new Rotation3d())));
     
-    intakePublisher.set(defaultIntakePose.plus(new Transform3d(new Translation3d(0.0, 0.0, liftMeters), new Rotation3d())));
-    elevatorPublisher.set(defaultElevatorPose.plus(new Transform3d(new Translation3d(0.0, 0.0, Math.max(liftMeters - Elevator.intakeMaxHeightMeters, 0)), new Rotation3d())));
     double shooterAngleRad = RobotContainer.shooterAngle.getAngle().getRadians();
     shooterPublisher.set(defaultShooterPose.plus(new Transform3d(new Translation3d(), new Rotation3d(0, shooterAngleRad, 0))));
     laserPublisher.set(defaultLaserPose.plus(new Transform3d(new Translation3d(), new Rotation3d(0, shooterAngleRad, 0))));

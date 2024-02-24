@@ -25,57 +25,39 @@ import frc.robot.utils.SimpleElevatorFeedforward;
 import frc.robot.utils.Alert.AlertType;
 
 public class Elevator extends SubsystemBase {
-  /* Height intake can reach before elevator stage engages. */
-  public static final double intakeMaxHeightMeters = 0.48;
-  /* Height elevator stage can reach. */
-  public static final double stageMaxHeightMeters = 0.49;
-
   public static final double lowerLimitMeters = 0.0;
   public static final double lowerToleranceMeters = 0.02;
-  // intake reaches max height of elevator stage + max height of intake within elevator stage
-  public static final double upperLimitMeters = intakeMaxHeightMeters + stageMaxHeightMeters;
+  public static final double upperLimitMeters = 0.96;
   public static final double upperToleranceMeters = 0.02;
 
-  // TODO: set these too...
   public static final double intakePositionMeters = 0.0;
-  public static final double ampPositionMeters = 0.0;
-  public static final double trapPositionMeters = 0.0;
+  public static final double ampPositionMeters = 0.90;
+  // TODO: tune
+  public static final double trapPositionMeters = 0.90;
 
-  public static final double elevatorGearing = (1.0 / 9.0);
+  // elevator moves 2 * movement of one stage (both stages move at the same time)
+  public static final double elevatorGearing = 2 * (1.0 / 9.0);
   public static final double pulleySizeMeters = 0.04;
   public static final double positionConversion = elevatorGearing * pulleySizeMeters;
   public static final double velocityConversion = positionConversion / 60.0; // convert from m/min -> m/s
   
-  // TODO: intake mass sketchy
-  public static final double intakeMassKg = 2.86;
-  public static final double elevatorMassKg = 1.25;
+  // TODO: intake mass (2.86) sketchy
+  public static final double elevatorMassKg = 1.25 + 2.86;
 
   private final CANSparkMax liftMotor = new CANSparkMax(15, MotorType.kBrushless);
   private final RelativeEncoder liftEncoder = liftMotor.getEncoder();
 
   private final PIDController liftPID = new PIDController(1.25, 0.0, 0.0);
-  private final SimpleElevatorFeedforward liftFF = new SimpleElevatorFeedforward(0.0, 0.03, 0.0, intakeMassKg);
+  private final SimpleElevatorFeedforward liftFF = new SimpleElevatorFeedforward(0.0, 0.03, 0.0, elevatorMassKg);
 
-  private final ElevatorSim intakeSim = new ElevatorSim(
+  private final ElevatorSim elevatorSim = new ElevatorSim(
     DCMotor.getNEO(1),
     // wpilib expects divisor, not factor
     1.0 / elevatorGearing,
-    intakeMassKg,
+    elevatorMassKg,
     pulleySizeMeters,
     lowerLimitMeters,
-    intakeMaxHeightMeters,
-    true,
-    lowerLimitMeters
-  );
-
-  private final ElevatorSim stageSim = new ElevatorSim(
-    DCMotor.getNEO(1),
-    // wpilib expects divisor, not factor
-    1.0 / elevatorGearing,
-    intakeMassKg + elevatorMassKg,
-    pulleySizeMeters,
-    lowerLimitMeters,
-    stageMaxHeightMeters,
+    upperLimitMeters,
     true,
     lowerLimitMeters
   );
@@ -99,27 +81,19 @@ public class Elevator extends SubsystemBase {
     liftMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)(lowerLimitMeters / positionConversion));
     liftMotor.setSoftLimit(SoftLimitDirection.kForward, (float)(upperLimitMeters / positionConversion));
 
-    intakeSim.update(0);
-    stageSim.update(0);
+    elevatorSim.update(0);
+    liftFF.massKg = elevatorMassKg;
 
     SmartDashboard.putData("Elevator/PID", liftPID);
     SmartDashboard.putData("Elevator/FF", liftFF);
 
     logger.addLoggable("Elevator/FF Mass (kg)", () -> liftFF.massKg, true);
-    logger.addLoggable("Elevator/Overall Height (m)", this::getHeight, true);
-    logger.addLoggable("Elevator/Stage Height (m)", this::getElevatorStageHeight, true);
+    logger.addLoggable("Elevator/Height (m)", this::getHeight, true);
     logger.addLoggable("Elevator/Velocity (mps)", this::getVelocity, true);
   }
 
   @Override
   public void periodic() {
-    // if elevator is at the bottom, the motor only feels the force from the mass of the intake
-    if (stageAtMinHeight()) {
-      liftFF.massKg = intakeMassKg;
-    } else {
-      liftFF.massKg = intakeMassKg + elevatorMassKg;
-    }
-
     double percentOutput = liftPID.calculate(getHeight(), targetHeight) + liftFF.calculate(getVelocity());
     setMotor(percentOutput);
     logger.logAll();
@@ -128,8 +102,7 @@ public class Elevator extends SubsystemBase {
   @Override
   public void simulationPeriodic() {
     double currentTime = Timer.getFPGATimestamp();
-    intakeSim.update(currentTime - lastLoopTime);
-    stageSim.update(currentTime - lastLoopTime);
+    elevatorSim.update(currentTime - lastLoopTime);
     lastLoopTime = currentTime;
   }
 
@@ -148,23 +121,11 @@ public class Elevator extends SubsystemBase {
   }
 
   /**
-   * Get the height of the elevator stage in meters.
-   * The elevator only moves once the intake reaches its max height.
-   * @return Elevator height in meters.
-   */
-  public double getElevatorStageHeight() {
-    // elevator doesn't move until intake reaches top of elevator stage
-    return RobotBase.isReal() ? Math.max(getHeight() - intakeMaxHeightMeters, 0) : stageSim.getPositionMeters();
-  }
-
-  /**
-   * Get the height of the intake in meters.
-   * The intake moves independently from the elevator stage until it reaches its max height, then
-   * it moves along with the elevator stage.
+   * Get the height of the elevator in meters.
    * @return Intake height in meters.
    */
   public double getHeight() {
-    return RobotBase.isReal() ? liftEncoder.getPosition() * positionConversion : intakeSim.getPositionMeters() + stageSim.getPositionMeters();
+    return RobotBase.isReal() ? liftEncoder.getPosition() * positionConversion : elevatorSim.getPositionMeters();
   }
 
   /**
@@ -172,8 +133,7 @@ public class Elevator extends SubsystemBase {
    * @return Elevator velocity in m/s.
    */
   public double getVelocity() {
-    double simVelocity = intakeAtMaxHeight() ? stageSim.getVelocityMetersPerSecond() : intakeSim.getVelocityMetersPerSecond();
-    return RobotBase.isReal() ? liftEncoder.getVelocity() * velocityConversion : simVelocity;
+    return RobotBase.isReal() ? liftEncoder.getVelocity() * velocityConversion : elevatorSim.getVelocityMetersPerSecond();
   }
 
   /**
@@ -200,23 +160,11 @@ public class Elevator extends SubsystemBase {
     } else {
       if (DriverStation.isEnabled()) {
         // * 12 to convert to voltage
-        // simulate cascade rigging: force intake to max height when stage is lifted
-        intakeSim.setInputVoltage(stageAtMinHeight() ? percentOutput * 12 : 12);
-        // simulate cascade rigging: only power stage when intake is at max height
-        stageSim.setInputVoltage(intakeAtMaxHeight() ? percentOutput * 12 : 0);
+        elevatorSim.setInputVoltage(percentOutput * 12);
       } else {
-        intakeSim.setInputVoltage(0);
-        stageSim.setInputVoltage(0);
+        elevatorSim.setInputVoltage(0);
       }
     }
-  }
-
-  private boolean intakeAtMaxHeight() {
-    return getHeight() >= intakeMaxHeightMeters;
-  }
-
-  private boolean stageAtMinHeight() {
-    return getElevatorStageHeight() <= lowerLimitMeters + lowerToleranceMeters;
   }
 
   private boolean atUpperLimit() {
