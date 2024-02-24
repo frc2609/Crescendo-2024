@@ -7,6 +7,9 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -30,22 +33,24 @@ public class ShooterAngle extends SubsystemBase {
   public static final Rotation2d forwardLimit = Rotation2d.fromDegrees(55);
   // motor is completely disabled if limit + tolerance is exceeded
   public static final Rotation2d forwardTolerance = Rotation2d.fromDegrees(3);
-  public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(10.3);
+  public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(8.0);
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(0.25);
   public static final double motorPercentOutputLimit = 0.4;
 
   // measure at 90 degrees
-  public static final double angleEncoderOffset = 0.435 - (90.0 / 360.0);
+  public static final double angleEncoderOffset = 0.775 - (90.0 / 360.0);
 
   public static final double massKg = 7.5;
   public static final double comDistanceFromPivotMeters = 0.25; // estimate
   public static final double armLengthMeters = 0.35;
-
-  public final TalonSRX angleMotor = new TalonSRX(11);
+  // 15:22 chain
+  // 1:81 planetary
+  public static final double motorToShaftRatio = (22.0/15.0)*81.0;
+  public final CANSparkMax angleMotor = new CANSparkMax(14, MotorType.kBrushless);
   public final DutyCycleEncoder angleEncoder = new DutyCycleEncoder(9);
   public final SingleJointedArmSim armSim = new SingleJointedArmSim(
-    DCMotor.getBag(1),
-    162,
+    DCMotor.getNeo550(1),
+    motorToShaftRatio,
     SingleJointedArmSim.estimateMOI(armLengthMeters, massKg),
     // massKg * comDistanceFromPivot * comDistanceFromPivot,
     armLengthMeters,
@@ -54,8 +59,8 @@ public class ShooterAngle extends SubsystemBase {
     true,
     reverseLimit.getRadians()
   );
-
-  public final PIDController anglePID = new PIDController(0.022, 0, 0.0);
+  // TODO: Tune these for 550
+  public final PIDController anglePID = new PIDController(0.0, 0, 0.0);
   public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.006, comDistanceFromPivotMeters, massKg, "Shooter/Angle");
 
   // assumed to be at lower hard stop (natural resting place)
@@ -68,8 +73,12 @@ public class ShooterAngle extends SubsystemBase {
 
   /** Creates a new ShooterAngle. */
   public ShooterAngle() {
-    angleMotor.setNeutralMode(NeutralMode.Brake);
-    angleMotor.setInverted(false);
+    angleMotor.restoreFactoryDefaults();
+    angleMotor.setIdleMode(IdleMode.kBrake);
+    angleMotor.setInverted(true);
+    angleMotor.getEncoder().setPositionConversionFactor(1);
+    angleMotor.getEncoder().setPosition(0.0);
+    
     angleEncoder.setPositionOffset(angleEncoderOffset);
     armSim.update(0); // setup simulation before periodic() runs for the first time
 
@@ -80,6 +89,7 @@ public class ShooterAngle extends SubsystemBase {
     logger.addLoggable("Shooter/Angle/Absolute (0-1)", this::getAbsolutePosition, true);
     logger.addLoggable("Shooter/Angle/Current (Deg)", () -> getAngle().getDegrees(), true);
     logger.addLoggable("Shooter/Angle/Target (Deg)", () -> targetAngle.getDegrees(), true);
+    logger.addLoggable("Shooter/Angle/Neo Position (Deg)", () -> getSparkAngle().getDegrees(), true);
   }
 
   @Override
@@ -98,6 +108,11 @@ public class ShooterAngle extends SubsystemBase {
 
   public boolean hasError() {
     return angleOutOfRange.isActive(); // || other alerts...
+  }
+
+  public Rotation2d getSparkAngle(){
+    // return angleMotor.getEncoder().getPosition();
+    return Rotation2d.fromDegrees(((angleMotor.getEncoder().getPosition()/motorToShaftRatio)*360.0)+reverseLimit.getDegrees());
   }
 
   /**
@@ -139,6 +154,7 @@ public class ShooterAngle extends SubsystemBase {
     percentOutput = MathUtil.clamp(percentOutput, -motorPercentOutputLimit, motorPercentOutputLimit);
     SmartDashboard.putNumber("Shooter/Angle/Actual Percent Output", percentOutput);
     if (RobotBase.isReal()) {
+
       // angleMotor.set(TalonSRXControlMode.PercentOutput, percentOutput);
     } else {
       if (DriverStation.isEnabled()) {
