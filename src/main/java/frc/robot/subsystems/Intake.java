@@ -9,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -41,10 +42,11 @@ public class Intake extends SubsystemBase {
 
   /**
    * Get the status of the intake sensor.
+   * Uses 'noteHeld' during simulation.
    */
   public boolean getSensor() {
     // intake sensor returns true when no note is present
-    return !intakeSensor.get();
+    return RobotBase.isReal() ? !intakeSensor.get() : noteHeld;
   }
 
   /**

@@ -77,6 +77,9 @@ public class RobotContainer {
     // elevator.setDefaultCommand(new RunCommand(() -> elevator.setHeight(driverController.getLeftTriggerAxis()), elevator));
 
     // Intake
+    // Fake the note being picked up during simulation.
+    // Doesn't require intake so intake commands aren't cancelled when run.
+    driverController.back().onTrue(new InstantCommand(() -> intake.noteHeld = true));
     // TODO: add some intake commands
     
     // ShooterAngle
