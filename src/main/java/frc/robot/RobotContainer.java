@@ -16,7 +16,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.MoveElevatorToPosition;
 import frc.robot.commands.VisionTrackDrive;
+import frc.robot.commands.MoveElevatorToPosition.Position;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.ShooterAngle;
@@ -58,6 +60,9 @@ public class RobotContainer {
     driverController.x().onTrue(new InstantCommand(drive.drive::lockPose));
     driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro));
     driverController.y().whileTrue(new VisionTrackDrive());
+    driverController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
+    driverController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
+    driverController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
     // driverController.a().onTrue(new InstantCommand(() -> {
     //   shooterAngle.setAngle(Rotation2d.fromDegrees(0));
     // }, shooterAngle));
@@ -70,7 +75,7 @@ public class RobotContainer {
     // driverController.x().onTrue(new InstantCommand(() -> {
     //   shooterAngle.setAngle(Rotation2d.fromDegrees(75));
     // }, shooterAngle));
-    elevator.setDefaultCommand(new RunCommand(() -> elevator.setHeight(driverController.getLeftTriggerAxis()), elevator));
+    // elevator.setDefaultCommand(new RunCommand(() -> elevator.setHeight(driverController.getLeftTriggerAxis()), elevator));
     shooterAngle.setDefaultCommand(new RunCommand(() -> shooterAngle.setAngle(Rotation2d.fromDegrees(driverController.getRightTriggerAxis() * 60.0)), shooterAngle));
   }
 
