@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-// import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AprilTagTrackDrive;
 import frc.robot.commands.MoveElevatorToPosition;
@@ -26,7 +26,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterAngle;
 import frc.robot.subsystems.ShooterFlywheel;
-// import frc.robot.subsystems.ShooterFlywheel.SpinType;
+import frc.robot.subsystems.ShooterFlywheel.SpinType;
 import frc.robot.utils.Visualizer;
 
 public class RobotContainer {
@@ -42,6 +42,8 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
+    SmartDashboard.putNumber("shooter setpoint", 0);
+
     configureBindings();
 
     NamedCommands.registerCommand("printOnCheckpoint", Commands.print("Reached Checkpoint!"));
@@ -98,14 +100,14 @@ public class RobotContainer {
     // shooterAngle.setDefaultCommand(new RunCommand(() -> shooterAngle.setAngle(Rotation2d.fromDegrees(driverController.getRightTriggerAxis() * 60.0)), shooterAngle));
     
     // ShooterFlywheel
-    // shooterFlywheel.setDefaultCommand(new RunCommand(() -> {
-    //   SpinType spinType = SpinType.disable;
-    //   if (driverController.leftBumper().getAsBoolean())
-    //     spinType = SpinType.slowLeftMotor;
-    //   if (driverController.rightBumper().getAsBoolean())
-    //     spinType = SpinType.slowRightMotor;
-    //   shooterFlywheel.setSpeed(driverController.getLeftX() * 6000, spinType);
-    // }, shooterFlywheel));
+    shooterFlywheel.setDefaultCommand(new RunCommand(() -> {
+      SpinType spinType = SpinType.disable;
+      // if (driverController.leftBumper().getAsBoolean())
+        spinType = SpinType.slowLeftMotor;
+      // if (driverController.rightBumper().getAsBoolean())
+      //   spinType = SpinType.slowRightMotor;
+      shooterFlywheel.setSpeed(SmartDashboard.getNumber("shooter setpoint", 0), spinType);
+    }, shooterFlywheel));
   }
 
   public Command getAutonomousCommand() {
