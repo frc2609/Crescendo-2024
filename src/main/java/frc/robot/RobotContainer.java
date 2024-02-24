@@ -22,6 +22,7 @@ import frc.robot.commands.MoveElevatorToPosition.Position;
 import frc.robot.Constants.AprilTag.ID;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterAngle;
 import frc.robot.subsystems.ShooterFlywheel;
@@ -31,6 +32,7 @@ import frc.robot.utils.Visualizer;
 public class RobotContainer {
   public static final Drive drive = new Drive(false);
   public static final Elevator elevator = new Elevator();
+  public static final Intake intake = new Intake();
   public static final Limelight limelight = new Limelight();
   public static final ShooterAngle shooterAngle = new ShooterAngle();
   public static final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
@@ -73,6 +75,9 @@ public class RobotContainer {
     driverController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
     driverController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
     // elevator.setDefaultCommand(new RunCommand(() -> elevator.setHeight(driverController.getLeftTriggerAxis()), elevator));
+
+    // Intake
+    // TODO: add some intake commands
     
     // ShooterAngle
     // driverController.a().onTrue(new InstantCommand(() -> {
