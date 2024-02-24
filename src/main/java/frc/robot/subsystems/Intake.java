@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Intake extends SubsystemBase {
   private final TalonSRX intakeMotor = new TalonSRX(14);
   // TODO: set actual DIO port
-  public final DigitalInput intakeSensor = new DigitalInput(4);
+  private final DigitalInput intakeSensor = new DigitalInput(4);
 
   /** Creates a new Intake. */
   public Intake() {
@@ -24,7 +24,15 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putBoolean("Intake/Intake Sensor", intakeSensor.get());
+    SmartDashboard.putBoolean("Intake/Intake Sensor", getSensor());
+  }
+
+  /**
+   * Get the status of the intake sensor.
+   */
+  public boolean getSensor() {
+    // intake sensor returns true when no note is present
+    return !intakeSensor.get();
   }
 
   /**
