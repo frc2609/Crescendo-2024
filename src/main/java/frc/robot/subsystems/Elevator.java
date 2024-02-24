@@ -29,11 +29,7 @@ public class Elevator extends SubsystemBase {
   public static final double lowerToleranceMeters = 0.02;
   public static final double upperLimitMeters = 0.96;
   public static final double upperToleranceMeters = 0.02;
-
-  public static final double intakePositionMeters = 0.0;
-  public static final double ampPositionMeters = 0.90;
-  // TODO: tune
-  public static final double trapPositionMeters = 0.90;
+  public static final double setpointToleranceMeters = 0.05;
 
   // elevator moves 2 * movement of one stage (both stages move at the same time)
   public static final double elevatorGearing = 2 * (1.0 / 9.0);
@@ -134,6 +130,14 @@ public class Elevator extends SubsystemBase {
    */
   public double getVelocity() {
     return RobotBase.isReal() ? liftEncoder.getVelocity() * velocityConversion : elevatorSim.getVelocityMetersPerSecond();
+  }
+
+  /**
+   * Whether or not the elevator is at the requested height.
+   * @return Whether or not the elevator is at the requested height.
+   */
+  public boolean atTargetHeight() {
+    return Math.abs(targetHeight - getHeight()) <= setpointToleranceMeters;
   }
 
   /**
