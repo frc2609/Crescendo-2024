@@ -69,7 +69,6 @@ public class Elevator extends SubsystemBase {
   public Elevator() {
     liftMotor.restoreFactoryDefaults();
     liftMotor.setIdleMode(IdleMode.kBrake);
-    // TODO: test
     liftMotor.setInverted(true);
 
     liftEncoder.setPosition(lowerLimitMeters / positionConversion);
