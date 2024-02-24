@@ -19,6 +19,9 @@ public class Visualizer {
   final Pose3d defaultShooterPose = new Pose3d(new Translation3d(-0.0208, 0, 0.1365), new Rotation3d());
   final Pose3d defaultLaserPose = new Pose3d(new Translation3d(0, 0, 0.16), new Rotation3d()); 
 
+  StructPublisher<Pose3d> notePublisher = NetworkTableInstance.getDefault()
+    .getStructTopic("Visualizer/Note Pose", Pose3d.struct).publish();
+
   StructPublisher<Pose3d> intakePublisher = NetworkTableInstance.getDefault()
     .getStructTopic("Visualizer/0_Intake_Pose", Pose3d.struct).publish();
 
@@ -32,11 +35,25 @@ public class Visualizer {
     .getStructTopic("Visualizer/3_Targeting_Laser_Pose", Pose3d.struct).publish();
   
   public void update() {
+    // --- elevator and intake
     double elevatorHeight = RobotContainer.elevator.getHeight();
-    intakePublisher.set(defaultIntakePose.plus(new Transform3d(new Translation3d(0.0, 0.0, elevatorHeight), new Rotation3d())));
+    Transform3d intakeTransform = new Transform3d(new Translation3d(0.0, 0.0, elevatorHeight), new Rotation3d());
+    intakePublisher.set(defaultIntakePose.plus(intakeTransform));
     // stage moves 1/2 of total movement
     elevatorPublisher.set(defaultElevatorPose.plus(new Transform3d(new Translation3d(0.0, 0.0, Math.max(elevatorHeight / 2, 0)), new Rotation3d())));
     
+    // --- note
+    // game pieces don't move with the robot, must do it manually
+    Pose3d intakePose = new Pose3d(RobotContainer.drive.drive.getPose()).transformBy(intakeTransform);
+    if (RobotContainer.driverController.povLeft().getAsBoolean()) {//RobotContainer.intake.intakeSensor.get()) {
+      // put the note into the intake
+      notePublisher.set(intakePose.transformBy(new Transform3d(new Translation3d(0.16, 0, 0.08), new Rotation3d(0, 0.48869219, 0))));
+    } else {
+      // move note off the field
+      notePublisher.set(new Pose3d());
+    }
+
+    // --- shooter and targeting laser
     double shooterAngleRad = RobotContainer.shooterAngle.getAngle().getRadians();
     shooterPublisher.set(defaultShooterPose.plus(new Transform3d(new Translation3d(), new Rotation3d(0, shooterAngleRad, 0))));
     laserPublisher.set(defaultLaserPose.plus(new Transform3d(new Translation3d(), new Rotation3d(0, shooterAngleRad, 0))));
