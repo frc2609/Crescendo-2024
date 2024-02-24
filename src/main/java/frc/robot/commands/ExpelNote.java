@@ -18,7 +18,7 @@ public class ExpelNote extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    RobotContainer.intake.setMotor(0.5);
+    RobotContainer.intake.setMotor(-0.5);
   }
 
   // Called once the command ends or is interrupted.
