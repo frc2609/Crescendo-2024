@@ -43,7 +43,7 @@ public class ShooterFlywheel extends SubsystemBase {
   public final TalonFX rightMotor = new TalonFX(13);
 
   public final TunableNumber spinMultiplier = new TunableNumber("Shooter/Flywheel/Spin Multiplier (0-1)", 0.8);
-  private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0);
+  private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0).withEnableFOC(true);
 
   public final FlywheelSim leftFlywheelSim = new FlywheelSim(
     DCMotor.getKrakenX60Foc(1),
@@ -68,8 +68,6 @@ public class ShooterFlywheel extends SubsystemBase {
     slot0Configs.kP = 0.0;
     slot0Configs.kI = 0.0;
     slot0Configs.kD = 0.0;
-
-    velocityRequest.EnableFOC = true;
 
     leftMotor.getConfigurator().apply(slot0Configs);
     rightMotor.getConfigurator().apply(slot0Configs);
