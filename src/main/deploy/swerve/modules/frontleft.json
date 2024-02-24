@@ -1,31 +1,31 @@
 {
   "location": {
-    "front": 12,
-    "left": 12
+    "front": 14.25,
+    "left": 14.25
   },
-  "absoluteEncoderOffset": 0,
+  "absoluteEncoderOffset": -244.5,
   "drive": {
-    "type": "sparkmax",
-    "id": 1,
+    "type": "talonfx",
+    "id": 3,
     "canbus": null
   },
   "angle": {
     "type": "sparkmax",
-    "id": 2,
+    "id": 4,
     "canbus": null
-  },
-  "inverted": {
-    "angle": true,
-    "drive": false
   },
   "conversionFactor": {
     "angle": 0,
     "drive": 0
   },
   "encoder": {
-    "type": "none",
+    "type": "throughbore",
     "id": 0,
     "canbus": null
   },
-  "absoluteEncoderInverted": false
+  "inverted": {
+    "drive": false,
+    "angle": true
+  },
+  "absoluteEncoderInverted": true
 }

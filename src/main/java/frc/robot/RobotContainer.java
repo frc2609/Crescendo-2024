@@ -16,18 +16,24 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.AprilTagTrackDrive;
 import frc.robot.commands.MoveElevatorToPosition;
-import frc.robot.commands.VisionTrackDrive;
 import frc.robot.commands.MoveElevatorToPosition.Position;
+import frc.robot.Constants.AprilTag.ID;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterAngle;
+import frc.robot.subsystems.ShooterFlywheel;
+// import frc.robot.subsystems.ShooterFlywheel.SpinType;
 import frc.robot.utils.Visualizer;
 
 public class RobotContainer {
   public static final Drive drive = new Drive(false);
   public static final Elevator elevator = new Elevator();
+  public static final Limelight limelight = new Limelight();
   public static final ShooterAngle shooterAngle = new ShooterAngle();
+  public static final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
   public static final Visualizer visualizer = new Visualizer();
 
   public static final CommandXboxController driverController = new CommandXboxController(0);
@@ -57,12 +63,18 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
+    // Swerve
     driverController.x().onTrue(new InstantCommand(drive.drive::lockPose));
     driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro));
-    driverController.y().whileTrue(new VisionTrackDrive());
+    driverController.y().whileTrue(new AprilTagTrackDrive(true, ID.kRedSpeakerCenter));
+    
+    // Elevator
     driverController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
     driverController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
     driverController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
+    // elevator.setDefaultCommand(new RunCommand(() -> elevator.setHeight(driverController.getLeftTriggerAxis()), elevator));
+    
+    // ShooterAngle
     // driverController.a().onTrue(new InstantCommand(() -> {
     //   shooterAngle.setAngle(Rotation2d.fromDegrees(0));
     // }, shooterAngle));
@@ -75,8 +87,17 @@ public class RobotContainer {
     // driverController.x().onTrue(new InstantCommand(() -> {
     //   shooterAngle.setAngle(Rotation2d.fromDegrees(75));
     // }, shooterAngle));
-    // elevator.setDefaultCommand(new RunCommand(() -> elevator.setHeight(driverController.getLeftTriggerAxis()), elevator));
-    shooterAngle.setDefaultCommand(new RunCommand(() -> shooterAngle.setAngle(Rotation2d.fromDegrees(driverController.getRightTriggerAxis() * 60.0)), shooterAngle));
+    // shooterAngle.setDefaultCommand(new RunCommand(() -> shooterAngle.setAngle(Rotation2d.fromDegrees(driverController.getRightTriggerAxis() * 60.0)), shooterAngle));
+    
+    // ShooterFlywheel
+    // shooterFlywheel.setDefaultCommand(new RunCommand(() -> {
+    //   SpinType spinType = SpinType.disable;
+    //   if (driverController.leftBumper().getAsBoolean())
+    //     spinType = SpinType.slowLeftMotor;
+    //   if (driverController.rightBumper().getAsBoolean())
+    //     spinType = SpinType.slowRightMotor;
+    //   shooterFlywheel.setSpeed(driverController.getLeftX() * 6000, spinType);
+    // }, shooterFlywheel));
   }
 
   public Command getAutonomousCommand() {
