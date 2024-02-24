@@ -156,7 +156,7 @@ public class ShooterAngle extends SubsystemBase {
     percentOutput = MathUtil.clamp(percentOutput, -motorPercentOutputLimit, motorPercentOutputLimit);
     SmartDashboard.putNumber("Shooter/Angle/Actual Percent Output", percentOutput);
     if (RobotBase.isReal()) {
-      // angleMotor.set(percentOutput);
+      angleMotor.set(percentOutput);
     } else {
       if (DriverStation.isEnabled()) {
         armSim.setInputVoltage(percentOutput * 12); // convert to voltage
