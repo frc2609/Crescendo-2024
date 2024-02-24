@@ -25,5 +25,7 @@ public class FeedNote extends Command {
   @Override
   public void end(boolean interrupted) {
     RobotContainer.intake.setMotor(0);
+    // tell Visualizer that we no longer have the note
+    RobotContainer.intake.noteHeld = false;
   }
 }

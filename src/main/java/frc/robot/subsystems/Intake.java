@@ -17,6 +17,12 @@ public class Intake extends SubsystemBase {
   // TODO: set actual DIO port
   private final DigitalInput intakeSensor = new DigitalInput(4);
 
+  /**
+   * Used by Visualizer to track the note since the intake sensor can only see the note when the
+   * elevator is in the intake position.
+   */
+  public boolean noteHeld = false;
+
   /** Creates a new Intake. */
   public Intake() {
     intakeMotor.setNeutralMode(NeutralMode.Brake);
@@ -25,6 +31,9 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putBoolean("Intake/Intake Sensor", getSensor());
+    SmartDashboard.putBoolean("Intake/Note Held", noteHeld);
+    // don't set it when false because we don't know if the note is still held
+    if (getSensor()) noteHeld = true;
   }
 
   /**
