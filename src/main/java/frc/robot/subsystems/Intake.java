@@ -10,6 +10,9 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
@@ -18,8 +21,8 @@ public class Intake extends SubsystemBase {
   private final DigitalInput intakeSensor = new DigitalInput(4);
 
   /**
-   * Used by Visualizer to track the note since the intake sensor can only see the note when the
-   * elevator is in the intake position.
+   * Used by Visualizer to track the note since the intake sensor cannot see the note when the
+   * elevator is raised.
    */
   public boolean noteHeld = false;
 
@@ -51,5 +54,47 @@ public class Intake extends SubsystemBase {
   public void setMotor(double percentOutput) {
     SmartDashboard.putNumber("Intake/Motor Percent Output (-1-1)", percentOutput);
     intakeMotor.set(TalonSRXControlMode.PercentOutput, percentOutput);
+  }
+
+  /**
+   * Run the intake until the sensor detects a note.
+   * @return Command that intakes a note.
+   */
+  public Command getIntakeNote() {
+    return Commands.startEnd(
+      () -> setMotor(1),
+      () -> setMotor(0),
+      this
+    ).until(this::getSensor);
+  }
+
+  /**
+   * Expel the note (score on amp or trap), stopping after a timeout expires.
+   * @return Command composition that expels a note.
+   */
+  public ParallelRaceGroup getExpelNote() {
+    return Commands.startEnd(
+      () -> setMotor(-0.5),
+      () -> { 
+        setMotor(0);
+        noteHeld = false;
+      },
+      this
+    ).withTimeout(0.4);
+  }
+
+  /**
+   * Feed the note to the shooter, stopping after a timeout expires.
+   * @return Command composition that feeds a note to the shooter.
+   */
+  public ParallelRaceGroup getFeedNote() {
+    return Commands.startEnd(
+      () -> setMotor(0.5),
+      () -> { 
+        setMotor(0);
+        noteHeld = false;
+      },
+      this
+    ).withTimeout(0.4);
   }
 }
