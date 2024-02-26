@@ -33,8 +33,8 @@ public class ShooterFlywheel extends SubsystemBase {
   public static final double flywheelGearing = 1.0;
 
   private TunableNumber kS = new TunableNumber("Shooter/Flywheel/PIDF/kS", 0.0);
-  private TunableNumber kV = new TunableNumber("Shooter/Flywheel/PIDF/kV", 0.14);
-  private TunableNumber kP = new TunableNumber("Shooter/Flywheel/PIDF/kP", 0.0);
+  private TunableNumber kV = new TunableNumber("Shooter/Flywheel/PIDF/kV", 0.125);
+  private TunableNumber kP = new TunableNumber("Shooter/Flywheel/PIDF/kP", 0.1);
   private TunableNumber kI = new TunableNumber("Shooter/Flywheel/PIDF/kI", 0.0);
   private TunableNumber kD = new TunableNumber("Shooter/Flywheel/PIDF/kD", 0.0);
   
