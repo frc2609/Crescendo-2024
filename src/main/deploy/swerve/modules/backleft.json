@@ -20,7 +20,7 @@
   },
   "encoder": {
     "type": "throughbore",
-    "id": 2,
+    "id": 6,
     "canbus": null
   },
   "inverted": {

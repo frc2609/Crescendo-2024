@@ -44,7 +44,7 @@ public class ShooterAngle extends SubsystemBase {
   public static final double motorToShaftRatio = (22.0 / 15.0) * 81.0;
  
   public final CANSparkMax angleMotor = new CANSparkMax(11, MotorType.kBrushless);
-  public final DutyCycleEncoder angleEncoder = new DutyCycleEncoder(9);
+  public final DutyCycleEncoder angleEncoder = new DutyCycleEncoder(5);
   public final SingleJointedArmSim armSim = new SingleJointedArmSim(
     DCMotor.getNeo550(1),
     motorToShaftRatio,
