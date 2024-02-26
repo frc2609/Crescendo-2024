@@ -91,6 +91,8 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     double percentOutput = liftPID.calculate(getHeight(), targetHeight) + liftFF.calculate(getVelocity());
     setMotor(percentOutput);
+
+    SmartDashboard.putBoolean("Elevator/At Target Height", atTargetHeight());
     logger.logAll();
   }
 
