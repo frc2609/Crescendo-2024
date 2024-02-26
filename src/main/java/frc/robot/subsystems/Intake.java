@@ -5,8 +5,8 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.VictorSPXControlMode;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
-  private final TalonSRX intakeMotor = new TalonSRX(14);
+  private final VictorSPX intakeMotor = new VictorSPX(14);
   // TODO: set actual DIO port
   private final DigitalInput intakeSensor = new DigitalInput(4);
 
@@ -55,7 +55,7 @@ public class Intake extends SubsystemBase {
    */
   public void setMotor(double percentOutput) {
     SmartDashboard.putNumber("Intake/Motor Percent Output (-1-1)", percentOutput);
-    intakeMotor.set(TalonSRXControlMode.PercentOutput, percentOutput);
+    intakeMotor.set(VictorSPXControlMode.PercentOutput, percentOutput);
   }
 
   /**
