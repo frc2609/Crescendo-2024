@@ -164,7 +164,7 @@ public class Elevator extends SubsystemBase {
     voltage = MathUtil.clamp(voltage, -motorVoltageLimit, motorVoltageLimit);
     SmartDashboard.putNumber("Elevator/Actual Voltage", voltage);
     if (RobotBase.isReal()) {
-      liftMotor.set(voltage);
+      liftMotor.setVoltage(voltage);
     } else {
       if (DriverStation.isEnabled()) {
         elevatorSim.setInputVoltage(voltage);
