@@ -23,7 +23,7 @@
 ## DIO IDs
 * 9: fr
 * 8: fl
-* 7: rr
-* 6: rl
+* 7: br
+* 6: bl
 * 5: shooter angle
 * Not wired!: intake sensor
