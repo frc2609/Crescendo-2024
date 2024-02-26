@@ -86,9 +86,7 @@ public class ShooterFlywheel extends SubsystemBase {
 
   @Override
   public void periodic() {
-    logger.logAll();
-    SmartDashboard.putBoolean("Shooter/Flywheel/At Set Speed", atSetSpeed());
-    if(kS.hasChanged(hashCode()) || kV.hasChanged(hashCode()) || kP.hasChanged(hashCode()) || kI.hasChanged(hashCode()) || kD.hasChanged(hashCode())){
+    if (kS.hasChanged(hashCode()) || kV.hasChanged(hashCode()) || kP.hasChanged(hashCode()) || kI.hasChanged(hashCode()) || kD.hasChanged(hashCode())) {
       slot0Configs.kS = kS.get();
       slot0Configs.kV = kV.get();
       slot0Configs.kP = kP.get();
@@ -97,6 +95,9 @@ public class ShooterFlywheel extends SubsystemBase {
       leftMotor.getConfigurator().apply(slot0Configs);
       rightMotor.getConfigurator().apply(slot0Configs);
     }
+
+    SmartDashboard.putBoolean("Shooter/Flywheel/At Set Speed", atSetSpeed());
+    logger.logAll();
   }
 
   @Override
