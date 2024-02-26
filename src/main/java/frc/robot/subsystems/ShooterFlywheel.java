@@ -32,11 +32,11 @@ public class ShooterFlywheel extends SubsystemBase {
   public static final double flywheelMOI = 0.5 * 1.1 * 0.08;
   public static final double flywheelGearing = 1.0;
 
-  private TunableNumber kS = new TunableNumber("kS", 0.0);
-  private TunableNumber kV = new TunableNumber("kV", 0.14);
-  private TunableNumber kP = new TunableNumber("kP", 0.0);
-  private TunableNumber kI = new TunableNumber("kI", 0.0);
-  private TunableNumber kD = new TunableNumber("kD", 0.0);
+  private TunableNumber kS = new TunableNumber("Shooter/Flywheel/PIDF/kS", 0.0);
+  private TunableNumber kV = new TunableNumber("Shooter/Flywheel/PIDF/kV", 0.14);
+  private TunableNumber kP = new TunableNumber("Shooter/Flywheel/PIDF/kP", 0.0);
+  private TunableNumber kI = new TunableNumber("Shooter/Flywheel/PIDF/kI", 0.0);
+  private TunableNumber kD = new TunableNumber("Shooter/Flywheel/PIDF/kD", 0.0);
   
   // left/right are from perspective of robot (i.e. facing towards shooter)
   public final TalonFX leftMotor = new TalonFX(12);
