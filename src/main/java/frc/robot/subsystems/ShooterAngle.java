@@ -32,6 +32,7 @@ public class ShooterAngle extends SubsystemBase {
   public static final Rotation2d forwardTolerance = Rotation2d.fromDegrees(3);
   public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(8.0);
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(0.25);
+  public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(0.2);
 
   public static final double motorPercentOutputLimit = 0.4;
   // measure at 90 degrees
@@ -93,6 +94,8 @@ public class ShooterAngle extends SubsystemBase {
   public void periodic() {
     double percentOutput = anglePID.calculate(getAngle().getDegrees(), targetAngle.getDegrees()) + angleFF.calculate(getAngle());
     setMotor(percentOutput);
+
+    SmartDashboard.putBoolean("Shooter/Angle/At Target Angle", atTargetAngle());
     logger.logAll();
   }
 
@@ -134,6 +137,10 @@ public class ShooterAngle extends SubsystemBase {
     return Rotation2d.fromDegrees(
       ((angleMotor.getEncoder().getPosition() / motorToShaftRatio) * 360.0) + reverseLimit.getDegrees()
     );
+  }
+
+  public boolean atTargetAngle() {
+    return Math.abs(targetAngle.getDegrees() - getAngle().getDegrees()) <= setpointTolerance.getDegrees();
   }
 
   /**
