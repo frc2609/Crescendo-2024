@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Alert;
 import frc.robot.utils.ArmFeedforward;
 import frc.robot.utils.BeaverLogger;
+import frc.robot.utils.TunableNumber;
 import frc.robot.utils.Alert.AlertType;
 
 public class ShooterAngle extends SubsystemBase {
@@ -34,7 +35,7 @@ public class ShooterAngle extends SubsystemBase {
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(0.25);
   public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(0.2);
 
-  public static final double motorPercentOutputLimit = 0.4;
+  public static final TunableNumber motorVoltageLimit = new TunableNumber("Shooter/Angle/Voltage Limit (V)", 6);
   // measure at 90 degrees
   public static final double angleEncoderOffset = 0.775 - (90.0 / 360.0);
   public static final double massKg = 7.5;
@@ -57,9 +58,10 @@ public class ShooterAngle extends SubsystemBase {
     reverseLimit.getRadians()
   );
 
-  // TODO: Tune these for 550
-  public final PIDController anglePID = new PIDController(0.0, 0, 0.0);
-  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.006, comDistanceFromPivotMeters, massKg, "Shooter/Angle");
+  // p = volts/degree of error
+  // when you tune these, REMEMBER THERE IS A VOLTAGE LIMIT ON THE MOTOR!
+  public final PIDController anglePID = new PIDController(0.1, 0.0, 0.0);
+  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.0728, comDistanceFromPivotMeters, massKg, "Shooter/Angle");
 
   // assumed to be at lower hard stop (natural resting place)
   private Rotation2d targetAngle = reverseLimit;
@@ -92,8 +94,8 @@ public class ShooterAngle extends SubsystemBase {
 
   @Override
   public void periodic() {
-    double percentOutput = anglePID.calculate(getAngle().getDegrees(), targetAngle.getDegrees()) + angleFF.calculate(getAngle());
-    setMotor(percentOutput);
+    double voltage = anglePID.calculate(getAngle().getDegrees(), targetAngle.getDegrees()) + angleFF.calculate(getAngle());
+    setMotor(voltage);
 
     SmartDashboard.putBoolean("Shooter/Angle/At Target Angle", atTargetAngle());
     logger.logAll();
@@ -144,30 +146,30 @@ public class ShooterAngle extends SubsystemBase {
   }
 
   /**
-   * Set motor output, accounting for forward/backward soft limits and percentOutput limit.
-   * @param percentOutput Output from -1 to 1
+   * Set motor output, accounting for forward/backward soft limits and voltage limit.
+   * @param voltage Voltage from -12 to 12
    */
-  private void setMotor(double percentOutput) {
-    SmartDashboard.putNumber("Shooter/Angle/Desired Percent Output", percentOutput);
+  private void setMotor(double voltage) {
+    SmartDashboard.putNumber("Shooter/Angle/Desired Voltage", voltage);
     if (atForwardLimit()) {
-      percentOutput = Math.min(percentOutput, 0);
+      voltage = Math.min(voltage, 0);
     }
     if (atReverseLimit()) {
-      percentOutput = Math.max(percentOutput, 0);
+      voltage = Math.max(voltage, 0);
     }
     if (pastForwardLimit() || pastReverseLimit()) {
-      percentOutput = 0;
+      voltage = 0;
       // reset PID while motor is disabled so integral doesn't build up
       anglePID.reset();
       angleOutOfRange.set(true);
     }
-    percentOutput = MathUtil.clamp(percentOutput, -motorPercentOutputLimit, motorPercentOutputLimit);
-    SmartDashboard.putNumber("Shooter/Angle/Actual Percent Output", percentOutput);
+    voltage = MathUtil.clamp(voltage, -motorVoltageLimit.get(), motorVoltageLimit.get());
+    SmartDashboard.putNumber("Shooter/Angle/Actual Voltage", voltage);
     if (RobotBase.isReal()) {
-      angleMotor.set(percentOutput);
+      angleMotor.setVoltage(voltage);
     } else {
       if (DriverStation.isEnabled()) {
-        armSim.setInputVoltage(percentOutput * 12); // convert to voltage
+        armSim.setInputVoltage(voltage);
       } else {
         armSim.setInputVoltage(0);
       }
