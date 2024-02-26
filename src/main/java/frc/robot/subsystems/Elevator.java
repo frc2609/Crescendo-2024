@@ -33,20 +33,20 @@ public class Elevator extends SubsystemBase {
 
   // elevator moves 2 * movement of one stage (both stages move at the same time)
   public static final double elevatorGearing = 2 * (1.0 / 9.0);
-  public static final double pulleySizeMeters = 0.04;
-  public static final double positionConversion = elevatorGearing * pulleySizeMeters;
+  public static final double pulleySizeMeters = 0.0362;
+  public static final double positionConversion = elevatorGearing * pulleySizeMeters * Math.PI;
   public static final double velocityConversion = positionConversion / 60.0; // convert from m/min -> m/s
   
-  // TODO: intake mass (2.86) sketchy
-  public static final double elevatorMassKg = 1.25 + 2.86;
+  public static final double elevatorMassKg = 4.11; // educated guess
   public static final double motorVoltageLimit = 12;
 
   private final CANSparkMax liftMotor = new CANSparkMax(15, MotorType.kBrushless);
   private final RelativeEncoder liftEncoder = liftMotor.getEncoder();
 
   // p = volts/meter of error
-  private final PIDController liftPID = new PIDController(10, 0.0, 0.0);
-  private final SimpleElevatorFeedforward liftFF = new SimpleElevatorFeedforward(0.0, 0.40, 0.0, elevatorMassKg);
+  private final PIDController liftPID = new PIDController(12.0, 0.0, 0.0);
+  // kG of 0.07 works to hold the elevator, but the PID is strong enough that FF isn't significant
+  private final SimpleElevatorFeedforward liftFF = new SimpleElevatorFeedforward(0.0, 0.0, 0.0, elevatorMassKg);
 
   private final ElevatorSim elevatorSim = new ElevatorSim(
     DCMotor.getNEO(1),
