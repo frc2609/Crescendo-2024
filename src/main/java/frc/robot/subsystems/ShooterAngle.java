@@ -60,8 +60,8 @@ public class ShooterAngle extends SubsystemBase {
 
   // p = volts/degree of error
   // when you tune these, REMEMBER THERE IS A VOLTAGE LIMIT ON THE MOTOR!
-  public final PIDController anglePID = new PIDController(0.1, 0.0, 0.0);
-  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.0275, comDistanceFromPivotMeters, massKg, "Shooter/Angle");
+  public final PIDController anglePID = new PIDController(0.15, 0.0, 0.0);
+  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.034, comDistanceFromPivotMeters, massKg, "Shooter/Angle");
 
   // assumed to be at lower hard stop (natural resting place)
   private Rotation2d targetAngle = reverseLimit;
