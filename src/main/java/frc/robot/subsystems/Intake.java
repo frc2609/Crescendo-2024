@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -65,7 +66,7 @@ public class Intake extends SubsystemBase {
    */
   public Command getIntakeNote() {
     return Commands.startEnd(
-      () -> setMotor(1),
+      () -> setMotor(0.7),
       () -> setMotor(0),
       this
     ).until(this::getSensor);
@@ -77,7 +78,22 @@ public class Intake extends SubsystemBase {
    */
   public ParallelRaceGroup getExpelNote() {
     return Commands.startEnd(
-      () -> setMotor(-0.5),
+      () -> setMotor(-1),
+      () -> { 
+        setMotor(0);
+        noteHeld = false;
+      },
+      this
+    ).withTimeout(0.2);
+  }
+
+  /**
+   * Feed the note to the shooter, stopping after a timeout expires.
+   * @return Command composition that feeds a note to the shooter.
+   */
+  public ParallelRaceGroup getFeedNote() {
+    return Commands.startEnd(
+      () -> setMotor(1),
       () -> { 
         setMotor(0);
         noteHeld = false;
@@ -87,17 +103,11 @@ public class Intake extends SubsystemBase {
   }
 
   /**
-   * Feed the note to the shooter, stopping after a timeout expires.
-   * @return Command composition that feeds a note to the shooter.
+   * Command that turns the intake motor off.
+   * @return Command that turns the intake motor off.
    */
-  public ParallelRaceGroup getFeedNote() {
-    return Commands.startEnd(
-      () -> setMotor(0.5),
-      () -> { 
-        setMotor(0);
-        noteHeld = false;
-      },
-      this
-    ).withTimeout(0.4);
+  public Command getTurnOff() {
+    // super simple, but convenient if you want to use it in multiple places
+    return new InstantCommand(() -> setMotor(0));
   }
 }
