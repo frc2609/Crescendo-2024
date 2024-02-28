@@ -99,7 +99,7 @@ public class Intake extends SubsystemBase {
         noteHeld = false;
       },
       this
-    ).withTimeout(0.4);
+    ).withTimeout(1.0);
   }
 
   /**
