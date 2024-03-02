@@ -6,12 +6,14 @@ package frc.robot.commands;
 
 import java.util.Optional;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AprilTag.ID;
 import frc.robot.Constants;
@@ -21,16 +23,13 @@ import frc.robot.utils.DriveUtil;
 
 public class AprilTagAmpAlign extends Command {
 
-  private final boolean isFieldRelative;
-  private final ID aprilTagID;
+  private final ID aprilTagID = Constants.AprilTag.ID.kRedAmp;;
 
-  PIDController xAlignController = new PIDController(0, 0, 0);
+  PIDController xAlignController = new PIDController(0.5, 0, 0);
 
   /** Creates a new AmpAlign. */
-  public AprilTagAmpAlign(boolean isFieldRelative) {
-    // Use addRequirements() here to declare subsystem dependencies.
-    this.isFieldRelative = isFieldRelative;
-    this.aprilTagID = Constants.AprilTag.ID.kRedAmp;
+  public AprilTagAmpAlign() {
+    addRequirements(RobotContainer.drive);
   }
 
   // Called when the command is initially scheduled.
@@ -51,19 +50,18 @@ public class AprilTagAmpAlign extends Command {
       DriveUtil.getSensitivity(RobotContainer.driverController)
     );
 
+    double calculatedSpeed = MathUtil.clamp(xAlignController.calculate(targetOffset.getY(), 0), -2, 2);
+    SmartDashboard.putNumber("align speed", calculatedSpeed);
+
     ChassisSpeeds speeds = RobotContainer.drive.drive.swerveController.getTargetSpeeds(
-      driverInputs[0],
+      calculatedSpeed,
       driverInputs[1],
       -tagHeading,
       RobotContainer.drive.drive.getPose().getRotation().getRadians(),
       RobotContainer.drive.getLimitedTeleopLinearSpeed()
     );
 
-    if (isFieldRelative) {
-      RobotContainer.drive.drive.driveFieldOriented(speeds);
-    } else {
-      RobotContainer.drive.drive.drive(speeds);
-    }
+    RobotContainer.drive.drive.driveFieldOriented(speeds);
 
   }
 
