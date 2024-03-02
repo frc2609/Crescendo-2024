@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 // import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.AprilTag.ID;
+import frc.robot.commands.AprilTagAmpAlign;
 import frc.robot.commands.AprilTagTrackDrive;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Limelight;
@@ -62,6 +63,7 @@ public class RobotContainer {
     driverController.x().onTrue(new InstantCommand(drive.drive::lockPose));
     driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro));
     driverController.y().whileTrue(new AprilTagTrackDrive(true, ID.kRedSpeakerCenter));
+    driverController.a().whileTrue(new AprilTagAmpAlign(true));
     // driverController.a().onTrue(new InstantCommand(() -> {
     //   shooterAngle.setAngle(Rotation2d.fromDegrees(0));
     // }, shooterAngle));
