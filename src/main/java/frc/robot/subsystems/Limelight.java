@@ -107,7 +107,7 @@ public class Limelight extends SubsystemBase {
     Pose2d targetPose2d = new Pose2d(); // NOTE: if targetPose3d is NOT present, we will just return this
     if (targetPose3d.isPresent()) {
       // Convert to 2D
-      Rotation2d targetRotation = new Rotation2d(targetPose3d.get().getRotation().getX(), targetPose3d.get().getRotation().getY());
+      Rotation2d targetRotation = new Rotation2d(Math.cos(targetPose3d.get().getRotation().getZ()), Math.sin(targetPose3d.get().getRotation().getZ()));
       targetPose2d = new Pose2d(targetPose3d.get().getX(), targetPose3d.get().getY(), targetRotation);
     }
     return targetPose2d;
