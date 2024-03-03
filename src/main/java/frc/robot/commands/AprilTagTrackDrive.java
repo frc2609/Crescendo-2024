@@ -42,9 +42,9 @@ public class AprilTagTrackDrive extends Command {
   @Override
   public void execute() {
     Transform2d targetOffset = RobotContainer.drive.drive.swerveDrivePoseEstimator.getEstimatedPosition().minus(Limelight.getTargetPose2d(aprilTagID));
-    double tx = Math.atan(targetOffset.getY() / targetOffset.getX());
+    double heading = Math.atan(targetOffset.getY() / targetOffset.getX());
     
-    SmartDashboard.putNumber("AprilTagTrack/Target tx", tx);
+    SmartDashboard.putNumber("AprilTagTrack/Target Heading (Deg)", Math.toDegrees(heading));
     SmartDashboard.putNumber("AprilTagTrack/Target Offset X", targetOffset.getX());
     SmartDashboard.putNumber("AprilTagTrack/Target Offset Y", targetOffset.getY());
     SmartDashboard.putNumber("AprilTagTrack/Current Heading (Deg)", RobotContainer.drive.drive.getYaw().getDegrees());
@@ -61,7 +61,7 @@ public class AprilTagTrackDrive extends Command {
     ChassisSpeeds speeds = RobotContainer.drive.drive.swerveController.getTargetSpeeds(
       driverInputs[0],
       driverInputs[1],
-      tx,
+      heading,
       RobotContainer.drive.drive.getPose().getRotation().getRadians(),
       RobotContainer.drive.getLimitedTeleopLinearSpeed()
     );
@@ -71,7 +71,6 @@ public class AprilTagTrackDrive extends Command {
     } else {
       RobotContainer.drive.drive.drive(speeds);
     }
-
   }
 
   // Called once the command ends or is interrupted.
