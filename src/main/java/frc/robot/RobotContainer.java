@@ -8,6 +8,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
+import edu.wpi.first.wpilibj.DriverStation;
 // import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -88,5 +89,21 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
+  }
+
+  /**
+   * Convenience function to check the current alliance according to the DS or FMS (if connected).
+   * Assumes blue alliance if alliance is invalid.
+   * @param callerName Name of code that depends on result. Used to report error if the alliance isn't detected.
+   * @return Whether robot is on red alliance.
+   */
+  public static boolean isRedAlliance(String callerName) {
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+      return alliance.get() == DriverStation.Alliance.Red;
+    } else {
+      System.out.println("No alliance detected for " + callerName + ": Assuming blue alliance.");
+      return false;
+    }
   }
 }
