@@ -26,7 +26,7 @@ public class Drive extends SubsystemBase {
   public final SwerveDrive drive;
   private final double originalMaxAngularSpeed;
 
-  /** Creates a new NewDrive. */
+  /** Creates a new Drive. */
   public Drive(boolean verboseTelemetry) {
     if (verboseTelemetry) {
       SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.HIGH;

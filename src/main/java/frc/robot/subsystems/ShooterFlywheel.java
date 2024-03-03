@@ -33,7 +33,7 @@ public class ShooterFlywheel extends SubsystemBase {
   public static final double flywheelGearing = 1.0;
 
   private TunableNumber kS = new TunableNumber("kS", 0.0);
-  private TunableNumber kV = new TunableNumber("kV", 0.5);
+  private TunableNumber kV = new TunableNumber("kV", 0.14);
   private TunableNumber kP = new TunableNumber("kP", 0.0);
   private TunableNumber kI = new TunableNumber("kI", 0.0);
   private TunableNumber kD = new TunableNumber("kD", 0.0);
@@ -43,7 +43,7 @@ public class ShooterFlywheel extends SubsystemBase {
   public final TalonFX rightMotor = new TalonFX(13);
 
   public final TunableNumber spinMultiplier = new TunableNumber("Shooter/Flywheel/Spin Multiplier (0-1)", 0.8);
-  private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0);
+  private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0).withEnableFOC(true);
 
   public final FlywheelSim leftFlywheelSim = new FlywheelSim(
     DCMotor.getKrakenX60Foc(1),
