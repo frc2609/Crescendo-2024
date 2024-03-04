@@ -35,7 +35,7 @@ public class AutoSetAngle extends Command {
     // odometry pose measured from blue origin, must adjust it if we're on red alliance
     final double odometryXDistance = RobotContainer.isRedAlliance("AutoSetAngle") ? fieldLength - robotPose.getX() : robotPose.getX();
     final double pivotDistance = odometryXDistance + shooterDistanceFromCenter;
-    final Rotation2d angle = Rotation2d.fromRadians(Math.tan(targetHeight / pivotDistance));
+    final Rotation2d angle = Rotation2d.fromRadians(Math.atan(targetHeight / pivotDistance));
 
     SmartDashboard.putNumber("AutoSetAngle/Distance to Shooter Pivot (m)", pivotDistance);
     SmartDashboard.putNumber("AutoSetAngle/Calculated Angle (deg)", angle.getDegrees());
