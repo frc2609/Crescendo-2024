@@ -84,7 +84,7 @@ public class RobotContainer {
     driverController.back().onTrue(new InstantCommand(() -> intake.noteHeld = true));
     // TODO: add some intake commands
     
-    // ShooterAngle
+    // Shooter Angle
     // driverController.a().onTrue(new InstantCommand(() -> {
     //   shooterAngle.setAngle(Rotation2d.fromDegrees(0));
     // }, shooterAngle));
@@ -99,7 +99,7 @@ public class RobotContainer {
     // }, shooterAngle));
     // shooterAngle.setDefaultCommand(new RunCommand(() -> shooterAngle.setAngle(Rotation2d.fromDegrees(driverController.getRightTriggerAxis() * 60.0)), shooterAngle));
     
-    // ShooterFlywheel
+    // Shooter Flywheel
     shooterFlywheel.setDefaultCommand(new RunCommand(() -> {
       SpinType spinType = SpinType.disable;
       // if (driverController.leftBumper().getAsBoolean())
