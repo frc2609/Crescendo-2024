@@ -120,7 +120,7 @@ public class RobotContainer {
   /**
    * Convenience function to check the current alliance according to the DS or FMS (if connected).
    * Assumes blue alliance if alliance is invalid.
-   * @param callerName Name of code that depends on result. Used to report error if the alliance isn't detected.
+   * @param callerName Name of code that depends on result. Used to report an error if the alliance isn't detected.
    * @return Whether robot is on red alliance.
    */
   public static boolean isRedAlliance(String callerName) {
