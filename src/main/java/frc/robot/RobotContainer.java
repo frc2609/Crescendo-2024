@@ -22,7 +22,6 @@ import frc.robot.commands.AprilTagAmpAlign;
 import frc.robot.commands.AprilTagTrackDrive;
 import frc.robot.commands.MoveElevatorToPosition;
 import frc.robot.commands.MoveElevatorToPosition.Position;
-import frc.robot.Constants.AprilTag.ID;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
