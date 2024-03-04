@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AprilTagTrackDrive;
 import frc.robot.commands.MoveElevatorToPosition;
+import frc.robot.commands.ShootNote;
 import frc.robot.commands.MoveElevatorToPosition.Position;
 import frc.robot.Constants.AprilTag.ID;
 import frc.robot.subsystems.Drive;
@@ -46,12 +47,10 @@ public class RobotContainer {
 
     configureBindings();
 
-    NamedCommands.registerCommand("printOnCheckpoint", Commands.print("Reached Checkpoint!"));
-    NamedCommands.registerCommand("Autobalance", Commands.print("Autobalancing!"));
-    NamedCommands.registerCommand("ScorePiece1", Commands.print("Scoring Piece 1!"));
-    NamedCommands.registerCommand("PickupPiece2", Commands.print("Picking Up Piece 2!"));
-    NamedCommands.registerCommand("ScorePiece2", Commands.print("Scoring Piece 2!"));
-    NamedCommands.registerCommand("WaitForButtonPress", Commands.waitUntil(driverController.a()::getAsBoolean));
+    NamedCommands.registerCommand("IntakeNote", intake.getIntakeNote());
+    NamedCommands.registerCommand("ShootNote", new ShootNote());
+    NamedCommands.registerCommand("PrintOnCheckpoint", Commands.print("Reached Checkpoint!"));
+    NamedCommands.registerCommand("WaitForButtonPress", Commands.waitUntil(driverController.back()::getAsBoolean));
 
     PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
       drive.drive.field.getObject("target pose").setPose(pose);
