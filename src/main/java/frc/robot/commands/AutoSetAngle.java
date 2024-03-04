@@ -9,6 +9,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.AprilTag.ID;
+import frc.robot.subsystems.Limelight;
 
 /**
  * Calculate shooter angle using the robot's distance from the speaker.
@@ -21,7 +23,6 @@ public class AutoSetAngle extends Command {
   public static final double noteHeight = 0.19; // distance from ground to note at shooter pivot
   public static final double shooterDistanceFromCenter = -0.02;
   public static final double targetHeight = speakerHeight + heightOffset - noteHeight;
-  public static final double fieldLength = 16.51;
 
   /** Creates a new AutoSetAngle. */
   public AutoSetAngle() {
@@ -32,12 +33,12 @@ public class AutoSetAngle extends Command {
   @Override
   public void execute() {
     final Pose2d robotPose = RobotContainer.drive.drive.getPose();
-    // odometry pose measured from blue origin, must adjust it if we're on red alliance
-    final double odometryXDistance = RobotContainer.isRedAlliance("AutoSetAngle") ? fieldLength - robotPose.getX() : robotPose.getX();
-    final double pivotDistance = odometryXDistance + shooterDistanceFromCenter;
-    final Rotation2d angle = Rotation2d.fromRadians(Math.atan(targetHeight / pivotDistance));
+    final ID speakerID = RobotContainer.isRedAlliance("AutoSetAngle") ? ID.kRedSpeakerCenter : ID.kBlueSpeakerCenter;
+    final double distanceToSpeaker = robotPose.getTranslation().getDistance(Limelight.getTargetPose2d(speakerID).getTranslation());
+    final double pivotDistanceToSpeaker = distanceToSpeaker + shooterDistanceFromCenter;
+    final Rotation2d angle = Rotation2d.fromRadians(Math.atan(targetHeight / pivotDistanceToSpeaker));
 
-    SmartDashboard.putNumber("AutoSetAngle/Distance to Shooter Pivot (m)", pivotDistance);
+    SmartDashboard.putNumber("AutoSetAngle/Distance to Shooter Pivot (m)", pivotDistanceToSpeaker);
     SmartDashboard.putNumber("AutoSetAngle/Calculated Angle (deg)", angle.getDegrees());
 
     RobotContainer.shooterAngle.setAngle(angle);
