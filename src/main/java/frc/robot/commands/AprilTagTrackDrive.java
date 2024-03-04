@@ -41,7 +41,7 @@ public class AprilTagTrackDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Transform2d targetOffset = RobotContainer.drive.drive.swerveDrivePoseEstimator.getEstimatedPosition().minus(Limelight.getTargetPose2d(aprilTagID));
+    Transform2d targetOffset = RobotContainer.drive.drive.getPose().minus(Limelight.getTargetPose2d(aprilTagID));
     double heading = Math.atan(targetOffset.getY() / targetOffset.getX());
     
     SmartDashboard.putNumber("AprilTagTrack/Target Heading (Deg)", Math.toDegrees(heading));
