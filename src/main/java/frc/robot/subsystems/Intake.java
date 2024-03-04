@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
   private final VictorSPX intakeMotor = new VictorSPX(14);
-  // TODO: set actual DIO port
   private final DigitalInput intakeSensor = new DigitalInput(4);
 
   /**
