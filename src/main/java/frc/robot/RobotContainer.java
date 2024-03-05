@@ -8,7 +8,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
-// import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,10 +16,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.AprilTag.ID;
 import frc.robot.commands.AprilTagTrackDrive;
 import frc.robot.commands.MoveElevatorToPosition;
 import frc.robot.commands.MoveElevatorToPosition.Position;
-import frc.robot.Constants.AprilTag.ID;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
@@ -42,7 +42,9 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
+    // TODO: remove; temporary
     SmartDashboard.putNumber("shooter setpoint", 0);
+    SmartDashboard.putNumber("shooter angle", 0);
 
     configureBindings();
 
@@ -82,7 +84,10 @@ public class RobotContainer {
     // Fake the note being picked up during simulation.
     // Doesn't require intake so intake commands aren't cancelled when run.
     driverController.back().onTrue(new InstantCommand(() -> intake.noteHeld = true));
-    // TODO: add some intake commands
+    // driverController.a().onTrue(intake.getIntakeNote());
+    // driverController.b().onTrue(intake.getExpelNote());
+    // driverController.y().onTrue(intake.getFeedNote());
+    // driverController.x().onTrue(intake.getTurnOff());
     
     // ShooterAngle
     // driverController.a().onTrue(new InstantCommand(() -> {
@@ -97,15 +102,16 @@ public class RobotContainer {
     // driverController.x().onTrue(new InstantCommand(() -> {
     //   shooterAngle.setAngle(Rotation2d.fromDegrees(75));
     // }, shooterAngle));
-    // shooterAngle.setDefaultCommand(new RunCommand(() -> shooterAngle.setAngle(Rotation2d.fromDegrees(driverController.getRightTriggerAxis() * 60.0)), shooterAngle));
+    shooterAngle.setDefaultCommand(new RunCommand(() -> shooterAngle.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("shooter angle", 0))), shooterAngle));
     
     // ShooterFlywheel
-    shooterFlywheel.setDefaultCommand(new RunCommand(() -> {
+    driverController.start().toggleOnTrue(
+      new RunCommand(() -> {
       SpinType spinType = SpinType.disable;
-      // if (driverController.leftBumper().getAsBoolean())
+      if (driverController.leftBumper().getAsBoolean())
         spinType = SpinType.slowLeftMotor;
-      // if (driverController.rightBumper().getAsBoolean())
-      //   spinType = SpinType.slowRightMotor;
+      if (driverController.rightBumper().getAsBoolean())
+        spinType = SpinType.slowRightMotor;
       shooterFlywheel.setSpeed(SmartDashboard.getNumber("shooter setpoint", 0), spinType);
     }, shooterFlywheel));
   }
