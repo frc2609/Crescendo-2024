@@ -65,7 +65,6 @@ public class RobotContainer {
     // TODO: Move these to 'Test' mode as applicable
 
     // Swerve
-    driverController.x().onTrue(new InstantCommand(drive.drive::lockPose));
     driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro));
     driverController.y().whileTrue(new AprilTagTrackDrive(true, ID.kRedSpeakerCenter));
     
