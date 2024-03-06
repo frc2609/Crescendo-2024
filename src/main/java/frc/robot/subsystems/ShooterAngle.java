@@ -9,9 +9,10 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -28,12 +29,12 @@ import frc.robot.utils.Alert.AlertType;
 public class ShooterAngle extends SubsystemBase {
   // forward = +ve, towards elevator
   // motor is prevented from moving in one direction when a limit is reached
-  public static final Rotation2d forwardLimit = Rotation2d.fromDegrees(55);
+  public static final Rotation2d forwardLimit = Rotation2d.fromDegrees(65);
   // motor is completely disabled if limit + tolerance (or - tolerance if reverse) is exceeded
   public static final Rotation2d forwardTolerance = Rotation2d.fromDegrees(3);
   public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(8.0);
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(0.25);
-  public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(0.2);
+  public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(0.5);
 
   public static final TunableNumber motorVoltageLimit = new TunableNumber("Shooter/Angle/Voltage Limit (V)", 6);
   // measure at 90 degrees
@@ -60,8 +61,8 @@ public class ShooterAngle extends SubsystemBase {
 
   // p = volts/degree of error
   // when you tune these, REMEMBER THERE IS A VOLTAGE LIMIT ON THE MOTOR!
-  public final PIDController anglePID = new PIDController(0.15, 0.0, 0.0);
-  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.034, comDistanceFromPivotMeters, massKg, "Shooter/Angle");
+  public final ProfiledPIDController anglePID = new ProfiledPIDController(0.3, 0.0, 0.0, new Constraints(80, 120));
+  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.55, comDistanceFromPivotMeters, massKg, "Shooter/Angle");
 
   // assumed to be at lower hard stop (natural resting place)
   private Rotation2d targetAngle = reverseLimit;
@@ -82,6 +83,7 @@ public class ShooterAngle extends SubsystemBase {
     
     angleEncoder.setPositionOffset(angleEncoderOffset);
     armSim.update(0); // setup simulation before periodic() runs for the first time
+    anglePID.setGoal(targetAngle.getDegrees());
 
     SmartDashboard.putData("Shooter/Angle/PID", anglePID);
     SmartDashboard.putData("Shooter/Angle/FF", angleFF);
@@ -91,6 +93,7 @@ public class ShooterAngle extends SubsystemBase {
     logger.addLoggable("Shooter/Angle/Current (Deg)", () -> getAngle().getDegrees(), true);
     logger.addLoggable("Shooter/Angle/Target (Deg)", () -> targetAngle.getDegrees(), true);
     logger.addLoggable("Shooter/Angle/NEO Position (Deg)", () -> getSparkAngle().getDegrees(), true);
+    logger.addLoggable("Shooter/Angle/Motion Profile Setpoint (Deg)", () -> anglePID.getSetpoint().position, true);
   }
 
   @Override
@@ -118,9 +121,9 @@ public class ShooterAngle extends SubsystemBase {
    * @param angle Angle to hold shooter at.
    */
   public void setAngle(Rotation2d angle) {
-    SmartDashboard.putNumber("Shooter/Angle/Desired Setpoint (Deg)", angle.getDegrees());
+    SmartDashboard.putNumber("Shooter/Angle/Desired Goal (Deg)", angle.getDegrees());
     targetAngle = Rotation2d.fromDegrees(MathUtil.clamp(angle.getDegrees(), reverseLimit.getDegrees(), forwardLimit.getDegrees()));
-    SmartDashboard.putNumber("Shooter/Angle/Actual Setpoint (Deg)", targetAngle.getDegrees());
+    SmartDashboard.putNumber("Shooter/Angle/Actual Goal (Deg)", targetAngle.getDegrees());
   }
 
   /**
@@ -160,8 +163,8 @@ public class ShooterAngle extends SubsystemBase {
     }
     if (pastForwardLimit() || pastReverseLimit()) {
       voltage = 0;
-      // reset PID while motor is disabled so integral doesn't build up
-      anglePID.reset();
+      // reset controller while motor is disabled so motion profile doesn't keep going
+      anglePID.reset(getAngle().getDegrees());
       angleOutOfRange.set(true);
     }
     voltage = MathUtil.clamp(voltage, -motorVoltageLimit.get(), motorVoltageLimit.get());
