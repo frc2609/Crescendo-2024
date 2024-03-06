@@ -107,6 +107,6 @@ public class Intake extends SubsystemBase {
    */
   public Command getTurnOff() {
     // super simple, but convenient if you want to use it in multiple places
-    return new InstantCommand(() -> setMotor(0));
+    return new InstantCommand(() -> setMotor(0), this);
   }
 }
