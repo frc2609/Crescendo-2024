@@ -9,13 +9,11 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.wpilibj.DriverStation;
-// import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.AprilTag.ID;
 import frc.robot.commands.AprilTagAmpAlign;
@@ -28,7 +26,6 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterAngle;
 import frc.robot.subsystems.ShooterFlywheel;
-import frc.robot.subsystems.ShooterFlywheel.SpinType;
 import frc.robot.utils.Visualizer;
 
 public class RobotContainer {
@@ -44,8 +41,6 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
-    SmartDashboard.putNumber("shooter setpoint", 0);
-
     configureBindings();
 
     NamedCommands.registerCommand("printOnCheckpoint", Commands.print("Reached Checkpoint!"));
@@ -69,8 +64,9 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
+    // TODO: Move these to 'Test' mode as applicable
+
     // Swerve
-    driverController.x().onTrue(new InstantCommand(drive.drive::lockPose));
     driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro));
     driverController.y().whileTrue(new AprilTagTrackDrive(true, ID.kRedSpeakerCenter));
     driverController.a().whileTrue(new AprilTagAmpAlign());
@@ -79,38 +75,19 @@ public class RobotContainer {
     driverController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
     driverController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
     driverController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
-    // elevator.setDefaultCommand(new RunCommand(() -> elevator.setHeight(driverController.getLeftTriggerAxis()), elevator));
 
     // Intake
     // Fake the note being picked up during simulation.
     // Doesn't require intake so intake commands aren't cancelled when run.
     driverController.back().onTrue(new InstantCommand(() -> intake.noteHeld = true));
-    // TODO: add some intake commands
+    // driverController.a().onTrue(intake.getIntakeNote());
+    // driverController.b().onTrue(intake.getExpelNote());
+    // driverController.y().onTrue(intake.getFeedNote());
+    // driverController.x().onTrue(intake.getTurnOff());
     
-    // ShooterAngle
-    // driverController.a().onTrue(new InstantCommand(() -> {
-    //   shooterAngle.setAngle(Rotation2d.fromDegrees(0));
-    // }, shooterAngle));
-    // driverController.b().onTrue(new InstantCommand(() -> {
-    //   shooterAngle.setAngle(Rotation2d.fromDegrees(25));
-    // }, shooterAngle));
-    // driverController.y().onTrue(new InstantCommand(() -> {
-    //   shooterAngle.setAngle(Rotation2d.fromDegrees(55));
-    // }, shooterAngle));
-    // driverController.x().onTrue(new InstantCommand(() -> {
-    //   shooterAngle.setAngle(Rotation2d.fromDegrees(75));
-    // }, shooterAngle));
-    // shooterAngle.setDefaultCommand(new RunCommand(() -> shooterAngle.setAngle(Rotation2d.fromDegrees(driverController.getRightTriggerAxis() * 60.0)), shooterAngle));
+    // Shooter Angle
     
-    // ShooterFlywheel
-    shooterFlywheel.setDefaultCommand(new RunCommand(() -> {
-      SpinType spinType = SpinType.disable;
-      // if (driverController.leftBumper().getAsBoolean())
-        spinType = SpinType.slowLeftMotor;
-      // if (driverController.rightBumper().getAsBoolean())
-      //   spinType = SpinType.slowRightMotor;
-      shooterFlywheel.setSpeed(SmartDashboard.getNumber("shooter setpoint", 0), spinType);
-    }, shooterFlywheel));
+    // Shooter Flywheel
   }
 
   public Command getAutonomousCommand() {
