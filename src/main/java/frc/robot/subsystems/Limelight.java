@@ -29,11 +29,11 @@ public class Limelight extends SubsystemBase {
 
   @Override
   public void periodic() {
-    Results results = LimeLightHelpers.getLatestResults("limelight").targetingResults;
-
     // Only consider updating odometry if the reading from limelight is valid
     // False when no valid tags detected
-    if (results.valid) {
+    if (LimeLightHelpers.getTV("limelight")) {
+      Results results = LimeLightHelpers.getLatestResults("limelight").targetingResults;
+
       // Record recently detected pose
       limelightPose = results.getBotPose2d_wpiBlue();
 
