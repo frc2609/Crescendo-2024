@@ -22,7 +22,7 @@ import frc.robot.subsystems.ShooterFlywheel.SpinType;
 public class AutoSetShooter extends Command {
   // Units in meters, positive = up or forward
   public static final double speakerHeight = 1.98;
-  public static final double heightOffset = 0.2;
+  public static final double heightOffset = 0.125;
   public static final double noteHeight = 0.19; // distance from ground to note at shooter pivot
   public static final double shooterDistanceFromCenter = -0.02;
   public static final double targetHeight = speakerHeight + heightOffset - noteHeight;
