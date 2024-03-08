@@ -63,7 +63,7 @@ public class ShooterAngle extends SubsystemBase {
   // p = volts/degree of error
   // when you tune these, REMEMBER THERE IS A VOLTAGE LIMIT ON THE MOTOR!
   public final ProfiledPIDController anglePID = new ProfiledPIDController(0.35, 0.0, 0.0, new Constraints(120, 120));
-  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.7, comDistanceFromPivotMeters, comAngleFromForwardDegrees, massKg, "Shooter/Angle");
+  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.07, comDistanceFromPivotMeters, comAngleFromForwardDegrees, massKg, "Shooter/Angle");
 
   // assumed to be at lower hard stop (natural resting place)
   private Rotation2d targetAngle = reverseLimit;
@@ -171,7 +171,7 @@ public class ShooterAngle extends SubsystemBase {
     voltage = MathUtil.clamp(voltage, -motorVoltageLimit.get(), motorVoltageLimit.get());
     SmartDashboard.putNumber("Shooter/Angle/Actual Voltage", voltage);
     if (RobotBase.isReal()) {
-      angleMotor.setVoltage(voltage);
+      // angleMotor.setVoltage(voltage);
     } else {
       if (DriverStation.isEnabled()) {
         armSim.setInputVoltage(voltage);
