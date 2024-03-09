@@ -18,6 +18,7 @@ public class ArmFeedforward implements Sendable {
   public double kS;
   public double kG;
   public final double comDistanceFromPivot;
+  public final double comAngleFromForwardDegrees;
   public final double mass;
   public final String ntTableName;
 
@@ -29,10 +30,11 @@ public class ArmFeedforward implements Sendable {
    * @param mass Mass of arm in kg.
    * @param ntTableName Name to prefix SmartDashboard values with (e.g. "Shooter/Angle")
    */
-  public ArmFeedforward(double kS, double kG, double comDistanceFromPivot, double mass, String ntTableName) {
+  public ArmFeedforward(double kS, double kG, double comDistanceFromPivot, double comAngleFromForwardDegrees, double mass, String ntTableName) {
     this.kS = kS;
     this.kG = kG;
     this.comDistanceFromPivot = comDistanceFromPivot;
+    this.comAngleFromForwardDegrees = comAngleFromForwardDegrees;
     this.mass = mass;
     this.ntTableName = ntTableName;
   }
@@ -50,6 +52,7 @@ public class ArmFeedforward implements Sendable {
    * @return Motor voltage necessary to hold the arm up against gravity.
    */
   public double calculate(Rotation2d angle) {
+    angle = angle.plus(Rotation2d.fromDegrees(comAngleFromForwardDegrees));
     double gravityPerpendicularToArm = -9.8 * mass * angle.getCos();
     double torque = gravityPerpendicularToArm * comDistanceFromPivot;
     SmartDashboard.putNumber(ntTableName + "/FF/Gravitational Torque (Nm)", torque);
