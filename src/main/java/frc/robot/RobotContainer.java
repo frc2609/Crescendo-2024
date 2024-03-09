@@ -9,6 +9,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.AprilTag.ID;
+import frc.robot.commands.AprilTagAmpAlign;
 import frc.robot.commands.AprilTagTrackDrive;
 import frc.robot.commands.MoveElevatorToPosition;
 import frc.robot.commands.MoveElevatorToPosition.Position;
@@ -70,8 +71,9 @@ public class RobotContainer {
 
     // Swerve
     // driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro));
-    // driverController.y().whileTrue(new AprilTagTrackDrive(true, ID.kRedSpeakerCenter));
-    
+    // driverController.y().whileTrue(AprilTagTrackDrive.getAlignToSpeaker(true));
+    // riverController.a().whileTrue(new AprilTagAmpAlign());
+
     // Elevator
     driverController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
     driverController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
@@ -110,5 +112,21 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
+  }
+
+  /**
+   * Convenience function to check the current alliance according to the DS or FMS (if connected).
+   * Assumes blue alliance if alliance is invalid.
+   * @param callerName Name of code that depends on result. Used to report an error if the alliance isn't detected.
+   * @return Whether robot is on red alliance.
+   */
+  public static boolean isRedAlliance(String callerName) {
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+      return alliance.get() == DriverStation.Alliance.Red;
+    } else {
+      System.out.println("No alliance detected for " + callerName + ": Assuming blue alliance.");
+      return false;
+    }
   }
 }

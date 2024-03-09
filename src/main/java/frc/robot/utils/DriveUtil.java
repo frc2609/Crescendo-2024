@@ -7,6 +7,7 @@ package frc.robot.utils;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.Xbox;
 
 /** Add your docs here. */
@@ -45,6 +46,7 @@ public class DriveUtil {
    * @param cubeLinearYInput Set according to driver preference. Leave this off for better left/right manuverability at high forward/back speeds.
    * @param cubeAngularVelocity Set according to driver preference.
    * @param sensitivityMultiplier Affects linear and angular velocities (not heading).
+   * @param isFieldRelative Invert controls on red alliance if field relative control is desired.
    * @return [linearX, linearY, angularVelocity, headingX, headingY]
    */
   public static double[] getDriverInputs(
@@ -53,7 +55,8 @@ public class DriveUtil {
     boolean cubeLinearXInput,
     boolean cubeLinearYInput,
     boolean cubeAngularVelocity,
-    double sensitivityMultiplier
+    double sensitivityMultiplier,
+    boolean isFieldRelative
   ) {
     // all values inverted because they are positive in the opposite direction
     // XboxController x and y are swapped from WPILib's field x and y
@@ -81,6 +84,14 @@ public class DriveUtil {
     linearX *= sensitivityMultiplier;
     linearY *= sensitivityMultiplier;
     angularVelocity *= sensitivityMultiplier;
+
+    if (RobotContainer.isRedAlliance("DriveUtil") && isFieldRelative) {
+      linearX *= -1;
+      linearY *= -1;
+      headingX *= -1;
+      headingY *= -1;
+      // angular velocity doesn't need to be scaled because it is always the same direction
+    }
 
     return new double[] {
       linearX,
