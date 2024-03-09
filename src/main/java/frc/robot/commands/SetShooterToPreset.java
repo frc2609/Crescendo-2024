@@ -16,8 +16,8 @@ public class SetShooterToPreset extends Command {
   public enum ShooterPreset {
     // TODO: placeholders; tune
     kAtSpeaker(3000.0, 55.0, SpinType.disable),
-    kAtPodium(4000.0, 40.0, SpinType.disable),
-    kThrowNote(5800.0, 55.0, SpinType.slowLeftMotor);
+    kAtPodium(4000.0, 35.0, SpinType.slowLeftMotor),
+    kThrowNote(5800.0, 10.0, SpinType.slowLeftMotor);
 
     public final Rotation2d angle;
     public final double RPM;
