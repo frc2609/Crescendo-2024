@@ -8,6 +8,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 // import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -18,7 +19,9 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AprilTagTrackDrive;
 import frc.robot.commands.MoveElevatorToPosition;
+import frc.robot.commands.SetShooterToPreset;
 import frc.robot.commands.MoveElevatorToPosition.Position;
+import frc.robot.commands.SetShooterToPreset.ShooterPreset;
 import frc.robot.Constants.AprilTag.ID;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
@@ -99,6 +102,11 @@ public class RobotContainer {
     // }, shooterAngle));
     // shooterAngle.setDefaultCommand(new RunCommand(() -> shooterAngle.setAngle(Rotation2d.fromDegrees(driverController.getRightTriggerAxis() * 60.0)), shooterAngle));
     
+    driverController.a().onTrue(new SetShooterToPreset(ShooterPreset.kAtSpeaker));
+    driverController.b().onTrue(new SetShooterToPreset(ShooterPreset.kAtPodium));
+    driverController.x().onTrue(new SetShooterToPreset(ShooterPreset.kThrowNote));
+    driverController.y().onTrue(new RunCommand(() -> shooterAngle.setAngle(Rotation2d.fromRotations(driverController.getRightTriggerAxis())), shooterAngle));
+
     // ShooterFlywheel
     shooterFlywheel.setDefaultCommand(new RunCommand(() -> {
       SpinType spinType = SpinType.disable;
