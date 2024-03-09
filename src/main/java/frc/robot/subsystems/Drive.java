@@ -13,10 +13,10 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.Swerve;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
@@ -61,12 +61,7 @@ public class Drive extends SubsystemBase {
           new ReplanningConfig() // customize this as desired
       ),
       () -> {
-        // mirror the path (drawn on blue side) if we are on the red alliance
-        var alliance = DriverStation.getAlliance();
-        if (alliance.isPresent()) {
-          return alliance.get() == DriverStation.Alliance.Red;
-        }
-        return false;
+        return RobotContainer.isRedAlliance("Drive (PathPlanner)");
       },
       this
     );

@@ -52,7 +52,8 @@ public class AprilTagAmpAlign extends Command {
       false,
       false,
       true,
-      DriveUtil.getSensitivity(RobotContainer.driverController)
+      DriveUtil.getSensitivity(RobotContainer.driverController),
+      true
     );
 
     double calculatedSpeed = MathUtil.clamp(xAlignController.calculate(targetOffset.getY(), 0), -alignmentSpeedLimit, alignmentSpeedLimit);

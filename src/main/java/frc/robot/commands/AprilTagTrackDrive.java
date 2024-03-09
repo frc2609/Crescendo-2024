@@ -62,7 +62,8 @@ public class AprilTagTrackDrive extends Command {
       false,
       false,
       true,
-      DriveUtil.getSensitivity(RobotContainer.driverController)
+      DriveUtil.getSensitivity(RobotContainer.driverController),
+      isFieldRelative
     );
 
     ChassisSpeeds speeds = RobotContainer.drive.drive.swerveController.getTargetSpeeds(
