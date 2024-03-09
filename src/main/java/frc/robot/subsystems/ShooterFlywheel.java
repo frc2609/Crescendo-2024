@@ -28,13 +28,13 @@ public class ShooterFlywheel extends SubsystemBase {
   public static final double rpmTolerance = 100.0;
 
   // 0.5 * m * r^2
-  // mass = 0.1kg/wheel * 6 + 0.04kg/hex shaft * 3 + 0.1kg/gear * 2 + 0.04kg/pulley * 2 + 0.05/metal pulley * 2
-  public static final double flywheelMOI = 0.5 * 1.1 * 0.08;
+  // mass = 0.1kg/wheel * 9 + 0.04kg/hex shaft * 3 + 0.1kg/gear * 3 + 0.04kg/pulley * 4
+  public static final double flywheelMOI = 0.5 * 1.48 * 0.08;
   public static final double flywheelGearing = 1.0;
 
   private TunableNumber kS = new TunableNumber("Shooter/Flywheel/PIDF/kS", 0.0);
-  private TunableNumber kV = new TunableNumber("Shooter/Flywheel/PIDF/kV", 0.125);
-  private TunableNumber kP = new TunableNumber("Shooter/Flywheel/PIDF/kP", 0.1);
+  private TunableNumber kV = new TunableNumber("Shooter/Flywheel/PIDF/kV", 0.14);
+  private TunableNumber kP = new TunableNumber("Shooter/Flywheel/PIDF/kP", 0.5);
   private TunableNumber kI = new TunableNumber("Shooter/Flywheel/PIDF/kI", 0.0);
   private TunableNumber kD = new TunableNumber("Shooter/Flywheel/PIDF/kD", 0.0);
   

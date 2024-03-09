@@ -39,7 +39,8 @@ public class TeleopMatchVelocityDrive extends Command {
       // if field relative, don't cube y so manuvering left/right is more responsive at low speeds
       !isFieldRelative,
       false,
-      DriveUtil.getSensitivity(RobotContainer.driverController)
+      DriveUtil.getSensitivity(RobotContainer.driverController),
+      isFieldRelative
     );
 
     ChassisSpeeds speeds = RobotContainer.drive.drive.swerveController.getTargetSpeeds(

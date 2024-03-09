@@ -32,15 +32,16 @@ public class ShooterAngle extends SubsystemBase {
   public static final Rotation2d forwardLimit = Rotation2d.fromDegrees(65);
   // motor is completely disabled if limit + tolerance (or - tolerance if reverse) is exceeded
   public static final Rotation2d forwardTolerance = Rotation2d.fromDegrees(3);
-  public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(8.0);
+  public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(9.1);
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(0.25);
   public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(0.5);
 
   public static final TunableNumber motorVoltageLimit = new TunableNumber("Shooter/Angle/Voltage Limit (V)", 6);
   // measure at 90 degrees
-  public static final double angleEncoderOffset = 0.775 - (90.0 / 360.0);
-  public static final double massKg = 7.5;
-  public static final double comDistanceFromPivotMeters = 0.25; // estimate
+  public static final double angleEncoderOffset = 0.598 - (90.0 / 360.0);
+  public static final double massKg = 6.5;
+  public static final double comDistanceFromPivotMeters = 0.20;
+  public static final double comAngleFromForwardDegrees = 12;
   public static final double armLengthMeters = 0.35;
   // 15:22 chain and 1:81 planetary
   public static final double motorToShaftRatio = (22.0 / 15.0) * 81.0;
@@ -61,8 +62,8 @@ public class ShooterAngle extends SubsystemBase {
 
   // p = volts/degree of error
   // when you tune these, REMEMBER THERE IS A VOLTAGE LIMIT ON THE MOTOR!
-  public final ProfiledPIDController anglePID = new ProfiledPIDController(0.3, 0.0, 0.0, new Constraints(80, 120));
-  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.55, comDistanceFromPivotMeters, massKg, "Shooter/Angle");
+  public final ProfiledPIDController anglePID = new ProfiledPIDController(0.35, 0.0, 0.0, new Constraints(120, 120));
+  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.07, comDistanceFromPivotMeters, comAngleFromForwardDegrees, massKg, "Shooter/Angle");
 
   // assumed to be at lower hard stop (natural resting place)
   private Rotation2d targetAngle = reverseLimit;
@@ -98,7 +99,7 @@ public class ShooterAngle extends SubsystemBase {
 
   @Override
   public void periodic() {
-    double voltage = anglePID.calculate(getAngle().getDegrees(), targetAngle.getDegrees()) + angleFF.calculate(getAngle());
+    double voltage = anglePID.calculate(getAngle().getDegrees(), targetAngle.getDegrees()) + angleFF.calculate(Rotation2d.fromDegrees(getAngle().getDegrees() + 5));
     setMotor(voltage);
 
     SmartDashboard.putBoolean("Shooter/Angle/At Target Angle", atTargetAngle());
@@ -170,7 +171,7 @@ public class ShooterAngle extends SubsystemBase {
     voltage = MathUtil.clamp(voltage, -motorVoltageLimit.get(), motorVoltageLimit.get());
     SmartDashboard.putNumber("Shooter/Angle/Actual Voltage", voltage);
     if (RobotBase.isReal()) {
-      angleMotor.setVoltage(voltage);
+      // angleMotor.setVoltage(voltage);
     } else {
       if (DriverStation.isEnabled()) {
         armSim.setInputVoltage(voltage);

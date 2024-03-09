@@ -8,6 +8,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -25,6 +28,8 @@ public class Robot extends TimedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
 
+  private final CANSparkMax climberMotor = new CANSparkMax(16, MotorType.kBrushless);
+
   @Override
   public void robotInit() {
     DataLogManager.start(); // log NetworkTables values
@@ -40,7 +45,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-    RobotContainer.visualizer.update();
+    // RobotContainer.visualizer.update();
   }
 
   @Override
@@ -82,7 +87,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    climberMotor.set(RobotContainer.driverController.getRightTriggerAxis() - RobotContainer.driverController.getLeftTriggerAxis());
+  }
 
   @Override
   public void teleopExit() {
