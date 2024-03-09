@@ -107,6 +107,7 @@ public class Limelight extends SubsystemBase {
       // Convert to 2D
       Rotation2d targetRotation = new Rotation2d(Math.cos(targetPose3d.get().getRotation().getZ()), Math.sin(targetPose3d.get().getRotation().getZ()));
       targetPose2d = new Pose2d(targetPose3d.get().getX(), targetPose3d.get().getY(), targetRotation);
+      SmartDashboard.putNumber("AprilTagTrackDrive/Target Rotation (Apriltag)", targetPose2d.getRotation().getDegrees());
     }
     return targetPose2d;
   }

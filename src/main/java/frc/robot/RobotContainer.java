@@ -22,7 +22,6 @@ import frc.robot.commands.AprilTagAmpAlign;
 import frc.robot.commands.AprilTagTrackDrive;
 import frc.robot.commands.MoveElevatorToPosition;
 import frc.robot.commands.MoveElevatorToPosition.Position;
-import frc.robot.Constants.AprilTag.ID;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
@@ -73,7 +72,7 @@ public class RobotContainer {
     // Swerve
     driverController.x().onTrue(new InstantCommand(drive.drive::lockPose));
     driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro));
-    driverController.y().whileTrue(new AprilTagTrackDrive(true, ID.kRedSpeakerCenter));
+    driverController.y().whileTrue(new AprilTagTrackDrive(true, ID.kBlueSpeakerCenter, ID.kRedSpeakerCenter));
     driverController.a().whileTrue(new AprilTagAmpAlign());
 
     // Elevator
