@@ -8,6 +8,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -68,7 +69,7 @@ public class RobotContainer {
 
     // Swerve
     driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro));
-    driverController.y().whileTrue(new AprilTagTrackDrive(true, ID.kBlueSpeakerCenter, ID.kRedSpeakerCenter));
+    driverController.y().whileTrue(new AprilTagTrackDrive(true, ID.kBlueSpeakerCenter, ID.kRedSpeakerCenter, Rotation2d.fromDegrees(180)));
     driverController.a().whileTrue(new AprilTagAmpAlign());
 
     // Elevator

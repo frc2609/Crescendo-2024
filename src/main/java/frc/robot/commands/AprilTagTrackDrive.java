@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,18 +24,21 @@ public class AprilTagTrackDrive extends Command {
   private final ID blueAprilTagID;
   private final ID redAprilTagID;
   private ID trackedAprilTagID;
+  private final Rotation2d rotationOffset;
 
   /**
    * Creates a new AprilTagTrackDrive.
    * @param isFieldRelative Whether or not to drive in field-relative mode.
    * @param blueAprilTagID The AprilTag ID to align the heading to when on the blue alliance.
    * @param redAprilTagID The AprilTag ID to align the heading to when on the red alliance.
+   * @param rotationOffset An offset to apply to the apriltag's heading.
    */
-  public AprilTagTrackDrive(boolean isFieldRelative, ID blueAprilTagID, ID redAprilTagID) {
+  public AprilTagTrackDrive(boolean isFieldRelative, ID blueAprilTagID, ID redAprilTagID, Rotation2d rotationOffset) {
     addRequirements(RobotContainer.drive);
     this.isFieldRelative = isFieldRelative;
     this.blueAprilTagID = blueAprilTagID;
     this.redAprilTagID = redAprilTagID;
+    this.rotationOffset = rotationOffset;
   }
 
   // Called when the command is initially scheduled.
@@ -46,14 +51,15 @@ public class AprilTagTrackDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Transform2d targetOffset = RobotContainer.drive.drive.getPose().minus(Limelight.getTargetPose2d(trackedAprilTagID));
-    // TODO: Make functional for stage
-    // TODO: Less Magic
-    double heading = Math.atan(targetOffset.getY() / targetOffset.getX()) - Limelight.getTargetPose2d(trackedAprilTagID).getRotation().getRadians() - Math.PI*Math.cos(Limelight.getTargetPose2d(trackedAprilTagID).getRotation().getRadians());
+    // strip the rotation component of the apriltag pose because we don't require it
+    Pose2d apriltagPose = new Pose2d(Limelight.getTargetPose2d(trackedAprilTagID).getTranslation(), new Rotation2d());
+    Transform2d relativePose = RobotContainer.drive.drive.getPose().minus(apriltagPose);
+    Rotation2d heading =
+      Rotation2d.fromRadians(Math.atan2(relativePose.getY(), relativePose.getX()))
+      .plus(Rotation2d.fromDegrees(180)) // so the robot's front faces the apriltag
+      .plus(rotationOffset);
 
-    SmartDashboard.putNumber("AprilTagTrack/Target Heading (Deg)", Math.toDegrees(heading));
-    SmartDashboard.putNumber("AprilTagTrack/Target Offset X", targetOffset.getX());
-    SmartDashboard.putNumber("AprilTagTrack/Target Offset Y", targetOffset.getY());
+    SmartDashboard.putNumber("AprilTagTrack/Target Heading (Deg)", heading.getDegrees());
     SmartDashboard.putNumber("AprilTagTrack/Current Heading (Deg)", RobotContainer.drive.drive.getYaw().getDegrees());
 
     double[] driverInputs = DriveUtil.getDriverInputs(
@@ -69,7 +75,7 @@ public class AprilTagTrackDrive extends Command {
     ChassisSpeeds speeds = RobotContainer.drive.drive.swerveController.getTargetSpeeds(
       driverInputs[0],
       driverInputs[1],
-      heading,
+      heading.getRadians(),
       RobotContainer.drive.drive.getPose().getRotation().getRadians(),
       RobotContainer.drive.getLimitedTeleopLinearSpeed()
     );
