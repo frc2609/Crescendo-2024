@@ -87,13 +87,9 @@ public class AprilTagTrackDrive extends Command {
     }
   }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {}
+  // --- Common Configurations ---
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return false;
+  public static AprilTagTrackDrive getAlignToSpeaker(boolean isFieldRelative) {
+    return new AprilTagTrackDrive(isFieldRelative, ID.kBlueSpeakerCenter, ID.kRedSpeakerCenter, Rotation2d.fromDegrees(180));
   }
 }
