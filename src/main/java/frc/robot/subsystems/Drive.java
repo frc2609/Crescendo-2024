@@ -6,12 +6,15 @@ package frc.robot.subsystems;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,6 +28,7 @@ import swervelib.telemetry.SwerveDriveTelemetry;
 public class Drive extends SubsystemBase {
   public final SwerveDrive drive;
   private final double originalMaxAngularSpeed;
+  private Optional<Rotation2d> headingOverride = Optional.empty();
 
   /** Creates a new Drive. */
   public Drive(boolean verboseTelemetry) {
@@ -50,9 +54,10 @@ public class Drive extends SubsystemBase {
       drive::getPose,
       drive::resetOdometry,
       drive::getRobotVelocity,
-      drive::drive,
+      this::drive,
       new HolonomicPathFollowerConfig(
           new PIDConstants(5.0, 0.0, 0.0),
+          // 'i' is highly not recommended since the heading can be overidden causing 'i' to build up
           new PIDConstants(5.0, 0.0, 0.0),
           // limit speeds in the paths, NOT HERE.
           drive.getMaximumVelocity(),
@@ -90,5 +95,33 @@ public class Drive extends SubsystemBase {
   public void periodic() {
     // limits the angular speed when the robot is controlled through a heading
     drive.swerveController.setMaximumAngularVelocity(getLimitedTeleopAngularSpeed());
+  }
+
+  /**
+   * Override PathPlanner's heading while leaving translation alone.
+   * Must be called each loop cycle to function.
+   * Once it stops being called, automatically returns heading control to PathPlanner.
+   * @param headingOverride The Rotation2d to set the robot's heading to.
+   */
+  public void overrideHeading(Rotation2d headingOverride) {
+    this.headingOverride = Optional.of(headingOverride);
+  }
+
+  /**
+   * Wrapper for SwerveDrive::drive that allows the rotational velocity during autonomous to be overridden.
+   * Pass this to AutoBuilder.
+   * @param chassisSpeeds Robot relative ChassisSpeeds.
+   */
+  private void drive(ChassisSpeeds chassisSpeeds) {
+    if (headingOverride.isPresent()) {
+      SmartDashboard.putNumber("swerve/auto/headingOverride (deg)", headingOverride.get().getDegrees());
+      chassisSpeeds.omegaRadiansPerSecond = drive.swerveController.headingCalculate(
+        drive.getYaw().getRadians(),
+        headingOverride.get().getRadians()
+      );
+      // empty the optional so pathplanner regains control unless the heading is overridden in the next loop cycle
+      this.headingOverride = Optional.empty();
+    }
+    drive.drive(chassisSpeeds);
   }
 }
