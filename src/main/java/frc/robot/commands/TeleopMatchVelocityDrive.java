@@ -54,11 +54,7 @@ public class TeleopMatchVelocityDrive extends Command {
       RobotContainer.drive.getLimitedTeleopLinearSpeed()
     );
 
-    if (isFieldRelative) {
-      RobotContainer.drive.drive.driveFieldOriented(speeds);
-    } else {
-      RobotContainer.drive.drive.drive(speeds);
-    }
+    RobotContainer.drive.setChassisSpeeds(speeds, isFieldRelative);
   }
 
   // Called once the command ends or is interrupted.

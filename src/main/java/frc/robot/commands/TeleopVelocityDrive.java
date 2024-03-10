@@ -44,11 +44,7 @@ public class TeleopVelocityDrive extends Command {
       driverInputs[2] * RobotContainer.drive.getLimitedTeleopAngularSpeed()
     );
 
-    if (isFieldRelative) {
-      RobotContainer.drive.drive.driveFieldOriented(speeds);
-    } else {
-      RobotContainer.drive.drive.drive(speeds);
-    }
+    RobotContainer.drive.setChassisSpeeds(speeds, isFieldRelative);
   }
 
   // Called once the command ends or is interrupted.
