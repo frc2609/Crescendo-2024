@@ -22,6 +22,8 @@ public class AprilTagTrackDrive extends Command {
   private final ID redAprilTagID;
   private ID trackedAprilTagID;
   private final Rotation2d headingOffset;
+  // exists since 'isScheduled()' doesn't work when command is scheduled as part of a group
+  private boolean isRunning = false;
 
   /**
    * Creates a new AprilTagTrackDrive.
@@ -43,6 +45,7 @@ public class AprilTagTrackDrive extends Command {
   public void initialize() {
     this.trackedAprilTagID = RobotContainer.isRedAlliance("AprilTagTrackDrive") ? redAprilTagID : blueAprilTagID;
     SmartDashboard.putNumber("AprilTagTrack/AprilTag ID", trackedAprilTagID.getID());
+    isRunning = true;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -58,8 +61,18 @@ public class AprilTagTrackDrive extends Command {
     
     SmartDashboard.putNumber("AprilTagTrack/Target Heading (Deg)", heading.getDegrees());
     SmartDashboard.putNumber("AprilTagTrack/Current Heading (Deg)", RobotContainer.drive.drive.getYaw().getDegrees());
+    SmartDashboard.putBoolean("AprilTagTrack/At Target", atTarget());
 
     RobotContainer.drive.overrideHeading(heading);
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    isRunning = false;
+  }
+
+  public boolean atTarget() {
+    return isRunning && RobotContainer.drive.drive.swerveController.thetaController.atSetpoint();
   }
 
   // --- Common Configurations ---

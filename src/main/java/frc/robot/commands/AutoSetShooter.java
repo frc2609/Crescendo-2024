@@ -37,6 +37,8 @@ public class AutoSetShooter extends Command {
 
   private final SpinType spinType;
   private Translation2d speakerTranslation;
+  // exists since 'isScheduled()' doesn't work when command is scheduled as part of a group
+  private boolean isRunning = false;
 
   /** Creates a new AutoSetShooter. */
   public AutoSetShooter(SpinType spinType) {
@@ -48,6 +50,7 @@ public class AutoSetShooter extends Command {
   public void initialize() {
     final ID speakerID = RobotContainer.isRedAlliance("AutoSetAngle") ? ID.kRedSpeakerCenter : ID.kBlueSpeakerCenter;
     speakerTranslation = Limelight.getTargetPose2d(speakerID).getTranslation();
+    isRunning = true;
   }
 
   @Override
@@ -62,8 +65,18 @@ public class AutoSetShooter extends Command {
     SmartDashboard.putNumber("AutoSetShooter/Distance to Shooter Pivot (m)", pivotDistanceToSpeaker);
     SmartDashboard.putNumber("AutoSetShooter/Calculated Angle (deg)", angle.getDegrees());
     SmartDashboard.putNumber("AutoSetShooter/Calculated RPM", rpm);
+    SmartDashboard.putBoolean("AutoSetShooter/At Target", atTarget());
 
     RobotContainer.shooterAngle.setAngle(angle);
     RobotContainer.shooterFlywheel.setSpeed(rpm, spinType);
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    isRunning = false;
+  }
+
+  public boolean atTarget() {
+    return isRunning && RobotContainer.shooterAngle.atTargetAngle() && RobotContainer.shooterFlywheel.atSetSpeed();
   }
 }
