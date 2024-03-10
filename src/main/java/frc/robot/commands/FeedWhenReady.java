@@ -30,7 +30,7 @@ public class FeedWhenReady extends SequentialCommandGroup {
   private void checkCounter() {
     // whether this command runs before or after setting the shooter angle/flywheel isn't defined
     // this is a race condition (bad) since this command could check atTargetAngle and atSetSpeed
-    // before they are actually set, but the loop counter circumvents this :)
+    // before the targets are actually set, but the loop counter circumvents this :)
     if (RobotContainer.shooterAngle.atTargetAngle() && RobotContainer.shooterFlywheel.atSetSpeed()) {
       counter++;
     } else {
