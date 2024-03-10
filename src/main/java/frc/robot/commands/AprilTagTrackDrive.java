@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
@@ -16,8 +17,9 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.utils.DriveUtil;
 
 /**
- * Drive the robot using translational velocity from the driver controller. Robot aligns heading to
- * the specified AprilTag.
+ * Align robot heading to face AprilTag according to alliance colour.
+ * PathPlanner (autonomous) or driver (any other mode) retains control of translation.
+ * <p>Automatically detects alliance and teleop/autonomous mode.
  */
 public class AprilTagTrackDrive extends Command {
   private final boolean isFieldRelative;
@@ -28,13 +30,15 @@ public class AprilTagTrackDrive extends Command {
 
   /**
    * Creates a new AprilTagTrackDrive.
+   * This class has premade configurations (e.g. {@code AprilTagTrackDrive.getAlignToSpeaker()}),
+   * so consider using those before using this constructor.
    * @param isFieldRelative Whether or not to drive in field-relative mode.
    * @param blueAprilTagID The AprilTag ID to align the heading to when on the blue alliance.
    * @param redAprilTagID The AprilTag ID to align the heading to when on the red alliance.
    * @param rotationOffset An offset to apply to the apriltag's heading.
    */
   public AprilTagTrackDrive(boolean isFieldRelative, ID blueAprilTagID, ID redAprilTagID, Rotation2d rotationOffset) {
-    addRequirements(RobotContainer.drive);
+    addRequirements(RobotContainer.drive); // Note: doesn't work in auto with this line (since PathPlanner also requires drive)
     this.isFieldRelative = isFieldRelative;
     this.blueAprilTagID = blueAprilTagID;
     this.redAprilTagID = redAprilTagID;
@@ -62,6 +66,20 @@ public class AprilTagTrackDrive extends Command {
     SmartDashboard.putNumber("AprilTagTrack/Target Heading (Deg)", heading.getDegrees());
     SmartDashboard.putNumber("AprilTagTrack/Current Heading (Deg)", RobotContainer.drive.drive.getYaw().getDegrees());
 
+    if (DriverStation.isAutonomous()) {
+      // if autonomous, give PathPlanner control of translation
+      autonomousDrive(heading);
+    } else {
+      // if *any other mode*, give driver control of translation
+      teleopDrive(heading);
+    }
+  }
+
+  /**
+   * Used to drive when the command is used in teleop mode.
+   * Gets translation speed from driver.
+   */
+  private void teleopDrive(Rotation2d heading) {
     double[] driverInputs = DriveUtil.getDriverInputs(
       RobotContainer.driverController,
       true,
@@ -85,6 +103,14 @@ public class AprilTagTrackDrive extends Command {
     } else {
       RobotContainer.drive.drive.drive(speeds);
     }
+  }
+
+  /**
+   * Used to drive when the command is run in autonomous mode.
+   * Overrides autonomous heading while leaving translation alone.
+   */
+  private void autonomousDrive(Rotation2d heading) {
+    RobotContainer.drive.overrideHeading(heading);
   }
 
   // --- Common Configurations ---
