@@ -26,9 +26,11 @@ import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
 public class Drive extends SubsystemBase {
-  /** All YAGSL functionality is implemented in this class. */
-  public final SwerveDrive drive;
+  private final Rotation2d headingTolerance = Rotation2d.fromDegrees(4);
   private final double originalMaxAngularSpeed;
+
+  /** All YAGSL functionality is implemented in this instance of SwerveDrive. */
+  public final SwerveDrive drive;
   private Optional<Rotation2d> headingOverride = Optional.empty();
 
   /** Creates a new Drive. */
@@ -49,6 +51,8 @@ public class Drive extends SubsystemBase {
       DataLogManager.log("Swerve Drive File Error: " + e.getMessage());
       throw new RuntimeException("Swerve Drive failed to initialize.");
     }
+
+    drive.swerveController.thetaController.setTolerance(headingTolerance.getRadians());
 
     // setup PathPlanner
     AutoBuilder.configureHolonomic(
