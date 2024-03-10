@@ -26,6 +26,7 @@ import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
 public class Drive extends SubsystemBase {
+  /** All YAGSL functionality is implemented in this class. */
   public final SwerveDrive drive;
   private final double originalMaxAngularSpeed;
   private Optional<Rotation2d> headingOverride = Optional.empty();
@@ -54,7 +55,8 @@ public class Drive extends SubsystemBase {
       drive::getPose,
       drive::resetOdometry,
       drive::getRobotVelocity,
-      this::drive,
+      // PathPlanner supplies *robot-relative* chassisSpeeds
+      (ChassisSpeeds speeds) -> setChassisSpeeds(speeds, false),
       new HolonomicPathFollowerConfig(
           new PIDConstants(5.0, 0.0, 0.0),
           // 'i' is highly not recommended since the heading can be overidden causing 'i' to build up
@@ -108,20 +110,26 @@ public class Drive extends SubsystemBase {
   }
 
   /**
-   * Wrapper for SwerveDrive::drive that allows the rotational velocity during autonomous to be overridden.
-   * Pass this to AutoBuilder.
-   * @param chassisSpeeds Robot relative ChassisSpeeds.
+   * Wrapper for SwerveDrive::drive that allows the rotational velocity to be overridden.
+   * This is the only drive function you should call.
+   * @param chassisSpeeds Desired ChassisSpeeds.
+   * @param isFieldRelative Whether to use 'chassisSpeeds' as field relative speeds or robot relative speeds.
    */
-  private void drive(ChassisSpeeds chassisSpeeds) {
+  public void setChassisSpeeds(ChassisSpeeds chassisSpeeds, boolean isFieldRelative) {
     if (headingOverride.isPresent()) {
-      SmartDashboard.putNumber("swerve/auto/headingOverride (deg)", headingOverride.get().getDegrees());
+      SmartDashboard.putNumber("swerve/headingOverride (deg)", headingOverride.get().getDegrees());
       chassisSpeeds.omegaRadiansPerSecond = drive.swerveController.headingCalculate(
         drive.getYaw().getRadians(),
         headingOverride.get().getRadians()
       );
-      // empty the optional so pathplanner regains control unless the heading is overridden in the next loop cycle
+      // empty the optional so heading control is returned unless the heading is overridden in the next loop cycle
       this.headingOverride = Optional.empty();
     }
-    drive.drive(chassisSpeeds);
+
+    if (isFieldRelative) {
+      drive.driveFieldOriented(chassisSpeeds);
+    } else {
+      drive.drive(chassisSpeeds);
+    }
   }
 }
