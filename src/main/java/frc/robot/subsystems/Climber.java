@@ -9,16 +9,17 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.utils.BeaverLogger;
 
 public class Climber extends SubsystemBase {
   private final CANSparkMax climberMotor = new CANSparkMax(16, MotorType.kBrushless);
   private final SparkPIDController climberPID;
+  private final BeaverLogger logger = new BeaverLogger();
 
   public Climber() {
     climberMotor.restoreFactoryDefaults();
@@ -37,12 +38,14 @@ public class Climber extends SubsystemBase {
     climberPID.setIZone(0.3);
     climberPID.setFF(0.0002);
     climberPID.setOutputRange(-1, 1);
+
+    logger.addLoggable("Climber/Position (Rotations)", () -> climberMotor.getEncoder().getPosition(), true);
+    logger.addLoggable("Climber/Applied Output (-1-1)", climberMotor::getAppliedOutput, true);
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Climber/Position (Rotations)", climberMotor.getEncoder().getPosition());
-    SmartDashboard.putNumber("Climber/Applied Output (-1-1)", climberMotor.getAppliedOutput());
+    logger.logAll();
   }
 
   public Command Raise() {
