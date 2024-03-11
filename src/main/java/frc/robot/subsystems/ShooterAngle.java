@@ -34,7 +34,7 @@ public class ShooterAngle extends SubsystemBase {
   public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(0.5);
 
   // measure at 90 degrees
-  public static final double angleEncoderOffset = 0.598 - (90.0 / 360.0);
+  public static final double absoluteEncoderOffset = 0.598 - (90.0 / 360.0);
   // 15:22 chain and 1:81 planetary
   public static final double positionConversionFactor = (15.0 / 22.0) * (1.0 / 81.0) * 360;
   public static final double velocityConversionFactor = positionConversionFactor * 60;
@@ -55,6 +55,8 @@ public class ShooterAngle extends SubsystemBase {
     angleMotor.setInverted(true);
     angleMotor.setSmartCurrentLimit(40);
     // Spark soft limits?
+
+    absoluteEncoder.setPositionOffset(absoluteEncoderOffset);
 
     relativeEncoder.setPositionConversionFactor(positionConversionFactor);
     relativeEncoder.setVelocityConversionFactor(velocityConversionFactor);
