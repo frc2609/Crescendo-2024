@@ -36,11 +36,11 @@ public class ShooterAngle extends SubsystemBase {
   // measure at 90 degrees
   public static final double absoluteEncoderOffset = 0.598 - (90.0 / 360.0);
   // 15:22 chain and 1:81 planetary
-  public static final double positionConversionFactor = (15.0 / 22.0) * (1.0 / 81.0) * 360;
-  public static final double velocityConversionFactor = positionConversionFactor * 60;
+  public static final double positionConversionFactor = (15.0 / 22.0) * (1.0 / 81.0) * 360; // deg
+  public static final double velocityConversionFactor = positionConversionFactor / 60; // deg/s
 
   private final CANSparkMax angleMotor = new CANSparkMax(11, MotorType.kBrushless);
-  private final RelativeEncoder relativeEncoder = angleMotor.getEncoder();
+  private final RelativeEncoder relativeEncoder = angleMotor.getEncoder(); // unit: DEGREES
   private final SparkPIDController anglePID = angleMotor.getPIDController();
   private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(5);
 
@@ -57,10 +57,8 @@ public class ShooterAngle extends SubsystemBase {
     // Spark soft limits?
 
     absoluteEncoder.setPositionOffset(absoluteEncoderOffset);
-
     relativeEncoder.setPositionConversionFactor(positionConversionFactor);
     relativeEncoder.setVelocityConversionFactor(velocityConversionFactor);
-    relativeEncoder.setPosition(getAbsoluteAngle().getDegrees());
 
     anglePID.setSmartMotionMaxVelocity(10000, 0);
     anglePID.setSmartMotionMinOutputVelocity(0, 0);
@@ -85,6 +83,11 @@ public class ShooterAngle extends SubsystemBase {
 
   @Override
   public void periodic() {
+    if (!absoluteAngleOutOfRange.isActive() && relativeEncoder.getVelocity() < 2) {
+      // reset relative encoder to absolute when not moving and absolute encoder isn't invalid
+      relativeEncoder.setPosition(getAbsoluteAngle().getDegrees());
+    }
+
     // set alerts
     if (pastForwardLimit() || pastReverseLimit()) {
       absoluteAngleOutOfRange.set(true);
