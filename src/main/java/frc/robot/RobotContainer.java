@@ -8,14 +8,12 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.MoveElevatorToPosition;
 import frc.robot.commands.ShootNote;
@@ -27,7 +25,6 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterAngle;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.utils.Visualizer;
-import frc.robot.subsystems.ShooterFlywheel.SpinType;
 
 public class RobotContainer {
   public static final Drive drive = new Drive(false);
@@ -87,23 +84,6 @@ public class RobotContainer {
     // Shooter Angle
     
     // Shooter Flywheel
-
-    // Shooter Angle
-    driverController.start().toggleOnTrue(
-      new RunCommand(() -> RobotContainer.shooterAngle.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("Test/Shooter Target Angle (Deg)", 0))), RobotContainer.shooterAngle)
-    );
-
-    // Shooter Flywheel
-    driverController.back().toggleOnTrue(
-      new RunCommand(() -> {
-        SpinType spinType = SpinType.disable;
-        if (RobotContainer.driverController.leftBumper().getAsBoolean())
-          spinType = SpinType.slowLeftMotor;
-        if (RobotContainer.driverController.rightBumper().getAsBoolean())
-          spinType = SpinType.slowRightMotor;
-        RobotContainer.shooterFlywheel.setSpeed(SmartDashboard.getNumber("Test/Shooter Target RPM", 0), spinType);
-      }, RobotContainer.shooterFlywheel).finallyDo(() -> RobotContainer.shooterFlywheel.setSpeed(0, SpinType.disable))
-    );
   }
 
   public Command getAutonomousCommand() {
