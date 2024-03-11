@@ -123,7 +123,7 @@ public class Drive extends SubsystemBase {
     if (headingOverride.isPresent()) {
       SmartDashboard.putNumber("swerve/headingOverride (deg)", headingOverride.get().getDegrees());
       chassisSpeeds.omegaRadiansPerSecond = drive.swerveController.headingCalculate(
-        drive.getYaw().getRadians(),
+        drive.getPose().getRotation().getRadians(),
         headingOverride.get().getRadians()
       );
       // empty the optional so heading control is returned unless the heading is overridden in the next loop cycle

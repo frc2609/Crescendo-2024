@@ -46,7 +46,7 @@ public class TeleopFlickStickDrive extends Command {
       driverInputs[1],
       driverInputs[3],
       driverInputs[4],
-      RobotContainer.drive.drive.getYaw().getRadians(),
+      RobotContainer.drive.drive.getPose().getRotation().getRadians(),
       RobotContainer.drive.getLimitedTeleopLinearSpeed()
     );
 

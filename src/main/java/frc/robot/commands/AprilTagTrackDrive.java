@@ -60,7 +60,6 @@ public class AprilTagTrackDrive extends Command {
       .plus(headingOffset);
     
     SmartDashboard.putNumber("AprilTagTrack/Target Heading (Deg)", heading.getDegrees());
-    SmartDashboard.putNumber("AprilTagTrack/Current Heading (Deg)", RobotContainer.drive.drive.getYaw().getDegrees());
     SmartDashboard.putBoolean("AprilTagTrack/At Target", atTarget());
 
     RobotContainer.drive.overrideHeading(heading);

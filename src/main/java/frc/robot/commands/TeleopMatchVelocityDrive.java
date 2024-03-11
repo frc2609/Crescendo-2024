@@ -50,7 +50,7 @@ public class TeleopMatchVelocityDrive extends Command {
       // x, y are swapped because x and y for velocity are opposite of x and y for rotation
       driverInputs[1],
       driverInputs[0],
-      RobotContainer.drive.drive.getYaw().getRadians(),
+      RobotContainer.drive.drive.getPose().getRotation().getRadians(),
       RobotContainer.drive.getLimitedTeleopLinearSpeed()
     );
 
