@@ -49,7 +49,6 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     TunableNumber.updateAll();
-    RobotContainer.shooterAngle.anglePID.reset(RobotContainer.shooterAngle.getAngle().getDegrees());
   }
 
   @Override

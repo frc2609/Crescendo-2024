@@ -74,9 +74,11 @@ public class AutoSetShooter extends Command {
   @Override
   public void end(boolean interrupted) {
     isRunning = false;
+    RobotContainer.shooterAngle.stop();
+    // TODO: stop flywheel
   }
 
   public boolean atTarget() {
-    return isRunning && RobotContainer.shooterAngle.atTargetAngle() && RobotContainer.shooterFlywheel.atSetSpeed();
+    return isRunning && RobotContainer.shooterAngle.atTarget() && RobotContainer.shooterFlywheel.atSetSpeed();
   }
 }
