@@ -29,7 +29,8 @@ public class ShootNote extends SequentialCommandGroup {
         alignToSpeaker,
         autoSetShooter
       ),
-      RobotContainer.intake.getFeedNote()
+      RobotContainer.intake.getFeedNote(),
+      new IdleShooter()
     );
   }
 }
