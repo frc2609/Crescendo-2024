@@ -56,7 +56,7 @@ public class Climber extends SubsystemBase {
     return new RunCommand(() -> climberMotor.set(-RobotContainer.driverController.getRightTriggerAxis()), this);
   }
 
-  public Command stop() {
+  public Command hold() {
     return new InstantCommand(() -> climberPID.setReference(climberMotor.getEncoder().getPosition(), CANSparkMax.ControlType.kSmartMotion), this);
   }
 }
