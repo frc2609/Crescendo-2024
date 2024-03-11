@@ -24,13 +24,15 @@ import frc.robot.utils.BeaverLogger;
 
 // TODO: add back simulation
 // TODO: javadocs
+// TODO: override does nothing
+// TODO: 'absSetCounter should be removed'
 
 public class ShooterAngle extends SubsystemBase {
   // ** Angle Direction: +ve = Forward, towards elevator. **
   public static final Rotation2d forwardLimit = Rotation2d.fromDegrees(65);
   public static final Rotation2d forwardTolerance = Rotation2d.fromDegrees(3);
   public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(9.1);
-  public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(0.25);
+  public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(1);
   public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(0.5);
 
   // measure at 90 degrees
@@ -47,6 +49,7 @@ public class ShooterAngle extends SubsystemBase {
   private Rotation2d targetAngle = reverseLimit; // used for 'atTarget()' exclusively
   private final Alert absoluteAngleOutOfRange = new Alert("Shooter Absolute Angle Out of Reasonable Range", AlertType.ERROR);
   private final BeaverLogger logger = new BeaverLogger();
+  private int absSetCounter = 0;
 
   /** Creates a new NewShooterAngle. */
   public ShooterAngle() {
@@ -83,9 +86,10 @@ public class ShooterAngle extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (!absoluteAngleOutOfRange.isActive() && relativeEncoder.getVelocity() < 2) {
+    if (!absoluteAngleOutOfRange.isActive() && relativeEncoder.getVelocity() < 2 && absSetCounter < 5) {
       // reset relative encoder to absolute when not moving and absolute encoder isn't invalid
       relativeEncoder.setPosition(getAbsoluteAngle().getDegrees());
+      absSetCounter++;
     }
 
     // set alerts
@@ -221,6 +225,6 @@ public class ShooterAngle extends SubsystemBase {
   }
   
   private boolean pastReverseLimit() {
-    return getAngle().getDegrees() < reverseLimit.getDegrees() - reverseTolerance.getDegrees();
+    return getAbsoluteAngle().getDegrees() < reverseLimit.getDegrees() - reverseTolerance.getDegrees();
   }
 }
