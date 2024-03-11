@@ -14,4 +14,4 @@ Describe the advantages of this improvement.
 Describe the improvement.
 
 **Potential Implementation**
-If you have any ideas on how to implement this improvment, describe them.
+If you have any ideas on how to implement this improvement, describe them.
