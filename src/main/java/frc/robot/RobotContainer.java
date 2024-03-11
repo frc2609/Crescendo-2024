@@ -17,34 +17,42 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AprilTag.ID;
 import frc.robot.commands.AprilTagTrackDrive;
 import frc.robot.commands.MoveElevatorToPosition;
 import frc.robot.commands.MoveElevatorToPosition.Position;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
-import frc.robot.subsystems.ShooterAngle;
+import frc.robot.subsystems.ShooterAngle2;
 import frc.robot.subsystems.ShooterFlywheel;
 // import frc.robot.utils.Visualizer;
 import frc.robot.subsystems.ShooterFlywheel.SpinType;
 
+
 public class RobotContainer {
+  public static final Climber climber = new Climber();
   public static final Drive drive = new Drive(false);
   public static final Elevator elevator = new Elevator();
   public static final Intake intake = new Intake();
   public static final Limelight limelight = new Limelight();
-  public static final ShooterAngle shooterAngle = new ShooterAngle();
+  public static final ShooterAngle2 shooterAngle2 = new ShooterAngle2();
   public static final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
+  
   // public static final Visualizer visualizer = new Visualizer();
 
   public static final CommandXboxController driverController = new CommandXboxController(0);
+  Trigger climpUP = new Trigger(() -> driverController.getRawAxis(2) > 0.1);
+  Trigger climpDN = new Trigger(() -> driverController.getRawAxis(3) > 0.1);
   private final SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
-    configureBindings();
 
+    configureBindings();
+    
     NamedCommands.registerCommand("printOnCheckpoint", Commands.print("Reached Checkpoint!"));
     NamedCommands.registerCommand("Autobalance", Commands.print("Autobalancing!"));
     NamedCommands.registerCommand("ScorePiece1", Commands.print("Scoring Piece 1!"));
@@ -66,16 +74,17 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
+
     // TODO: Move these to 'Test' mode as applicable
 
+    climpUP.whileTrue(climber.Raise()).onFalse(climber.Stop());
+    climpDN.whileTrue(climber.Lower()).onFalse(climber.Stop());
     // Swerve
     // driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro));
     // driverController.y().whileTrue(new AprilTagTrackDrive(true, ID.kRedSpeakerCenter));
-    
-    // Elevator
-    driverController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
-    driverController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
-    driverController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
+
+    driverController.povRight().whileTrue(shooterAngle2.Raise()).onFalse(shooterAngle2.Stop());
+    driverController.povLeft().whileTrue(shooterAngle2.Lower()).onFalse(shooterAngle2.Stop());
 
     // Intake
     // Fake the note being picked up during simulation.
@@ -91,9 +100,9 @@ public class RobotContainer {
     // Shooter Flywheel
 
     // Shooter Angle
-    driverController.start().toggleOnTrue(
-      new RunCommand(() -> RobotContainer.shooterAngle.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("Test/Shooter Target Angle (Deg)", 0))), RobotContainer.shooterAngle)
-    );
+    //driverController.start().toggleOnTrue(
+      //new RunCommand(() -> RobotContainer.shooterAngle.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("Test/Shooter Target Angle (Deg)", 0))), RobotContainer.shooterAngle)
+    //);
 
     // Shooter Flywheel
     driverController.back().toggleOnTrue(
