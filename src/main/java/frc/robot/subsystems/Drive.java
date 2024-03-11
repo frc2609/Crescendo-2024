@@ -32,6 +32,7 @@ public class Drive extends SubsystemBase {
   /** All YAGSL functionality is implemented in this instance of SwerveDrive. */
   public final SwerveDrive drive;
   private Optional<Rotation2d> headingOverride = Optional.empty();
+  private Optional<ChassisSpeeds> targetRobotRelativeSpeeds = Optional.empty();
 
   /** Creates a new Drive. */
   public Drive(boolean verboseTelemetry) {
@@ -101,14 +102,21 @@ public class Drive extends SubsystemBase {
   public void periodic() {
     // limits the angular speed when the robot is controlled through a heading
     drive.swerveController.setMaximumAngularVelocity(getLimitedTeleopAngularSpeed());
+    
+    if (targetRobotRelativeSpeeds.isPresent()) {
+      applyChassisSpeeds();
+    } else if (headingOverride.isPresent()) {
+      targetRobotRelativeSpeeds = Optional.of(new ChassisSpeeds());
+      applyChassisSpeeds();
+    }
   }
 
   /**
    * Align to the provided heading by overriding the rotation velocity of the ChassisSpeeds
    * provided to {@link #setChassisSpeeds(ChassisSpeeds, boolean) setChassisSpeeds()}.
    * <p>Must be called each loop cycle to function. Stops overriding heading when no longer called.
-   * <p>You must call {@link #setChassisSpeeds(ChassisSpeeds, boolean) setChassisSpeeds()}
-   * alongside this, or nothing will happen.
+   * <p>If {@link #setChassisSpeeds(ChassisSpeeds, boolean) setChassisSpeeds()} is not called, will
+   * rotate in place.
    * @param headingOverride The heading to align the robot to.
    */
   public void overrideHeading(Rotation2d headingOverride) {
@@ -116,26 +124,38 @@ public class Drive extends SubsystemBase {
   }
 
   /**
-   * Wrapper for SwerveDrive::drive that allows the rotational velocity to be overridden.
-   * This is the only drive function you should call.
+   * Set the desired ChassisSpeeds for swerve drive.
+   * <p>This should be the only drive function you call. (YAGSL's functions bypass {@link
+   * #overrideHeading(Rotation2d) overrideHeading()}.)
    * @param chassisSpeeds Desired ChassisSpeeds.
    * @param isFieldRelative Whether to use 'chassisSpeeds' as field relative speeds or robot relative speeds.
    */
   public void setChassisSpeeds(ChassisSpeeds chassisSpeeds, boolean isFieldRelative) {
+    targetRobotRelativeSpeeds = Optional.of(
+      isFieldRelative
+      ? ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, drive.getPose().getRotation())
+      : chassisSpeeds
+    );
+  }
+
+  /**
+   * Tell YAGSL to drive at the desired ChassisSpeeds, overriding heading as applicable.
+   */
+  private void applyChassisSpeeds() {
     if (headingOverride.isPresent()) {
-      SmartDashboard.putNumber("swerve/headingOverride (deg)", headingOverride.get().getDegrees());
-      chassisSpeeds.omegaRadiansPerSecond = drive.swerveController.headingCalculate(
+      SmartDashboard.putNumber("swerve/Heading Override (deg)", headingOverride.get().getDegrees());
+      // calculate speed according to heading override
+      targetRobotRelativeSpeeds.get().omegaRadiansPerSecond = drive.swerveController.headingCalculate(
         drive.getPose().getRotation().getRadians(),
         headingOverride.get().getRadians()
       );
       // empty the optional so heading control is returned unless the heading is overridden in the next loop cycle
-      this.headingOverride = Optional.empty();
+      headingOverride = Optional.empty();
     }
 
-    if (isFieldRelative) {
-      drive.driveFieldOriented(chassisSpeeds);
-    } else {
-      drive.drive(chassisSpeeds);
-    }
+    System.out.println(targetRobotRelativeSpeeds.get().omegaRadiansPerSecond);
+    drive.drive(targetRobotRelativeSpeeds.get());
+    // empty the optional so the robot stops driving in the next loop cycle unless chassisSpeeds are set again
+    targetRobotRelativeSpeeds = Optional.empty();
   }
 }

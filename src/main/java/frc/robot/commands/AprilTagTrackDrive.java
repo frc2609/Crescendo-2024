@@ -15,7 +15,7 @@ import frc.robot.subsystems.Limelight;
 
 /**
  * Align robot heading to AprilTag according to automatically-detected alliance colour.
- * Use alongside a command controlling robot translation or alongside PathPlanner (heading will be overridden).
+ * Works standalone or alongside a command controlling robot translation (or PathPlanner).
  */
 public class AprilTagTrackDrive extends Command {
   private final ID blueAprilTagID;
