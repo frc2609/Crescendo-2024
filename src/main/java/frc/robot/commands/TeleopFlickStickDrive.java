@@ -46,15 +46,11 @@ public class TeleopFlickStickDrive extends Command {
       driverInputs[1],
       driverInputs[3],
       driverInputs[4],
-      RobotContainer.drive.drive.getYaw().getRadians(),
+      RobotContainer.drive.drive.getOdometryHeading().getRadians(),
       RobotContainer.drive.getLimitedTeleopLinearSpeed()
     );
 
-    if (isFieldRelative) {
-      RobotContainer.drive.drive.driveFieldOriented(speeds);
-    } else {
-      RobotContainer.drive.drive.drive(speeds);
-    }
+    RobotContainer.drive.setChassisSpeeds(speeds, isFieldRelative);
   }
 
   // Called once the command ends or is interrupted.

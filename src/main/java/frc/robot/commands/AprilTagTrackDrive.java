@@ -7,38 +7,37 @@ package frc.robot.commands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.AprilTag.ID;
 import frc.robot.subsystems.Limelight;
-import frc.robot.utils.DriveUtil;
 
 /**
- * Drive the robot using translational velocity from the driver controller. Robot aligns heading to
- * the specified AprilTag.
+ * Align robot heading to AprilTag according to automatically-detected alliance colour.
+ * Works standalone or alongside a command controlling robot translation (or PathPlanner).
  */
 public class AprilTagTrackDrive extends Command {
-  private final boolean isFieldRelative;
   private final ID blueAprilTagID;
   private final ID redAprilTagID;
   private ID trackedAprilTagID;
-  private final Rotation2d rotationOffset;
+  private final Rotation2d headingOffset;
+  // exists since 'isScheduled()' doesn't work when command is scheduled as part of a group
+  private boolean isRunning = false;
 
   /**
    * Creates a new AprilTagTrackDrive.
-   * @param isFieldRelative Whether or not to drive in field-relative mode.
+   * This class has premade configurations (e.g. {@code AprilTagTrackDrive.getAlignToSpeaker()}),
+   * so consider using those before using this constructor.
    * @param blueAprilTagID The AprilTag ID to align the heading to when on the blue alliance.
    * @param redAprilTagID The AprilTag ID to align the heading to when on the red alliance.
-   * @param rotationOffset An offset to apply to the apriltag's heading.
+   * @param headingOffset Applies an offset to the robot's heading (e.g. to face tag with shooter instead of intake).
    */
-  public AprilTagTrackDrive(boolean isFieldRelative, ID blueAprilTagID, ID redAprilTagID, Rotation2d rotationOffset) {
-    addRequirements(RobotContainer.drive);
-    this.isFieldRelative = isFieldRelative;
+  public AprilTagTrackDrive(ID blueAprilTagID, ID redAprilTagID, Rotation2d headingOffset) {
     this.blueAprilTagID = blueAprilTagID;
     this.redAprilTagID = redAprilTagID;
-    this.rotationOffset = rotationOffset;
+    this.headingOffset = headingOffset;
+    // does not require drive since this is intended to be used in addition to a command controlling translation
   }
 
   // Called when the command is initially scheduled.
@@ -46,6 +45,7 @@ public class AprilTagTrackDrive extends Command {
   public void initialize() {
     this.trackedAprilTagID = RobotContainer.isRedAlliance("AprilTagTrackDrive") ? redAprilTagID : blueAprilTagID;
     SmartDashboard.putNumber("AprilTagTrack/AprilTag ID", trackedAprilTagID.getID());
+    isRunning = true;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -57,39 +57,26 @@ public class AprilTagTrackDrive extends Command {
     Rotation2d heading =
       Rotation2d.fromRadians(Math.atan2(relativePose.getY(), relativePose.getX()))
       .plus(Rotation2d.fromDegrees(180)) // so the robot's front faces the apriltag
-      .plus(rotationOffset);
-
-    SmartDashboard.putNumber("AprilTagTrack/Target Heading (Deg)", heading.getDegrees());
-    SmartDashboard.putNumber("AprilTagTrack/Current Heading (Deg)", RobotContainer.drive.drive.getYaw().getDegrees());
-
-    double[] driverInputs = DriveUtil.getDriverInputs(
-      RobotContainer.driverController,
-      true,
-      false,
-      false,
-      true,
-      DriveUtil.getSensitivity(RobotContainer.driverController),
-      isFieldRelative
-    );
-
-    ChassisSpeeds speeds = RobotContainer.drive.drive.swerveController.getTargetSpeeds(
-      driverInputs[0],
-      driverInputs[1],
-      heading.getRadians(),
-      RobotContainer.drive.drive.getPose().getRotation().getRadians(),
-      RobotContainer.drive.getLimitedTeleopLinearSpeed()
-    );
+      .plus(headingOffset);
     
-    if (isFieldRelative) {
-      RobotContainer.drive.drive.driveFieldOriented(speeds);
-    } else {
-      RobotContainer.drive.drive.drive(speeds);
-    }
+    SmartDashboard.putNumber("AprilTagTrack/Target Heading (Deg)", heading.getDegrees());
+    SmartDashboard.putBoolean("AprilTagTrack/At Target", atTarget());
+
+    RobotContainer.drive.overrideHeading(heading);
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    isRunning = false;
+  }
+
+  public boolean atTarget() {
+    return isRunning && RobotContainer.drive.drive.swerveController.thetaController.atSetpoint();
   }
 
   // --- Common Configurations ---
 
-  public static AprilTagTrackDrive getAlignToSpeaker(boolean isFieldRelative) {
-    return new AprilTagTrackDrive(isFieldRelative, ID.kBlueSpeakerCenter, ID.kRedSpeakerCenter, Rotation2d.fromDegrees(180));
+  public static AprilTagTrackDrive getAlignToSpeaker() {
+    return new AprilTagTrackDrive(ID.kBlueSpeakerCenter, ID.kRedSpeakerCenter, Rotation2d.fromDegrees(180));
   }
 }

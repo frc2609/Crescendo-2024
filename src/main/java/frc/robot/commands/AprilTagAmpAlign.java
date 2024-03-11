@@ -63,7 +63,7 @@ public class AprilTagAmpAlign extends Command {
       calculatedSpeed,
       driverInputs[1],
       -tagHeading,
-      RobotContainer.drive.drive.getPose().getRotation().getRadians(),
+      RobotContainer.drive.drive.getOdometryHeading().getRadians(),
       RobotContainer.drive.getLimitedTeleopLinearSpeed()
     );
 
