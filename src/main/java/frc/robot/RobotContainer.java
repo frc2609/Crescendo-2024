@@ -20,7 +20,7 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
-import frc.robot.subsystems.ShooterAngle2;
+import frc.robot.subsystems.ShooterAngle;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterFlywheel.SpinType;
 // import frc.robot.utils.Visualizer;
@@ -31,7 +31,7 @@ public class RobotContainer {
   public static final Elevator elevator = new Elevator();
   public static final Intake intake = new Intake();
   public static final Limelight limelight = new Limelight();
-  public static final ShooterAngle2 shooterAngle2 = new ShooterAngle2();
+  public static final ShooterAngle shooterAngle = new ShooterAngle();
   public static final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
   
   // public static final Visualizer visualizer = new Visualizer();
@@ -87,8 +87,6 @@ public class RobotContainer {
     driverController.x().onTrue(intake.getTurnOff());
     
     // Shooter Angle
-    driverController.povRight().whileTrue(shooterAngle2.Raise()).onFalse(shooterAngle2.Stop());
-    driverController.povLeft().whileTrue(shooterAngle2.Lower()).onFalse(shooterAngle2.Stop());
 
     // Shooter Flywheel
     driverController.back().toggleOnTrue(
