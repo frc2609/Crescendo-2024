@@ -153,7 +153,6 @@ public class Drive extends SubsystemBase {
       headingOverride = Optional.empty();
     }
 
-    System.out.println(targetRobotRelativeSpeeds.get().omegaRadiansPerSecond);
     drive.drive(targetRobotRelativeSpeeds.get());
     // empty the optional so the robot stops driving in the next loop cycle unless chassisSpeeds are set again
     targetRobotRelativeSpeeds = Optional.empty();
