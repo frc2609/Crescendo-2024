@@ -9,32 +9,44 @@ import java.util.Optional;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
-import frc.robot.utils.LimeLightHelpers;
 import frc.robot.utils.LimeLightHelpers.LimelightTarget_Fiducial;
-import frc.robot.utils.LimeLightHelpers.Results;
 
 public class Limelight extends SubsystemBase {
   public static Pose2d limelightPose = new Pose2d();
+  private static NetworkTable limelightTable;
 
   /** Creates a new Limelight. */
-  public Limelight() {}
+  public Limelight() {
+    limelightTable = NetworkTableInstance.getDefault().getTable("limelight");
+  }
 
   @Override
   public void periodic() {
     // Only consider updating odometry if the reading from limelight is valid
     // False when no valid tags detected
-    if (LimeLightHelpers.getTV("limelight")) {
-      Results results = LimeLightHelpers.getLatestResults("limelight").targetingResults;
+    boolean seesValidTags = limelightTable.getEntry("tv").getBoolean(false);
+    if (seesValidTags) {
 
+      // Contains X,Y,Z, Roll,Pitch,Yaw, total latency (cl + tl), tag count, tag span, avg distance of tag from camera, average tag area (% of image)
+      double[] poseArray = limelightTable.getEntry("botpose_wpiblue").getDoubleArray(new double[11]);
+      
       // Record recently detected pose
-      limelightPose = results.getBotPose2d_wpiBlue();
+      limelightPose = new Pose2d(poseArray[0], poseArray[1], new Rotation2d(poseArray[5]));
+
+      // get percentage
+      double totalArea = limelightTable.getEntry("ta").getDouble(0);
+
+      double latency = poseArray[6];
 
       // Calculate the vector between the current drivetrain pose and vision pose
       Transform2d odometryDifference = RobotContainer.drive.drive.field.getRobotPose().minus(limelightPose);
@@ -47,18 +59,18 @@ public class Limelight extends SubsystemBase {
       double xyStds;
       double degStds;
       
-      int numTargets = results.targets_Fiducials.length;
-      SmartDashboard.putNumber("Target area", getBestTargetArea(results.targets_Fiducials));
+      int numTargets = (int) poseArray[7];
+      SmartDashboard.putNumber("Target area", totalArea);
       
       if (numTargets >= 2) {
         // trust vision odometry more if we see more than one apriltag
         // orientation should also be more accurate in this case
         xyStds = 0.5;
         degStds = 6;
-      } else if (LimeLightHelpers.getTA("limelight") > 0.8 && distance < 0.5) {
+      } else if (totalArea > 0.8 && distance < 0.5) {
         xyStds = 1.0;
         degStds = 12;
-      } else if (LimeLightHelpers.getTA("limelight") > 0.1 && distance < 0.3) {
+      } else if (totalArea > 0.1 && distance < 0.3) {
         xyStds = 2.0;
         degStds = 30;
       } else {
@@ -71,7 +83,7 @@ public class Limelight extends SubsystemBase {
       
       if (distance > 0.1) {
         // add a vision measurement if the cartesian error in odometry is greater than 0.1m
-        RobotContainer.drive.drive.swerveDrivePoseEstimator.addVisionMeasurement(limelightPose, Timer.getFPGATimestamp() - (results.latency_capture/1000.0));
+        RobotContainer.drive.drive.swerveDrivePoseEstimator.addVisionMeasurement(limelightPose, Timer.getFPGATimestamp() - (latency/1000.0));
       }
     }
 
