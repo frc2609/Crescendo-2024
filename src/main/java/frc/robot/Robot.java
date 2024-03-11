@@ -82,7 +82,7 @@ public class Robot extends TimedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
-    RobotContainer.drive.drive.setHeadingCorrection(true);
+    RobotContainer.drive.drive.setHeadingCorrection(false);
     RobotContainer.drive.setDefaultCommand(new TeleopVelocityDrive(true));
   }
 
