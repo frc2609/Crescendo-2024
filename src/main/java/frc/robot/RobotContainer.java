@@ -26,7 +26,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterAngle;
 import frc.robot.subsystems.ShooterFlywheel;
-// import frc.robot.utils.Visualizer;
+import frc.robot.utils.Visualizer;
 import frc.robot.subsystems.ShooterFlywheel.SpinType;
 
 public class RobotContainer {
@@ -36,7 +36,7 @@ public class RobotContainer {
   public static final Limelight limelight = new Limelight();
   public static final ShooterAngle shooterAngle = new ShooterAngle();
   public static final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
-  // public static final Visualizer visualizer = new Visualizer();
+  public static final Visualizer visualizer = new Visualizer();
 
   public static final CommandXboxController driverController = new CommandXboxController(0);
   private final SendableChooser<Command> autoChooser;
