@@ -44,7 +44,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("IntakeNote", intake.getIntakeNote());
     NamedCommands.registerCommand("ShootNote", new ShootNote());
     NamedCommands.registerCommand("PrintOnCheckpoint", Commands.print("Reached Checkpoint!"));
-    NamedCommands.registerCommand("WaitForButtonPress", Commands.waitUntil(driverController.back()::getAsBoolean));
+    NamedCommands.registerCommand("WaitForButtonPress", Commands.waitUntil(driverController.back()));
 
     PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
       drive.drive.field.getObject("target pose").setPose(pose);
@@ -55,7 +55,7 @@ public class RobotContainer {
     });
 
     // the auto specified here is chosen by default
-    autoChooser = AutoBuilder.buildAutoChooser("Two Piece & Balance");
+    autoChooser = AutoBuilder.buildAutoChooser("Four Piece");
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
