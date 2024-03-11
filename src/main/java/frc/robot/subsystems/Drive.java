@@ -104,10 +104,12 @@ public class Drive extends SubsystemBase {
   }
 
   /**
-   * Override PathPlanner's heading while leaving translation alone.
-   * Must be called each loop cycle to function.
-   * Once it stops being called, automatically returns heading control to PathPlanner.
-   * @param headingOverride The Rotation2d to set the robot's heading to.
+   * Align to the provided heading by overriding the rotation velocity of the ChassisSpeeds
+   * provided to {@link #setChassisSpeeds(ChassisSpeeds, boolean) setChassisSpeeds()}.
+   * <p>Must be called each loop cycle to function. Stops overriding heading when no longer called.
+   * <p>You must call {@link #setChassisSpeeds(ChassisSpeeds, boolean) setChassisSpeeds()}
+   * alongside this, or nothing will happen.
+   * @param headingOverride The heading to align the robot to.
    */
   public void overrideHeading(Rotation2d headingOverride) {
     this.headingOverride = Optional.of(headingOverride);
