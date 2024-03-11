@@ -71,11 +71,11 @@ public class RobotContainer {
 
     // Climber
     new Trigger(() -> driverController.getLeftTriggerAxis() > 0.1)
-      .whileTrue(climber.Raise())
-      .onFalse(climber.Stop());
+      .whileTrue(climber.raise())
+      .onFalse(climber.stop());
     new Trigger(() -> driverController.getRightTriggerAxis() > 0.1)
-      .whileTrue(climber.Lower())
-      .onFalse(climber.Stop());
+      .whileTrue(climber.lower())
+      .onFalse(climber.stop());
     
     // Intake
     // Fake the note being picked up during simulation.
