@@ -45,7 +45,7 @@ public class TeleopHeadingDrive extends Command {
       driverInputs[0],
       driverInputs[1],
       driverInputs[3] * Math.PI, // convert from -1:1 to -Pi:Pi
-      RobotContainer.drive.drive.getPose().getRotation().getRadians(),
+      RobotContainer.drive.drive.getOdometryHeading().getRadians(),
       RobotContainer.drive.getLimitedTeleopLinearSpeed()
     );
 

@@ -133,7 +133,7 @@ public class Drive extends SubsystemBase {
   public void setChassisSpeeds(ChassisSpeeds chassisSpeeds, boolean isFieldRelative) {
     targetRobotRelativeSpeeds = Optional.of(
       isFieldRelative
-      ? ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, drive.getPose().getRotation())
+      ? ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, drive.getOdometryHeading())
       : chassisSpeeds
     );
   }
@@ -146,7 +146,7 @@ public class Drive extends SubsystemBase {
       SmartDashboard.putNumber("swerve/Heading Override (deg)", headingOverride.get().getDegrees());
       // calculate speed according to heading override
       targetRobotRelativeSpeeds.get().omegaRadiansPerSecond = drive.swerveController.headingCalculate(
-        drive.getPose().getRotation().getRadians(),
+        drive.getOdometryHeading().getRadians(),
         headingOverride.get().getRadians()
       );
       // empty the optional so heading control is returned unless the heading is overridden in the next loop cycle
