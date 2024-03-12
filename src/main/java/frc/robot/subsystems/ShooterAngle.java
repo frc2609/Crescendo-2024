@@ -33,7 +33,7 @@ public class ShooterAngle extends SubsystemBase {
   public static final Rotation2d forwardTolerance = Rotation2d.fromDegrees(3);
   public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(9.1);
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(1);
-  public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(0.5);
+  public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(1);
 
   // measure at 90 degrees
   public static final double absoluteEncoderOffset = 0.598 - (90.0 / 360.0);
