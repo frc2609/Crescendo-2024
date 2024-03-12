@@ -48,6 +48,7 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     CommandScheduler.getInstance().cancelAll();
     RobotContainer.climber.stop();
+    RobotContainer.elevator.stop();
     new IdleShooter().schedule(); // reset saved shooter setpoints on disable
   }
 
