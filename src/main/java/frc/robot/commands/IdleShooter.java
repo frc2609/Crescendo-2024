@@ -14,6 +14,7 @@ public class IdleShooter extends InstantCommand {
    */
   public IdleShooter() {
     addRequirements(RobotContainer.shooterAngle, RobotContainer.shooterFlywheel);
+    this.ignoringDisable(true);
   }
 
   // Called when the command is initially scheduled.

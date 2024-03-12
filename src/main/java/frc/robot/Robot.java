@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.commands.IdleShooter;
 import frc.robot.commands.TeleopVelocityDrive;
 import frc.robot.subsystems.ShooterFlywheel.SpinType;
 import frc.robot.utils.TunableNumber;
@@ -44,7 +45,10 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    CommandScheduler.getInstance().cancelAll();
+    new IdleShooter().schedule(); // reset saved shooter setpoints on disable
+  }
 
   @Override
   public void disabledPeriodic() {
