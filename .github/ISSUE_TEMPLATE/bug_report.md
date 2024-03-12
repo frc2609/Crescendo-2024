@@ -21,6 +21,8 @@ Describe what you expected to happen.
 **Applicable Logs**
 * Add the filenames of any relevant logs.
 * Make sure to upload the logs to Google Drive or OneDrive.
+* (You can also upload logs to GitHub, just change the extension to .txt before uploading and leave the following instruction in.)
+* Download log and change extension to `.wpilog` to view.
 
 **Images**
 If applicable, add screenshots or pictures to help explain the problem.
