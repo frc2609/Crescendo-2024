@@ -27,6 +27,8 @@
     * Setpoints are close together, so error is small and remains consistent, making it significantly easier to tune the PID controller.
         * Since the error is consistent, you can have aggressive PID gains without worrying that the mechanism will overshoot.
 * Have a "goal" position (the position you want the mechanism to be at) and a "setpoint" (the position the PID controller is trying to get to).
+* If your mechanism position has deviated from the motion profile (i.e. error is too high), you should replan the motion profile.
+    * Otherwise, the PID + FF that is tuned to follow small errors is going to set your motors much higher than you'd like.
 
 ### Tuning:
 * There are two things to tune: The velocity and acceleration constraints, and the PID controller. (Also, a seperate FF controller if you are using one.)

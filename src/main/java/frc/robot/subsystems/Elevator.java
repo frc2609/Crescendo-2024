@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Alert;
 import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.SimpleElevatorFeedforward;
+import frc.robot.utils.TunableNumber;
 import frc.robot.utils.Alert.AlertType;
 
 public class Elevator extends SubsystemBase {
@@ -38,7 +39,7 @@ public class Elevator extends SubsystemBase {
   public static final double velocityConversion = positionConversion / 60.0; // convert from m/min -> m/s
   
   public static final double elevatorMassKg = 4.11; // educated guess
-  public static final double motorVoltageLimit = 12;
+  public static final TunableNumber motorVoltageLimit = new TunableNumber("Elevator/Voltage Limit (V)", 12);
 
   private final CANSparkMax liftMotor = new CANSparkMax(15, MotorType.kBrushless);
   private final RelativeEncoder liftEncoder = liftMotor.getEncoder();
@@ -165,7 +166,7 @@ public class Elevator extends SubsystemBase {
       liftPID.reset();
       heightOutOfRange.set(true);
     }
-    voltage = MathUtil.clamp(voltage, -motorVoltageLimit, motorVoltageLimit);
+    voltage = MathUtil.clamp(voltage, -motorVoltageLimit.get(), motorVoltageLimit.get());
     SmartDashboard.putNumber("Elevator/Actual Voltage", voltage);
     if (RobotBase.isReal()) {
       liftMotor.setVoltage(voltage);

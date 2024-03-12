@@ -37,22 +37,19 @@ public class TeleopHeadingDrive extends Command {
       // if field relative, don't cube y so manuvering left/right is more responsive at low speeds
       !isFieldRelative,
       false,
-      DriveUtil.getSensitivity(RobotContainer.driverController)
+      DriveUtil.getSensitivity(RobotContainer.driverController),
+      isFieldRelative
     );
 
     ChassisSpeeds speeds = RobotContainer.drive.drive.swerveController.getTargetSpeeds(
       driverInputs[0],
       driverInputs[1],
       driverInputs[3] * Math.PI, // convert from -1:1 to -Pi:Pi
-      RobotContainer.drive.drive.getYaw().getRadians(),
+      RobotContainer.drive.drive.getOdometryHeading().getRadians(),
       RobotContainer.drive.getLimitedTeleopLinearSpeed()
     );
 
-    if (isFieldRelative) {
-      RobotContainer.drive.drive.driveFieldOriented(speeds);
-    } else {
-      RobotContainer.drive.drive.drive(speeds);
-    }
+    RobotContainer.drive.setChassisSpeeds(speeds, isFieldRelative);
   }
 
   // Called once the command ends or is interrupted.
