@@ -66,6 +66,9 @@ public class Limelight extends SubsystemBase {
         return;
       }
 
+      // crash the code so I can see why it went wrong (makes it nice and detectable)
+      if (!results.valid) throw new RuntimeException("Limelight results invalid after validity check!");
+
       // set the "trust factor" of the vision measurement
       RobotContainer.drive.drive.swerveDrivePoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(xyStds, xyStds, Units.degreesToRadians(degStds)));
       
