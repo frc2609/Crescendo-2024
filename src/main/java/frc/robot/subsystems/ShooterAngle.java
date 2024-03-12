@@ -203,7 +203,7 @@ public class ShooterAngle extends SubsystemBase {
     //   : armSim.getAngleRads() / (2 * Math.PI);
     // if negative, roll over to positive value
     if (position < 0) {
-      position = 1 - position;
+      position = position + 1;
     }
     return position;
   }
