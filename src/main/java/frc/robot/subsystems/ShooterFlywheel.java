@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
@@ -23,6 +24,8 @@ public class ShooterFlywheel extends SubsystemBase {
     slowLeftMotor,
     slowRightMotor
   }
+
+  public static final double maxRPM = 5200;
 
   /** Used to determine whether or not the shooter has reached the set speed. */
   public static final double rpmTolerance = 100.0;
@@ -123,10 +126,11 @@ public class ShooterFlywheel extends SubsystemBase {
 
   /**
    * Set the speed of the flywheels. Remains at speed until called again.
-   * @param rpm Flywheel RPM.
+   * @param rpm Flywheel RPM. Clamped to [0, maxRPM].
    * @param spinType Whether to use left or right motor to induce spin on note.
    */
   public void setSpeed(double rpm, SpinType spinType) {
+    rpm = MathUtil.clamp(rpm, 0, maxRPM);
     double rps = rpm / 60.0;
     leftMotor.setControl(velocityRequest.withVelocity(
       spinType == SpinType.slowLeftMotor ? rps * spinMultiplier.get() : rps
