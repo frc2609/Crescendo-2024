@@ -16,11 +16,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-// import frc.robot.commands.AprilTagAmpAlign;
-// import frc.robot.commands.AprilTagTrackDrive;
 import frc.robot.commands.MoveElevatorToPosition;
-import frc.robot.commands.ShootNote;
 import frc.robot.commands.MoveElevatorToPosition.Position;
+import frc.robot.commands.ShootNote;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
@@ -74,8 +72,6 @@ public class RobotContainer {
 
     // Swerve
     driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro));
-    // driverController.y().whileTrue(AprilTagTrackDrive.getAlignToSpeaker());
-    // driverController.a().whileTrue(new AprilTagAmpAlign());
 
     // Elevator
     driverController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
