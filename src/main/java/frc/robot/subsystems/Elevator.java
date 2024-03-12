@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Alert;
 import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.SimpleElevatorFeedforward;
+import frc.robot.utils.TunableNumber;
 import frc.robot.utils.Alert.AlertType;
 
 public class Elevator extends SubsystemBase {
@@ -33,18 +34,20 @@ public class Elevator extends SubsystemBase {
 
   // elevator moves 2 * movement of one stage (both stages move at the same time)
   public static final double elevatorGearing = 2 * (1.0 / 9.0);
-  public static final double pulleySizeMeters = 0.04;
-  public static final double positionConversion = elevatorGearing * pulleySizeMeters;
+  public static final double pulleySizeMeters = 0.0362;
+  public static final double positionConversion = elevatorGearing * pulleySizeMeters * Math.PI;
   public static final double velocityConversion = positionConversion / 60.0; // convert from m/min -> m/s
   
-  // TODO: intake mass (2.86) sketchy
-  public static final double elevatorMassKg = 1.25 + 2.86;
+  public static final double elevatorMassKg = 4.11; // educated guess
+  public static final TunableNumber motorVoltageLimit = new TunableNumber("Elevator/Voltage Limit (V)", 12);
 
   private final CANSparkMax liftMotor = new CANSparkMax(15, MotorType.kBrushless);
   private final RelativeEncoder liftEncoder = liftMotor.getEncoder();
 
-  private final PIDController liftPID = new PIDController(1.25, 0.0, 0.0);
-  private final SimpleElevatorFeedforward liftFF = new SimpleElevatorFeedforward(0.0, 0.03, 0.0, elevatorMassKg);
+  // p = volts/meter of error
+  private final PIDController liftPID = new PIDController(12.0, 0.0, 0.0);
+  // kG of 0.07 works to hold the elevator, but the PID is strong enough that FF isn't significant
+  private final SimpleElevatorFeedforward liftFF = new SimpleElevatorFeedforward(0.0, 0.0, 0.0, elevatorMassKg);
 
   private final ElevatorSim elevatorSim = new ElevatorSim(
     DCMotor.getNEO(1),
@@ -77,20 +80,26 @@ public class Elevator extends SubsystemBase {
     liftMotor.setSoftLimit(SoftLimitDirection.kForward, (float)(upperLimitMeters / positionConversion));
 
     elevatorSim.update(0);
-    liftFF.massKg = elevatorMassKg;
 
     SmartDashboard.putData("Elevator/PID", liftPID);
     SmartDashboard.putData("Elevator/FF", liftFF);
 
-    logger.addLoggable("Elevator/FF Mass (kg)", () -> liftFF.massKg, true);
     logger.addLoggable("Elevator/Height (m)", this::getHeight, true);
     logger.addLoggable("Elevator/Velocity (mps)", this::getVelocity, true);
   }
 
   @Override
   public void periodic() {
-    double percentOutput = liftPID.calculate(getHeight(), targetHeight) + liftFF.calculate(getVelocity());
-    setMotor(percentOutput);
+    // disable the elevator motor when it is told to go to the bottom *and already at the bottom*
+    // disabling it when the target height is 0 would cause to fall slowly (takes much longer)
+    if ((targetHeight == lowerLimitMeters) && atTargetHeight()) {
+      setMotor(0);
+    } else {
+      double voltage = liftPID.calculate(getHeight(), targetHeight) + liftFF.calculate(getVelocity());
+      setMotor(voltage);
+    }
+
+    SmartDashboard.putBoolean("Elevator/At Target Height", atTargetHeight());
     logger.logAll();
   }
 
@@ -141,29 +150,29 @@ public class Elevator extends SubsystemBase {
 
   /**
    * Set motor output, accounting for forward/backward soft limits.
-   * @param percentOutput Output from -1 to 1
+   * @param voltage Voltage from -12 to 12
    */
-  private void setMotor(double percentOutput) {
-    SmartDashboard.putNumber("Elevator/Desired Percent Output", percentOutput);
+  private void setMotor(double voltage) {
+    SmartDashboard.putNumber("Elevator/Desired Voltage", voltage);
     if (atUpperLimit()) {
-      percentOutput = Math.min(percentOutput, 0);
+      voltage = Math.min(voltage, 0);
     }
     if (atLowerLimit()) {
-      percentOutput = Math.max(percentOutput, 0);
+      voltage = Math.max(voltage, 0);
     }
     if (pastUpperLimit() || pastLowerLimit()) {
-      percentOutput = 0;
+      voltage = 0;
       // reset PID while motor is disabled so integral doesn't build up
       liftPID.reset();
       heightOutOfRange.set(true);
     }
-    SmartDashboard.putNumber("Elevator/Actual Percent Output", percentOutput);
+    voltage = MathUtil.clamp(voltage, -motorVoltageLimit.get(), motorVoltageLimit.get());
+    SmartDashboard.putNumber("Elevator/Actual Voltage", voltage);
     if (RobotBase.isReal()) {
-      liftMotor.set(percentOutput);
+      liftMotor.setVoltage(voltage);
     } else {
       if (DriverStation.isEnabled()) {
-        // * 12 to convert to voltage
-        elevatorSim.setInputVoltage(percentOutput * 12);
+        elevatorSim.setInputVoltage(voltage);
       } else {
         elevatorSim.setInputVoltage(0);
       }

@@ -8,31 +8,30 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-// import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.AprilTagTrackDrive;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.MoveElevatorToPosition;
-import frc.robot.commands.SetShooterToPreset;
 import frc.robot.commands.MoveElevatorToPosition.Position;
-import frc.robot.commands.SetShooterToPreset.ShooterPreset;
-import frc.robot.Constants.AprilTag.ID;
+import frc.robot.commands.ShootNote;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterAngle;
 import frc.robot.subsystems.ShooterFlywheel;
-import frc.robot.subsystems.ShooterFlywheel.SpinType;
 import frc.robot.utils.Visualizer;
 
 public class RobotContainer {
+  public static final CommandXboxController driverController = new CommandXboxController(0);
+
+  public static final Climber climber = new Climber();
   public static final Drive drive = new Drive(false);
   public static final Elevator elevator = new Elevator();
   public static final Intake intake = new Intake();
@@ -41,20 +40,15 @@ public class RobotContainer {
   public static final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
   public static final Visualizer visualizer = new Visualizer();
 
-  public static final CommandXboxController driverController = new CommandXboxController(0);
   private final SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
-    SmartDashboard.putNumber("shooter setpoint", 0);
-
     configureBindings();
 
-    NamedCommands.registerCommand("printOnCheckpoint", Commands.print("Reached Checkpoint!"));
-    NamedCommands.registerCommand("Autobalance", Commands.print("Autobalancing!"));
-    NamedCommands.registerCommand("ScorePiece1", Commands.print("Scoring Piece 1!"));
-    NamedCommands.registerCommand("PickupPiece2", Commands.print("Picking Up Piece 2!"));
-    NamedCommands.registerCommand("ScorePiece2", Commands.print("Scoring Piece 2!"));
-    NamedCommands.registerCommand("WaitForButtonPress", Commands.waitUntil(driverController.a()::getAsBoolean));
+    NamedCommands.registerCommand("IntakeNote", intake.getIntakeNote());
+    NamedCommands.registerCommand("ShootNote", new ShootNote());
+    NamedCommands.registerCommand("PrintOnCheckpoint", Commands.print("Reached Checkpoint!"));
+    NamedCommands.registerCommand("WaitForButtonPress", Commands.waitUntil(driverController.back()));
 
     PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
       drive.drive.field.getObject("target pose").setPose(pose);
@@ -65,60 +59,64 @@ public class RobotContainer {
     });
 
     // the auto specified here is chosen by default
-    autoChooser = AutoBuilder.buildAutoChooser("Two Piece & Balance");
+    autoChooser = AutoBuilder.buildAutoChooser("Four Piece");
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
   private void configureBindings() {
+    // TODO: Move these to 'Test' mode as applicable
+
+    // Automation
+    // TODO: leftBumper is already mapped to swerve precision mode
+    driverController.leftBumper().onTrue(new ShootNote());
+
     // Swerve
-    driverController.x().onTrue(new InstantCommand(drive.drive::lockPose));
     driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro));
-    driverController.y().whileTrue(new AprilTagTrackDrive(true, ID.kRedSpeakerCenter));
-    
+
     // Elevator
     driverController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
     driverController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
     driverController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
-    // elevator.setDefaultCommand(new RunCommand(() -> elevator.setHeight(driverController.getLeftTriggerAxis()), elevator));
 
+    // Climber
+    new Trigger(() -> Climber.raiseAxis.get() > 0.1)
+      .whileTrue(climber.raise())
+      .onFalse(climber.hold());
+    new Trigger(() -> Climber.lowerAxis.get() > 0.1)
+      .whileTrue(climber.lower())
+      .onFalse(climber.hold());
+    
     // Intake
     // Fake the note being picked up during simulation.
     // Doesn't require intake so intake commands aren't cancelled when run.
     driverController.back().onTrue(new InstantCommand(() -> intake.noteHeld = true));
-    // TODO: add some intake commands
+    driverController.a().onTrue(intake.getIntakeNote());
+    driverController.b().onTrue(intake.getExpelNote());
+    driverController.y().onTrue(intake.getFeedNote());
+    driverController.x().onTrue(intake.getTurnOff());
     
-    // ShooterAngle
-    // driverController.a().onTrue(new InstantCommand(() -> {
-    //   shooterAngle.setAngle(Rotation2d.fromDegrees(0));
-    // }, shooterAngle));
-    // driverController.b().onTrue(new InstantCommand(() -> {
-    //   shooterAngle.setAngle(Rotation2d.fromDegrees(25));
-    // }, shooterAngle));
-    // driverController.y().onTrue(new InstantCommand(() -> {
-    //   shooterAngle.setAngle(Rotation2d.fromDegrees(55));
-    // }, shooterAngle));
-    // driverController.x().onTrue(new InstantCommand(() -> {
-    //   shooterAngle.setAngle(Rotation2d.fromDegrees(75));
-    // }, shooterAngle));
-    // shooterAngle.setDefaultCommand(new RunCommand(() -> shooterAngle.setAngle(Rotation2d.fromDegrees(driverController.getRightTriggerAxis() * 60.0)), shooterAngle));
+    // Shooter Angle
     
-    driverController.a().onTrue(new SetShooterToPreset(ShooterPreset.kAtSpeaker));
-    driverController.b().onTrue(new SetShooterToPreset(ShooterPreset.kAtPodium));
-    driverController.x().onTrue(new SetShooterToPreset(ShooterPreset.kThrowNote));
-    driverController.y().onTrue(new RunCommand(() -> shooterAngle.setAngle(Rotation2d.fromRotations(driverController.getRightTriggerAxis())), shooterAngle));
-
-    // ShooterFlywheel
-    shooterFlywheel.setDefaultCommand(new RunCommand(() -> {
-      SpinType spinType = SpinType.disable;
-      // if (driverController.leftBumper().getAsBoolean())
-        spinType = SpinType.slowLeftMotor;
-      // if (driverController.rightBumper().getAsBoolean())
-      //   spinType = SpinType.slowRightMotor;
-      shooterFlywheel.setSpeed(SmartDashboard.getNumber("shooter setpoint", 0), spinType);
-    }, shooterFlywheel));
+    // Shooter Flywheel
   }
 
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
+  }
+
+  /**
+   * Convenience function to check the current alliance according to the DS or FMS (if connected).
+   * Assumes blue alliance if alliance is invalid.
+   * @param callerName Name of code that depends on result. Used to report an error if the alliance isn't detected.
+   * @return Whether robot is on red alliance.
+   */
+  public static boolean isRedAlliance(String callerName) {
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+      return alliance.get() == DriverStation.Alliance.Red;
+    } else {
+      System.out.println("No alliance detected for " + callerName + ": Assuming blue alliance.");
+      return false;
+    }
   }
 }

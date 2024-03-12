@@ -50,14 +50,14 @@ public final class Constants {
 
   /** Swerve drive related constants. */
   public final static class Swerve {
-    /** The maximum possible RPM of a REV NEO v1.0/v1.1 motor. */
+    /** The maximum possible RPM of a Kraken X60 with FOC disabled. */
     public static final double maxDriveRPM = 5800;
     /** Make sure to adjust this as the wheels wear. */
     public static final double wheelDiameter = Units.inchesToMeters(4);
     // 5 : 1 drives 4 : 1 ultraplanetary attached to 22T pulley spinning 64T module pulley
     public static final double angleGearRatio = (64.0 / 22.0) * UltraPlanetaryRatios.fiveToOne * UltraPlanetaryRatios.fourToOne;
-    // 16 : 24 gearing connected to 3 : 1 bevel gears
-    public static final double driveGearRatio = (24.0 / 16.0) / (1.0 / 3.0);
+    // 15 : 24 gearing connected to 3 : 1 bevel gears
+    public static final double driveGearRatio = (24.0 / 15.0) / (1.0 / 3.0);
     /** Converts rotations -> meters per rotation. */
     public static final double driveConversionFactor = SwerveMath.calculateMetersPerRotation(wheelDiameter, driveGearRatio, 1);
     /** Converts rotations -> degrees per rotation. */

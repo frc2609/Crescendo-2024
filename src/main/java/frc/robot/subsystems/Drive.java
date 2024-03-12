@@ -6,27 +6,35 @@ package frc.robot.subsystems;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.Swerve;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
 public class Drive extends SubsystemBase {
-  public final SwerveDrive drive;
+  private final Rotation2d headingTolerance = Rotation2d.fromDegrees(4);
   private final double originalMaxAngularSpeed;
 
-  /** Creates a new NewDrive. */
+  /** All YAGSL functionality is implemented in this instance of SwerveDrive. */
+  public final SwerveDrive drive;
+  private Optional<Rotation2d> headingOverride = Optional.empty();
+  private Optional<ChassisSpeeds> targetRobotRelativeSpeeds = Optional.empty();
+
+  /** Creates a new Drive. */
   public Drive(boolean verboseTelemetry) {
     if (verboseTelemetry) {
       SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
@@ -45,14 +53,18 @@ public class Drive extends SubsystemBase {
       throw new RuntimeException("Swerve Drive failed to initialize.");
     }
 
+    drive.swerveController.thetaController.setTolerance(headingTolerance.getRadians());
+
     // setup PathPlanner
     AutoBuilder.configureHolonomic(
       drive::getPose,
       drive::resetOdometry,
       drive::getRobotVelocity,
-      drive::drive,
+      // PathPlanner supplies *robot-relative* chassisSpeeds
+      (ChassisSpeeds speeds) -> setChassisSpeeds(speeds, false),
       new HolonomicPathFollowerConfig(
           new PIDConstants(5.0, 0.0, 0.0),
+          // 'i' is highly not recommended since the heading can be overidden causing 'i' to build up
           new PIDConstants(5.0, 0.0, 0.0),
           // limit speeds in the paths, NOT HERE.
           drive.getMaximumVelocity(),
@@ -61,12 +73,7 @@ public class Drive extends SubsystemBase {
           new ReplanningConfig() // customize this as desired
       ),
       () -> {
-        // mirror the path (drawn on blue side) if we are on the red alliance
-        var alliance = DriverStation.getAlliance();
-        if (alliance.isPresent()) {
-          return alliance.get() == DriverStation.Alliance.Red;
-        }
-        return false;
+        return RobotContainer.isRedAlliance("Drive (PathPlanner)");
       },
       this
     );
@@ -95,5 +102,59 @@ public class Drive extends SubsystemBase {
   public void periodic() {
     // limits the angular speed when the robot is controlled through a heading
     drive.swerveController.setMaximumAngularVelocity(getLimitedTeleopAngularSpeed());
+    
+    if (targetRobotRelativeSpeeds.isPresent()) {
+      applyChassisSpeeds();
+    } else if (headingOverride.isPresent()) {
+      targetRobotRelativeSpeeds = Optional.of(new ChassisSpeeds());
+      applyChassisSpeeds();
+    }
+  }
+
+  /**
+   * Align to the provided heading by overriding the rotation velocity of the ChassisSpeeds
+   * provided to {@link #setChassisSpeeds(ChassisSpeeds, boolean) setChassisSpeeds()}.
+   * <p>Must be called each loop cycle to function. Stops overriding heading when no longer called.
+   * <p>If {@link #setChassisSpeeds(ChassisSpeeds, boolean) setChassisSpeeds()} is not called, will
+   * rotate in place.
+   * @param headingOverride The heading to align the robot to.
+   */
+  public void overrideHeading(Rotation2d headingOverride) {
+    this.headingOverride = Optional.of(headingOverride);
+  }
+
+  /**
+   * Set the desired ChassisSpeeds for swerve drive.
+   * <p>This should be the only drive function you call. (YAGSL's functions bypass {@link
+   * #overrideHeading(Rotation2d) overrideHeading()}.)
+   * @param chassisSpeeds Desired ChassisSpeeds.
+   * @param isFieldRelative Whether to use 'chassisSpeeds' as field relative speeds or robot relative speeds.
+   */
+  public void setChassisSpeeds(ChassisSpeeds chassisSpeeds, boolean isFieldRelative) {
+    targetRobotRelativeSpeeds = Optional.of(
+      isFieldRelative
+      ? ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, drive.getOdometryHeading())
+      : chassisSpeeds
+    );
+  }
+
+  /**
+   * Tell YAGSL to drive at the desired ChassisSpeeds, overriding heading as applicable.
+   */
+  private void applyChassisSpeeds() {
+    if (headingOverride.isPresent()) {
+      SmartDashboard.putNumber("swerve/Heading Override (deg)", headingOverride.get().getDegrees());
+      // calculate speed according to heading override
+      targetRobotRelativeSpeeds.get().omegaRadiansPerSecond = drive.swerveController.headingCalculate(
+        drive.getOdometryHeading().getRadians(),
+        headingOverride.get().getRadians()
+      );
+      // empty the optional so heading control is returned unless the heading is overridden in the next loop cycle
+      headingOverride = Optional.empty();
+    }
+
+    drive.drive(targetRobotRelativeSpeeds.get());
+    // empty the optional so the robot stops driving in the next loop cycle unless chassisSpeeds are set again
+    targetRobotRelativeSpeeds = Optional.empty();
   }
 }

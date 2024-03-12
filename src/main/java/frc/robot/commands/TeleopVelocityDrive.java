@@ -4,7 +4,7 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.utils.DriveUtil;
@@ -34,16 +34,17 @@ public class TeleopVelocityDrive extends Command {
       false,
       false,
       true,
-      DriveUtil.getSensitivity(RobotContainer.driverController)
+      DriveUtil.getSensitivity(RobotContainer.driverController),
+      isFieldRelative
     );
 
-    RobotContainer.drive.drive.drive(
-      new Translation2d(driverInputs[0], driverInputs[1])
-        .times(RobotContainer.drive.getLimitedTeleopLinearSpeed()),
-      driverInputs[2] * RobotContainer.drive.getLimitedTeleopAngularSpeed(),
-      isFieldRelative,
-      false
+    ChassisSpeeds speeds = new ChassisSpeeds(
+      driverInputs[0] * RobotContainer.drive.getLimitedTeleopLinearSpeed(),
+      driverInputs[1] * RobotContainer.drive.getLimitedTeleopLinearSpeed(),
+      driverInputs[2] * RobotContainer.drive.getLimitedTeleopAngularSpeed()
     );
+
+    RobotContainer.drive.setChassisSpeeds(speeds, isFieldRelative);
   }
 
   // Called once the command ends or is interrupted.

@@ -2,9 +2,12 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/AprilTagTrack/Angular Velocity PID": "PIDController",
       "/SmartDashboard/Auto Chooser": "String Chooser",
+      "/SmartDashboard/Elevator/PID": "PIDController",
       "/SmartDashboard/Field": "Field2d",
-      "/SmartDashboard/Shooter/Angle/PID": "PIDController",
+      "/SmartDashboard/Pigeon 2 (v6) [2]": "Gyro",
+      "/SmartDashboard/Shooter/Angle/PID": "ProfiledPIDController",
       "/SmartDashboard/navX-Sensor[1]": "Gyro",
       "/SmartDashboard/navX-Sensor[4]": "Gyro"
     },

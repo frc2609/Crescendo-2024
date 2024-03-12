@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
@@ -24,19 +25,21 @@ public class ShooterFlywheel extends SubsystemBase {
     slowRightMotor
   }
 
+  public static final double maxRPM = 5200;
+
   /** Used to determine whether or not the shooter has reached the set speed. */
   public static final double rpmTolerance = 100.0;
 
   // 0.5 * m * r^2
-  // mass = 0.1kg/wheel * 6 + 0.04kg/hex shaft * 3 + 0.1kg/gear * 2 + 0.04kg/pulley * 2 + 0.05/metal pulley * 2
-  public static final double flywheelMOI = 0.5 * 1.1 * 0.08;
+  // mass = 0.1kg/wheel * 9 + 0.04kg/hex shaft * 3 + 0.1kg/gear * 3 + 0.04kg/pulley * 4
+  public static final double flywheelMOI = 0.5 * 1.48 * 0.08;
   public static final double flywheelGearing = 1.0;
 
-  private TunableNumber kS = new TunableNumber("kS", 0.0);
-  private TunableNumber kV = new TunableNumber("kV", 0.14);
-  private TunableNumber kP = new TunableNumber("kP", 0.0);
-  private TunableNumber kI = new TunableNumber("kI", 0.0);
-  private TunableNumber kD = new TunableNumber("kD", 0.0);
+  private TunableNumber kS = new TunableNumber("Shooter/Flywheel/PIDF/kS", 0.0);
+  private TunableNumber kV = new TunableNumber("Shooter/Flywheel/PIDF/kV", 0.14);
+  private TunableNumber kP = new TunableNumber("Shooter/Flywheel/PIDF/kP", 0.5);
+  private TunableNumber kI = new TunableNumber("Shooter/Flywheel/PIDF/kI", 0.0);
+  private TunableNumber kD = new TunableNumber("Shooter/Flywheel/PIDF/kD", 0.0);
   
   // left/right are from perspective of robot (i.e. facing towards shooter)
   public final TalonFX leftMotor = new TalonFX(12);
@@ -86,9 +89,7 @@ public class ShooterFlywheel extends SubsystemBase {
 
   @Override
   public void periodic() {
-    logger.logAll();
-    SmartDashboard.putBoolean("Shooter/Flywheel/At Set Speed", atSetSpeed());
-    if(kS.hasChanged(hashCode()) || kV.hasChanged(hashCode()) || kP.hasChanged(hashCode()) || kI.hasChanged(hashCode()) || kD.hasChanged(hashCode())){
+    if (kS.hasChanged(hashCode()) || kV.hasChanged(hashCode()) || kP.hasChanged(hashCode()) || kI.hasChanged(hashCode()) || kD.hasChanged(hashCode())) {
       slot0Configs.kS = kS.get();
       slot0Configs.kV = kV.get();
       slot0Configs.kP = kP.get();
@@ -97,6 +98,9 @@ public class ShooterFlywheel extends SubsystemBase {
       leftMotor.getConfigurator().apply(slot0Configs);
       rightMotor.getConfigurator().apply(slot0Configs);
     }
+
+    SmartDashboard.putBoolean("Shooter/Flywheel/At Set Speed", atSetSpeed());
+    logger.logAll();
   }
 
   @Override
@@ -122,10 +126,11 @@ public class ShooterFlywheel extends SubsystemBase {
 
   /**
    * Set the speed of the flywheels. Remains at speed until called again.
-   * @param rpm Flywheel RPM.
+   * @param rpm Flywheel RPM. Clamped to [0, maxRPM].
    * @param spinType Whether to use left or right motor to induce spin on note.
    */
   public void setSpeed(double rpm, SpinType spinType) {
+    rpm = MathUtil.clamp(rpm, 0, maxRPM);
     double rps = rpm / 60.0;
     leftMotor.setControl(velocityRequest.withVelocity(
       spinType == SpinType.slowLeftMotor ? rps * spinMultiplier.get() : rps

@@ -9,7 +9,6 @@ import java.util.Optional;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
@@ -29,11 +28,11 @@ public class Limelight extends SubsystemBase {
 
   @Override
   public void periodic() {
-    Results results = LimeLightHelpers.getLatestResults("limelight").targetingResults;
-
     // Only consider updating odometry if the reading from limelight is valid
     // False when no valid tags detected
-    if (results.valid) {
+    if (LimeLightHelpers.getTV("limelight")) {
+      Results results = LimeLightHelpers.getLatestResults("limelight").targetingResults;
+
       // Record recently detected pose
       limelightPose = results.getBotPose2d_wpiBlue();
 
@@ -66,6 +65,9 @@ public class Limelight extends SubsystemBase {
         // WARNING: Anything below this will not get executed if conditions don't match
         return;
       }
+
+      // crash the code so I can see why it went wrong (makes it nice and detectable)
+      if (!results.valid) throw new RuntimeException("Limelight results invalid after validity check!");
 
       // set the "trust factor" of the vision measurement
       RobotContainer.drive.drive.swerveDrivePoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(xyStds, xyStds, Units.degreesToRadians(degStds)));
@@ -104,9 +106,7 @@ public class Limelight extends SubsystemBase {
     Optional<Pose3d> targetPose3d = Constants.AprilTag.fieldLayout.getTagPose(targetID.getID());
     Pose2d targetPose2d = new Pose2d(); // NOTE: if targetPose3d is NOT present, we will just return this
     if (targetPose3d.isPresent()) {
-      // Convert to 2D
-      Rotation2d targetRotation = new Rotation2d(targetPose3d.get().getRotation().getX(), targetPose3d.get().getRotation().getY());
-      targetPose2d = new Pose2d(targetPose3d.get().getX(), targetPose3d.get().getY(), targetRotation);
+      targetPose2d = targetPose3d.get().toPose2d();
     }
     return targetPose2d;
   }
