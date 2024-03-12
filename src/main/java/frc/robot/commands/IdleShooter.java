@@ -14,13 +14,14 @@ public class IdleShooter extends InstantCommand {
    */
   public IdleShooter() {
     addRequirements(RobotContainer.shooterAngle, RobotContainer.shooterFlywheel);
-    this.ignoringDisable(true);
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     RobotContainer.shooterAngle.stop();
     RobotContainer.shooterFlywheel.setSpeed(0, SpinType.disable);
   }
+
+  @Override
+  public boolean runsWhenDisabled() { return true; }
 }
