@@ -4,12 +4,13 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -17,6 +18,8 @@ import frc.robot.RobotContainer;
 import frc.robot.utils.BeaverLogger;
 
 public class Climber extends SubsystemBase {
+  public static final Supplier<Double> raiseAxis = RobotContainer.driverController::getLeftTriggerAxis;
+  public static final Supplier<Double> lowerAxis = RobotContainer.driverController::getRightTriggerAxis;
   private final CANSparkMax climberMotor = new CANSparkMax(16, MotorType.kBrushless);
   private final SparkPIDController climberPID;
   private final BeaverLogger logger = new BeaverLogger();
@@ -48,15 +51,29 @@ public class Climber extends SubsystemBase {
     logger.logAll();
   }
 
-  public Command raise() {
-    return new RunCommand(() -> climberMotor.set(RobotContainer.driverController.getLeftTriggerAxis()), this);
+  /**
+   * Set the climber motor to 'Climber::raiseAxis'.
+   * Does not restrict movement at climber limits.
+   * @return Command to continually set the climber to 'raiseAxis'.
+   */
+  public RunCommand raise() {
+    return new RunCommand(() -> climberMotor.set(raiseAxis.get()), this);
   }
 
-  public Command lower() {
-    return new RunCommand(() -> climberMotor.set(-RobotContainer.driverController.getRightTriggerAxis()), this);
+  /**
+   * Set the climber motor to 'Climber::lowerAxis'.
+   * Does not restrict movement at climber limits.
+   * @return Command to continually set the climber to 'lowerAxis'.
+   */
+  public RunCommand lower() {
+    return new RunCommand(() -> climberMotor.set(-lowerAxis.get()), this);
   }
 
-  public Command hold() {
+  /**
+   * Hold the climber's current position using PID.
+   * @return An InstantCommand that sets the reference of the climber PID to its current position.
+   */
+  public InstantCommand hold() {
     return new InstantCommand(() -> climberPID.setReference(climberMotor.getEncoder().getPosition(), CANSparkMax.ControlType.kSmartMotion), this);
   }
 }

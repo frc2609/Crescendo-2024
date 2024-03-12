@@ -82,10 +82,10 @@ public class RobotContainer {
     driverController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
 
     // Climber
-    new Trigger(() -> driverController.getLeftTriggerAxis() > 0.1)
+    new Trigger(() -> Climber.raiseAxis.get() > 0.1)
       .whileTrue(climber.raise())
       .onFalse(climber.hold());
-    new Trigger(() -> driverController.getRightTriggerAxis() > 0.1)
+    new Trigger(() -> Climber.lowerAxis.get() > 0.1)
       .whileTrue(climber.lower())
       .onFalse(climber.hold());
     
