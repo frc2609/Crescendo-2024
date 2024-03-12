@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-// import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -108,9 +108,9 @@ public class Robot extends TimedRobot {
     );
 
     // Shooter Angle
-    // CommandScheduler.getInstance().schedule(
-    //   new RunCommand(() -> RobotContainer.shooterAngle2.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("Test/Shooter Target Angle (Deg)", 0))), RobotContainer.shooterAngle2)
-    // );
+    CommandScheduler.getInstance().schedule(
+      new RunCommand(() -> RobotContainer.shooterAngle.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("Test/Shooter Target Angle (Deg)", 0))), RobotContainer.shooterAngle)
+    );
 
     // Shooter Flywheel
     CommandScheduler.getInstance().schedule(
