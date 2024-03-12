@@ -31,6 +31,8 @@ import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.utils.Visualizer;
 
 public class RobotContainer {
+  public static final CommandXboxController driverController = new CommandXboxController(0);
+
   public static final Climber climber = new Climber();
   public static final Drive drive = new Drive(false);
   public static final Elevator elevator = new Elevator();
@@ -40,7 +42,6 @@ public class RobotContainer {
   public static final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
   public static final Visualizer visualizer = new Visualizer();
 
-  public static final CommandXboxController driverController = new CommandXboxController(0);
   private final SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
