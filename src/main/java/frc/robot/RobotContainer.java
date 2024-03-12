@@ -64,6 +64,10 @@ public class RobotContainer {
   private void configureBindings() {
     // TODO: Move these to 'Test' mode as applicable
 
+    // Automation
+    // TODO: leftBumper is already mapped to swerve precision mode
+    driverController.leftBumper().onTrue(new ShootNote());
+
     // Swerve
     driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro));
     // driverController.y().whileTrue(AprilTagTrackDrive.getAlignToSpeaker());
