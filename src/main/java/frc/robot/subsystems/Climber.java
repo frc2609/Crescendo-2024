@@ -18,8 +18,8 @@ import frc.robot.RobotContainer;
 import frc.robot.utils.BeaverLogger;
 
 public class Climber extends SubsystemBase {
-  public static final Supplier<Double> raiseAxis = RobotContainer.driverController::getLeftTriggerAxis;
-  public static final Supplier<Double> lowerAxis = RobotContainer.driverController::getRightTriggerAxis;
+  public static final Supplier<Double> raiseAxis = RobotContainer.driverController::getRightTriggerAxis;
+  public static final Supplier<Double> lowerAxis = RobotContainer.driverController::getLeftTriggerAxis;
   private final CANSparkMax climberMotor = new CANSparkMax(16, MotorType.kBrushless);
   private final SparkPIDController climberPID;
   private final BeaverLogger logger = new BeaverLogger();
@@ -75,5 +75,9 @@ public class Climber extends SubsystemBase {
    */
   public InstantCommand hold() {
     return new InstantCommand(() -> climberPID.setReference(climberMotor.getEncoder().getPosition(), CANSparkMax.ControlType.kSmartMotion), this);
+  }
+
+  public InstantCommand stop() {
+    return new InstantCommand(climberMotor::disable, this);
   }
 }
