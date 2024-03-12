@@ -80,20 +80,24 @@ public class Elevator extends SubsystemBase {
     liftMotor.setSoftLimit(SoftLimitDirection.kForward, (float)(upperLimitMeters / positionConversion));
 
     elevatorSim.update(0);
-    liftFF.massKg = elevatorMassKg;
 
     SmartDashboard.putData("Elevator/PID", liftPID);
     SmartDashboard.putData("Elevator/FF", liftFF);
 
-    logger.addLoggable("Elevator/FF Mass (kg)", () -> liftFF.massKg, true);
     logger.addLoggable("Elevator/Height (m)", this::getHeight, true);
     logger.addLoggable("Elevator/Velocity (mps)", this::getVelocity, true);
   }
 
   @Override
   public void periodic() {
-    double voltage = liftPID.calculate(getHeight(), targetHeight) + liftFF.calculate(getVelocity());
-    setMotor(voltage);
+    // disable the elevator motor when it is told to go to the bottom *and already at the bottom*
+    // disabling it when the target height is 0 would cause to fall slowly (takes much longer)
+    if ((targetHeight == lowerLimitMeters) && atTargetHeight()) {
+      setMotor(0);
+    } else {
+      double voltage = liftPID.calculate(getHeight(), targetHeight) + liftFF.calculate(getVelocity());
+      setMotor(voltage);
+    }
 
     SmartDashboard.putBoolean("Elevator/At Target Height", atTargetHeight());
     logger.logAll();

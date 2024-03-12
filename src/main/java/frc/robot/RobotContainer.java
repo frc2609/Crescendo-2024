@@ -15,11 +15,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import frc.robot.commands.AprilTagAmpAlign;
 // import frc.robot.commands.AprilTagTrackDrive;
 import frc.robot.commands.MoveElevatorToPosition;
 import frc.robot.commands.ShootNote;
 import frc.robot.commands.MoveElevatorToPosition.Position;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
@@ -29,6 +31,7 @@ import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.utils.Visualizer;
 
 public class RobotContainer {
+  public static final Climber climber = new Climber();
   public static final Drive drive = new Drive(false);
   public static final Elevator elevator = new Elevator();
   public static final Intake intake = new Intake();
@@ -78,6 +81,14 @@ public class RobotContainer {
     driverController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
     driverController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
 
+    // Climber
+    new Trigger(() -> driverController.getLeftTriggerAxis() > 0.1)
+      .whileTrue(climber.raise())
+      .onFalse(climber.hold());
+    new Trigger(() -> driverController.getRightTriggerAxis() > 0.1)
+      .whileTrue(climber.lower())
+      .onFalse(climber.hold());
+    
     // Intake
     // Fake the note being picked up during simulation.
     // Doesn't require intake so intake commands aren't cancelled when run.
