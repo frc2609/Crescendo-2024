@@ -112,6 +112,8 @@ public class Drive extends SubsystemBase {
       targetRobotRelativeSpeeds = Optional.of(new ChassisSpeeds());
       applyChassisSpeeds();
     }
+    
+    logger.logAll();
   }
 
   /**
