@@ -14,8 +14,8 @@ import frc.robot.RobotContainer;
 public class MoveElevatorToPosition extends Command {
   public static enum Position {
     intake(0.0),
-    amp(0.92),
-    trap(0.92);
+    amp(0.94),
+    trap(0.94);
 
     public final double targetHeight;    
 
