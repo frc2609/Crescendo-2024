@@ -71,7 +71,7 @@ public class RobotContainer {
     driverController.leftBumper().onTrue(new ShootNote());
 
     // Swerve
-    driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro));
+    driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro).ignoringDisable(true));
 
     // Elevator
     driverController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
