@@ -27,7 +27,7 @@ import frc.robot.utils.Alert.AlertType;
 public class Elevator extends SubsystemBase {
   public static final double lowerLimitMeters = 0.0;
   public static final double lowerToleranceMeters = 0.02;
-  public static final double upperLimitMeters = 0.93;
+  public static final double upperLimitMeters = 0.95;
   public static final double upperToleranceMeters = 0.02;
   public static final double setpointToleranceMeters = 0.05;
 
@@ -130,7 +130,7 @@ public class Elevator extends SubsystemBase {
     SmartDashboard.putNumber("Elevator/Actual Height Setpoint (m)", targetHeight);
     // set angle
     targetHeight = height; // used to check 'atTarget()'
-    liftPID.setReference(height, ControlType.kSmartMotion);
+    liftPID.setReference(height / positionConversion, ControlType.kSmartMotion);
   }
 
   /**
