@@ -45,15 +45,11 @@ public class TeleopHeadingDrive extends Command {
       driverInputs[0],
       driverInputs[1],
       driverInputs[3] * Math.PI, // convert from -1:1 to -Pi:Pi
-      RobotContainer.drive.drive.getYaw().getRadians(),
+      RobotContainer.drive.drive.getOdometryHeading().getRadians(),
       RobotContainer.drive.getLimitedTeleopLinearSpeed()
     );
 
-    if (isFieldRelative) {
-      RobotContainer.drive.drive.driveFieldOriented(speeds);
-    } else {
-      RobotContainer.drive.drive.drive(speeds);
-    }
+    RobotContainer.drive.setChassisSpeeds(speeds, isFieldRelative);
   }
 
   // Called once the command ends or is interrupted.

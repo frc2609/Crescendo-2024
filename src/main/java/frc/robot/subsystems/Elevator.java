@@ -11,8 +11,9 @@ import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
@@ -28,7 +29,7 @@ import frc.robot.utils.Alert.AlertType;
 public class Elevator extends SubsystemBase {
   public static final double lowerLimitMeters = 0.0;
   public static final double lowerToleranceMeters = 0.02;
-  public static final double upperLimitMeters = 0.96;
+  public static final double upperLimitMeters = 0.93;
   public static final double upperToleranceMeters = 0.02;
   public static final double setpointToleranceMeters = 0.05;
 
@@ -45,9 +46,8 @@ public class Elevator extends SubsystemBase {
   private final RelativeEncoder liftEncoder = liftMotor.getEncoder();
 
   // p = volts/meter of error
-  private final PIDController liftPID = new PIDController(12.0, 0.0, 0.0);
-  // kG of 0.07 works to hold the elevator, but the PID is strong enough that FF isn't significant
-  private final SimpleElevatorFeedforward liftFF = new SimpleElevatorFeedforward(0.0, 0.0, 0.0, elevatorMassKg);
+  private final ProfiledPIDController liftPID = new ProfiledPIDController(12, 0, 0, new Constraints(2, 12));
+  private final SimpleElevatorFeedforward liftFF = new SimpleElevatorFeedforward(0.0, 0.1, 0.0, elevatorMassKg);
 
   private final ElevatorSim elevatorSim = new ElevatorSim(
     DCMotor.getNEO(1),
@@ -80,20 +80,25 @@ public class Elevator extends SubsystemBase {
     liftMotor.setSoftLimit(SoftLimitDirection.kForward, (float)(upperLimitMeters / positionConversion));
 
     elevatorSim.update(0);
-    liftFF.massKg = elevatorMassKg;
 
     SmartDashboard.putData("Elevator/PID", liftPID);
     SmartDashboard.putData("Elevator/FF", liftFF);
 
-    logger.addLoggable("Elevator/FF Mass (kg)", () -> liftFF.massKg, true);
     logger.addLoggable("Elevator/Height (m)", this::getHeight, true);
+    logger.addLoggable("Elevator/Profiled PID Setpoint (m)", () -> liftPID.getSetpoint().position, true);
     logger.addLoggable("Elevator/Velocity (mps)", this::getVelocity, true);
   }
 
   @Override
   public void periodic() {
-    double voltage = liftPID.calculate(getHeight(), targetHeight) + liftFF.calculate(getVelocity());
-    setMotor(voltage);
+    // disable the elevator motor when it is told to go to the bottom *and already at the bottom*
+    // disabling it when the target height is 0 would cause to fall slowly (takes much longer)
+    if ((targetHeight == lowerLimitMeters) && atTargetHeight()) {
+      setMotor(0);
+    } else {
+      double voltage = liftPID.calculate(getHeight(), targetHeight) + liftFF.calculate(getVelocity());
+      setMotor(voltage);
+    }
 
     SmartDashboard.putBoolean("Elevator/At Target Height", atTargetHeight());
     logger.logAll();
@@ -104,6 +109,11 @@ public class Elevator extends SubsystemBase {
     double currentTime = Timer.getFPGATimestamp();
     elevatorSim.update(currentTime - lastLoopTime);
     lastLoopTime = currentTime;
+  }
+
+  public void stop() {
+    liftPID.reset(getHeight());
+    liftMotor.disable();
   }
 
   /**
@@ -159,7 +169,7 @@ public class Elevator extends SubsystemBase {
     if (pastUpperLimit() || pastLowerLimit()) {
       voltage = 0;
       // reset PID while motor is disabled so integral doesn't build up
-      liftPID.reset();
+      liftPID.reset(getHeight());
       heightOutOfRange.set(true);
     }
     voltage = MathUtil.clamp(voltage, -motorVoltageLimit.get(), motorVoltageLimit.get());

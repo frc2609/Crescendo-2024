@@ -8,9 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -20,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.commands.IdleShooter;
 import frc.robot.commands.TeleopVelocityDrive;
 import frc.robot.subsystems.ShooterFlywheel.SpinType;
 import frc.robot.utils.TunableNumber;
@@ -27,8 +25,6 @@ import frc.robot.utils.TunableNumber;
 public class Robot extends TimedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
-
-  private final CANSparkMax climberMotor = new CANSparkMax(16, MotorType.kBrushless);
 
   @Override
   public void robotInit() {
@@ -45,16 +41,20 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-    // RobotContainer.visualizer.update();
+    RobotContainer.visualizer.update();
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    CommandScheduler.getInstance().cancelAll();
+    RobotContainer.climber.stop();
+    RobotContainer.elevator.stop();
+    new IdleShooter().schedule(); // reset saved shooter setpoints on disable
+  }
 
   @Override
   public void disabledPeriodic() {
     TunableNumber.updateAll();
-    RobotContainer.shooterAngle.anglePID.reset(RobotContainer.shooterAngle.getAngle().getDegrees());
   }
 
   @Override
@@ -87,9 +87,7 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {
-    climberMotor.set(RobotContainer.driverController.getRightTriggerAxis() - RobotContainer.driverController.getLeftTriggerAxis());
-  }
+  public void teleopPeriodic() {}
 
   @Override
   public void teleopExit() {

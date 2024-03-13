@@ -18,11 +18,12 @@ import frc.robot.subsystems.ShooterFlywheel.SpinType;
  * Calculate shooter angle and RPM using the robot's distance from the speaker.
  * Assumes odometry is accurate and projectile flies in a straight line at calculated RPM.
  * Works the best within alliance area.
+ * Does not stop shooter when complete (call 'IdleShooter' if desired).
  */
 public class AutoSetShooter extends Command {
   // Units in meters, positive = up or forward
   public static final double speakerHeight = 1.98;
-  public static final double heightOffset = 0.125;
+  public static final double heightOffset = 0.425;
   public static final double noteHeight = 0.19; // distance from ground to note at shooter pivot
   public static final double shooterDistanceFromCenter = -0.02;
   public static final double targetHeight = speakerHeight + heightOffset - noteHeight;
@@ -37,6 +38,8 @@ public class AutoSetShooter extends Command {
 
   private final SpinType spinType;
   private Translation2d speakerTranslation;
+  // exists since 'isScheduled()' doesn't work when command is scheduled as part of a group
+  private boolean isRunning = false;
 
   /** Creates a new AutoSetShooter. */
   public AutoSetShooter(SpinType spinType) {
@@ -48,6 +51,7 @@ public class AutoSetShooter extends Command {
   public void initialize() {
     final ID speakerID = RobotContainer.isRedAlliance("AutoSetAngle") ? ID.kRedSpeakerCenter : ID.kBlueSpeakerCenter;
     speakerTranslation = Limelight.getTargetPose2d(speakerID).getTranslation();
+    isRunning = true;
   }
 
   @Override
@@ -62,8 +66,18 @@ public class AutoSetShooter extends Command {
     SmartDashboard.putNumber("AutoSetShooter/Distance to Shooter Pivot (m)", pivotDistanceToSpeaker);
     SmartDashboard.putNumber("AutoSetShooter/Calculated Angle (deg)", angle.getDegrees());
     SmartDashboard.putNumber("AutoSetShooter/Calculated RPM", rpm);
+    SmartDashboard.putBoolean("AutoSetShooter/At Target", atTarget());
 
     RobotContainer.shooterAngle.setAngle(angle);
     RobotContainer.shooterFlywheel.setSpeed(rpm, spinType);
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    isRunning = false;
+  }
+
+  public boolean atTarget() {
+    return isRunning && RobotContainer.shooterAngle.atTarget() && RobotContainer.shooterFlywheel.atSetSpeed();
   }
 }
