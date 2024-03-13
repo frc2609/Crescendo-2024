@@ -12,19 +12,22 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotContainer;
 import frc.robot.utils.BeaverLogger;
 
 public class Climber extends SubsystemBase {
-  public static final Supplier<Double> raiseAxis = RobotContainer.driverController::getRightTriggerAxis;
-  public static final Supplier<Double> lowerAxis = RobotContainer.driverController::getLeftTriggerAxis;
+  public final Supplier<Double> raiseAxis;
+  public final Supplier<Double> lowerAxis;
   private final CANSparkMax climberMotor = new CANSparkMax(16, MotorType.kBrushless);
   private final SparkPIDController climberPID;
   private final BeaverLogger logger = new BeaverLogger();
 
-  public Climber() {
+  public Climber(Supplier<Double> raiseAxis, Supplier<Double> lowerAxis) {
+    this.raiseAxis = raiseAxis;
+    this.lowerAxis = lowerAxis;
+
     climberMotor.restoreFactoryDefaults();
     climberMotor.setIdleMode(IdleMode.kBrake);
     climberMotor.setInverted(false);
@@ -33,7 +36,7 @@ public class Climber extends SubsystemBase {
     climberPID = climberMotor.getPIDController();
     climberPID.setSmartMotionMaxVelocity(5000, 0);
     climberPID.setSmartMotionMinOutputVelocity(0, 0);
-    climberPID.setSmartMotionMaxAccel(10000, 0);
+    climberPID.setSmartMotionMaxAccel(5000, 0);
     climberPID.setSmartMotionAllowedClosedLoopError(0.1, 0);
     climberPID.setP(0.00002);
     climberPID.setI(0.000001);
@@ -57,7 +60,7 @@ public class Climber extends SubsystemBase {
    * @return Command to continually set the climber to 'raiseAxis'.
    */
   public RunCommand raise() {
-    return new RunCommand(() -> climberMotor.set(raiseAxis.get()), this);
+    return new RunCommand(() -> setMotor(raiseAxis.get()), this);
   }
 
   /**
@@ -66,7 +69,7 @@ public class Climber extends SubsystemBase {
    * @return Command to continually set the climber to 'lowerAxis'.
    */
   public RunCommand lower() {
-    return new RunCommand(() -> climberMotor.set(-lowerAxis.get()), this);
+    return new RunCommand(() -> setMotor(-lowerAxis.get()), this);
   }
 
   /**
@@ -74,10 +77,22 @@ public class Climber extends SubsystemBase {
    * @return An InstantCommand that sets the reference of the climber PID to its current position.
    */
   public InstantCommand hold() {
-    return new InstantCommand(() -> climberPID.setReference(climberMotor.getEncoder().getPosition(), CANSparkMax.ControlType.kSmartMotion), this);
+    return new InstantCommand(() -> setReference(climberMotor.getEncoder().getPosition()), this);
   }
 
   public InstantCommand stop() {
-    return new InstantCommand(climberMotor::disable, this);
+    return new InstantCommand(climberMotor::disable, this); // TODO: set 0
+  }
+
+  // wrappers for setMotor/setReference that log input values
+
+  private void setMotor(double percentOutput) {
+    SmartDashboard.putNumber("Climber/Desired Percent Output", percentOutput);
+    climberMotor.set(percentOutput);
+  }
+
+  private void setReference(double position) {
+    SmartDashboard.putNumber("Climber/Hold Position (Rotations)", position);
+    climberPID.setReference(position, CANSparkMax.ControlType.kSmartMotion);
   }
 }
