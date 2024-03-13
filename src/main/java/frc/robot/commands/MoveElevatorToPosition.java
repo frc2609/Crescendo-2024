@@ -14,9 +14,8 @@ import frc.robot.RobotContainer;
 public class MoveElevatorToPosition extends Command {
   public static enum Position {
     intake(0.0),
-    amp(0.90),
-    // TODO: tune trap
-    trap(0.90);
+    amp(0.92),
+    trap(0.92);
 
     public final double targetHeight;    
 
@@ -43,6 +42,6 @@ public class MoveElevatorToPosition extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return RobotContainer.elevator.atTargetHeight();
+    return RobotContainer.elevator.atTarget();
   }
 }
