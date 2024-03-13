@@ -60,7 +60,7 @@ public class Limelight extends SubsystemBase {
       double degStds;
       
       int numTargets = (int) poseArray[7];
-      SmartDashboard.putNumber("Target area", totalArea);
+      SmartDashboard.putNumber("Limelight/Target Area", totalArea);
       
       if (numTargets >= 2) {
         // trust vision odometry more if we see more than one apriltag
