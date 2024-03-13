@@ -16,7 +16,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.AutoScoreAmp;
 import frc.robot.commands.MoveElevatorToPosition;
+import frc.robot.commands.ResetIntakeAndElevator;
 import frc.robot.commands.MoveElevatorToPosition.Position;
 import frc.robot.commands.ShootNote;
 import frc.robot.subsystems.Climber;
@@ -69,6 +71,10 @@ public class RobotContainer {
     // Automation
     // TODO: leftBumper is already mapped to swerve precision mode
     driverController.leftBumper().onTrue(new ShootNote());
+    
+    new Trigger(() -> driverController.getRightTriggerAxis() > 0.05)
+      .whileTrue(new AutoScoreAmp(driverController::getRightTriggerAxis))
+      .onFalse(new ResetIntakeAndElevator()); // if the above command is interrupted
 
     // Swerve
     driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro));
@@ -79,12 +85,12 @@ public class RobotContainer {
     driverController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
 
     // Climber
-    new Trigger(() -> Climber.raiseAxis.get() > 0.1)
-      .whileTrue(climber.raise())
-      .onFalse(climber.hold());
-    new Trigger(() -> Climber.lowerAxis.get() > 0.1)
-      .whileTrue(climber.lower())
-      .onFalse(climber.hold());
+    // new Trigger(() -> Climber.raiseAxis.get() > 0.1)
+    //   .whileTrue(climber.raise())
+    //   .onFalse(climber.hold());
+    // new Trigger(() -> Climber.lowerAxis.get() > 0.1)
+    //   .whileTrue(climber.lower())
+    //   .onFalse(climber.hold());
     
     // Intake
     // Fake the note being picked up during simulation.
