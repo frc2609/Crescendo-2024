@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.IdleShooter;
 import frc.robot.commands.MoveElevatorToPosition;
 import frc.robot.commands.MoveElevatorToPosition.Position;
 import frc.robot.commands.ShootNote;
@@ -68,7 +69,10 @@ public class RobotContainer {
 
     // Automation
     // TODO: leftBumper is already mapped to swerve precision mode
-    driverController.leftBumper().onTrue(new ShootNote());
+
+    driverController.leftBumper().toggleOnTrue(
+      new ShootNote().handleInterrupt(() -> new IdleShooter().schedule())
+    );
 
     // Swerve
     driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro));
@@ -90,9 +94,9 @@ public class RobotContainer {
     // Fake the note being picked up during simulation.
     // Doesn't require intake so intake commands aren't cancelled when run.
     driverController.back().onTrue(new InstantCommand(() -> intake.noteHeld = true));
-    driverController.a().onTrue(intake.getIntakeNote());
+    driverController.a().toggleOnTrue(intake.getIntakeNote());
     driverController.b().onTrue(intake.getExpelNote());
-    driverController.y().onTrue(intake.getFeedNote());
+    // driverController.y().onTrue(intake.getFeedNote());
     driverController.x().onTrue(intake.getTurnOff());
     
     // Shooter Angle
