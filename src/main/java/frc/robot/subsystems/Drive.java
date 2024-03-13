@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.Swerve;
+import frc.robot.utils.BeaverLogger;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -33,6 +34,7 @@ public class Drive extends SubsystemBase {
   public final SwerveDrive drive;
   private Optional<Rotation2d> headingOverride = Optional.empty();
   private Optional<ChassisSpeeds> targetRobotRelativeSpeeds = Optional.empty();
+  private final BeaverLogger logger = new BeaverLogger();
 
   /** Creates a new Drive. */
   public Drive(boolean verboseTelemetry) {
@@ -80,6 +82,7 @@ public class Drive extends SubsystemBase {
 
     SmartDashboard.putNumber("swerve/teleop/linearSpeedMultiplier", 1.0);
     SmartDashboard.putNumber("swerve/teleop/angularSpeedMultiplier", 1.0);
+    logger.addLoggable("swerve/Overall Speed (mps)", this::getVelocity, true);
   }
 
   /**
@@ -109,6 +112,15 @@ public class Drive extends SubsystemBase {
       targetRobotRelativeSpeeds = Optional.of(new ChassisSpeeds());
       applyChassisSpeeds();
     }
+  }
+
+  /**
+   * Get the overall velocity (combined x and y) of the robot.
+   * @return Velocity of the robot in m/s.
+   */
+  public double getVelocity() {
+    var speeds = drive.getRobotVelocity();
+    return Math.sqrt(Math.pow(speeds.vxMetersPerSecond, 2) + Math.pow(speeds.vyMetersPerSecond, 2));
   }
 
   /**
