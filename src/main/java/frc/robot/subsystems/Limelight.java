@@ -5,12 +5,15 @@
 package frc.robot.subsystems;
 
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Time;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -22,6 +25,7 @@ import frc.robot.utils.LimeLightHelpers.Results;
 
 public class Limelight extends SubsystemBase {
   public static Pose2d limelightPose = new Pose2d();
+  public static double numTargets_dt = -1; // time it takes to calculate how many targets we see
 
   /** Creates a new Limelight. */
   public Limelight() {}
@@ -30,11 +34,13 @@ public class Limelight extends SubsystemBase {
   public void periodic() {
     // Only consider updating odometry if the reading from limelight is valid
     // False when no valid tags detected
-    if (LimeLightHelpers.getTV("limelight")) {
-      Results results = LimeLightHelpers.getLatestResults("limelight").targetingResults;
+    boolean isValid = LimeLightHelpers.getTV("limelight-shooter");
+    if (isValid) {
+      // Results results = LimeLightHelpers.getLatestResults("limelight").targetingResults;
 
       // Record recently detected pose
-      limelightPose = results.getBotPose2d_wpiBlue();
+      // limelightPose = results.getBotPose2d_wpiBlue();
+      limelightPose = LimeLightHelpers.getBotPose2d_wpiBlue("limelight-shooter");
 
       // Calculate the vector between the current drivetrain pose and vision pose
       Transform2d odometryDifference = RobotContainer.drive.drive.field.getRobotPose().minus(limelightPose);
@@ -47,18 +53,28 @@ public class Limelight extends SubsystemBase {
       double xyStds;
       double degStds;
       
-      int numTargets = results.targets_Fiducials.length;
-      SmartDashboard.putNumber("Target area", getBestTargetArea(results.targets_Fiducials));
-      
+      // int numTargets = results.targets_Fiducials.length;
+      int numTargets = Limelight.getNumTargetsFast("limelight-shooter");
+      SmartDashboard.putNumber("Target area", LimeLightHelpers.getTA("limelight-shooter"));
+      double area = LimeLightHelpers.getTA("limelight-shooter");
       if (numTargets >= 2) {
         // trust vision odometry more if we see more than one apriltag
         // orientation should also be more accurate in this case
-        xyStds = 0.5;
-        degStds = 6;
-      } else if (LimeLightHelpers.getTA("limelight") > 0.8 && distance < 0.5) {
+        if(area < 0.4 && area > 0.3){
+          xyStds = 1;
+          degStds = 6;
+        }else if(area <= 0.3){
+          xyStds = 1.5;
+          degStds = 6;
+        }
+        else{
+          xyStds = 0.5;
+          degStds = 6;
+        }
+      } else if (area> 0.8 && distance < 0.5) {
         xyStds = 1.0;
         degStds = 12;
-      } else if (LimeLightHelpers.getTA("limelight") > 0.1 && distance < 0.3) {
+      } else if (area > 0.1 && distance < 0.3) {
         xyStds = 2.0;
         degStds = 30;
       } else {
@@ -67,14 +83,14 @@ public class Limelight extends SubsystemBase {
       }
 
       // crash the code so I can see why it went wrong (makes it nice and detectable)
-      if (!results.valid) throw new RuntimeException("Limelight results invalid after validity check!");
+      if (!isValid) throw new RuntimeException("Limelight results invalid after validity check!");
 
       // set the "trust factor" of the vision measurement
       RobotContainer.drive.drive.swerveDrivePoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(xyStds, xyStds, Units.degreesToRadians(degStds)));
       
       if (distance > 0.02 && RobotContainer.drive.getVelocity() < 0.05) {
         // add a vision measurement if the cartesian error in odometry is greater than 0.02m
-        RobotContainer.drive.drive.swerveDrivePoseEstimator.addVisionMeasurement(limelightPose, Timer.getFPGATimestamp() - (results.latency_capture/1000.0));
+        RobotContainer.drive.drive.swerveDrivePoseEstimator.addVisionMeasurement(limelightPose, Timer.getFPGATimestamp() - (LimeLightHelpers.getLatency_Capture("limelight-shooter")/1000.0 - (LimeLightHelpers.getLatency_Pipeline("limelight-shooter")/1000.0)));
       }
     }
 
@@ -109,5 +125,18 @@ public class Limelight extends SubsystemBase {
       targetPose2d = targetPose3d.get().toPose2d();
     }
     return targetPose2d;
+  }
+  public static int getNumTargetsFast(String limelightName){
+    String jsonDump = LimeLightHelpers.getJSONDump(limelightName);
+    double start = Timer.getFPGATimestamp();
+    Pattern pattern = Pattern.compile("\"fID\":\\d+");
+    Matcher matcher = pattern.matcher(jsonDump);
+
+    int count = 0;
+    while (matcher.find()){
+      count++;
+    }
+    numTargets_dt = Timer.getFPGATimestamp()-start;
+    return count;
   }
 }
