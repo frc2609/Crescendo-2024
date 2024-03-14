@@ -30,10 +30,10 @@ public class ShooterFlywheel extends SubsystemBase {
     slowRightMotor
   }
 
-  public static final double maxRPM = 5200;
+  public static final double maxRPM = 4700;
 
   /** Used to determine whether or not the shooter has reached the set speed. */
-  public static final double rpmTolerance = 100.0;
+  public static final double rpmTolerance = 250.0;
 
   // 0.5 * m * r^2
   // mass = 0.1kg/wheel * 9 + 0.04kg/hex shaft * 3 + 0.1kg/gear * 3 + 0.04kg/pulley * 4
