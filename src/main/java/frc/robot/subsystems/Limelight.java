@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -17,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.utils.LimeLightHelpers;
 import frc.robot.utils.LimeLightHelpers.Results;
+import swervelib.SwerveDrive;
 
 public class Limelight extends SubsystemBase {
   public static enum Pipeline {
@@ -31,6 +35,7 @@ public class Limelight extends SubsystemBase {
   }
 
   private final String name;
+  public static double numTargets_dt = 0.0;
 
   /** Creates a new Limelight. */
   public Limelight(String name) {
@@ -47,9 +52,8 @@ public class Limelight extends SubsystemBase {
         SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", false);
         return;
       }
-      Results results = LimeLightHelpers.getLatestResults(name).targetingResults;
-      var pose = results.getBotPose2d_wpiBlue();
-      var latencyMS = results.latency_capture / 1000.0;
+      var pose = LimeLightHelpers.getBotPose2d_wpiBlue(name);
+      var latencyMS = LimeLightHelpers.getLatency_Capture(name) / 1000.0;
       var odometryDifference = RobotContainer.drive.drive.getPose().minus(pose);
       var distance = Math.hypot(odometryDifference.getX(), odometryDifference.getY());
       var totalTargetArea = LimeLightHelpers.getTA(name);
@@ -58,9 +62,18 @@ public class Limelight extends SubsystemBase {
       double degStds;
 
       // multiple targets detected
-      if (results.targets_Fiducials.length >= 2) {
-        xyStds = 0.5;
-        degStds = 6;
+      if (getNumTargetsFast(name) >= 2) {
+        if(totalTargetArea < 0.4 && totalTargetArea > 0.3){
+          xyStds = 1;
+          degStds = 6;
+        }else if(totalTargetArea <= 0.3){
+          xyStds = 1.5;
+          degStds = 6;
+        }
+        else{
+          xyStds = 0.5;
+          degStds = 6;
+        }
       }
       // 1 target with large area and close to estimated pose
       else if (totalTargetArea > 0.8 && distance < 0.5) {
@@ -85,7 +98,7 @@ public class Limelight extends SubsystemBase {
       SmartDashboard.putNumber("Limelight/" + name + "/Total Target Area", totalTargetArea);
       RobotContainer.drive.drive.field.getObject(name + " Estimated Pose").setPose(pose);
     
-      var poseToSet = setGyro ? pose : new Pose2d(pose.getTranslation(), new Rotation2d());
+      var poseToSet = setGyro ? pose : new Pose2d(pose.getTranslation(), RobotContainer.drive.drive.getOdometryHeading());
 
       // check if robot is moving slowly first
       if (RobotContainer.drive.getVelocity() < 0.05 && RobotContainer.drive.drive.getRobotVelocity().omegaRadiansPerSecond < Math.toRadians(10)) {
@@ -103,15 +116,29 @@ public class Limelight extends SubsystemBase {
         return;
       }
       SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", true);
-      Results results = LimeLightHelpers.getLatestResults(name).targetingResults;
-      var pose = results.getBotPose2d_wpiBlue();
+      var pose = LimeLightHelpers.getBotPose2d_wpiBlue(name);
 
       RobotContainer.drive.drive.field.getObject(name + " Estimated Pose").setPose(pose);
       RobotContainer.drive.drive.resetOdometry(pose);
     }, this);
   }
 
+  
+  public static int getNumTargetsFast(String limelightName){
+    String jsonDump = LimeLightHelpers.getJSONDump(limelightName);
+    double start = Timer.getFPGATimestamp();
+    Pattern pattern = Pattern.compile("\"fID\":\\d+");
+    Matcher matcher = pattern.matcher(jsonDump);
+
+    int count = 0;
+    while (matcher.find()){
+      count++;
+    }
+    numTargets_dt = Timer.getFPGATimestamp()-start;
+    return count;
+  }
+
   public void setPipeline(Pipeline pipeline) {
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(pipeline.id);
+    NetworkTableInstance.getDefault().getTable(name).getEntry("pipeline").setNumber(pipeline.id);
   }
 }
