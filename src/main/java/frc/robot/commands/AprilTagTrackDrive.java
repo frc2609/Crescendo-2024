@@ -10,8 +10,8 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.AprilTag;
 import frc.robot.Constants.AprilTag.ID;
-import frc.robot.subsystems.Limelight;
 
 /**
  * Align robot heading to AprilTag according to automatically-detected alliance colour.
@@ -52,7 +52,7 @@ public class AprilTagTrackDrive extends Command {
   @Override
   public void execute() {
     // strip the rotation component of the apriltag pose because we don't require it
-    Pose2d apriltagPose = new Pose2d(Limelight.getTargetPose2d(trackedAprilTagID).getTranslation(), new Rotation2d());
+    Pose2d apriltagPose = new Pose2d(AprilTag.getPose2d(trackedAprilTagID).getTranslation(), new Rotation2d());
     Transform2d relativePose = RobotContainer.drive.drive.getPose().minus(apriltagPose);
     Rotation2d heading =
       Rotation2d.fromRadians(Math.atan2(relativePose.getY(), relativePose.getX()))
