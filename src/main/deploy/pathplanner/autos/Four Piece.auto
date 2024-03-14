@@ -24,6 +24,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "IntakeNote"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Start to 1"
@@ -36,6 +42,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "IntakeNote"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "1 to 2"
@@ -45,6 +57,12 @@
           "type": "named",
           "data": {
             "name": "ShootNote"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeNote"
           }
         },
         {

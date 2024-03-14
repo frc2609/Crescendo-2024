@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
@@ -19,8 +18,6 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.utils.LimeLightHelpers;
-import frc.robot.utils.LimeLightHelpers.Results;
-import swervelib.SwerveDrive;
 
 public class Limelight extends SubsystemBase {
   public static enum Pipeline {
@@ -63,14 +60,13 @@ public class Limelight extends SubsystemBase {
 
       // multiple targets detected
       if (getNumTargetsFast(name) >= 2) {
-        if(totalTargetArea < 0.4 && totalTargetArea > 0.3){
+        if (totalTargetArea < 0.4 && totalTargetArea > 0.3) {
           xyStds = 1;
           degStds = 6;
-        }else if(totalTargetArea <= 0.3){
+        } else if (totalTargetArea <= 0.3) {
           xyStds = 1.5;
           degStds = 6;
-        }
-        else{
+        } else {
           xyStds = 0.5;
           degStds = 6;
         }
@@ -123,7 +119,10 @@ public class Limelight extends SubsystemBase {
     }, this);
   }
 
-  
+  public void setPipeline(Pipeline pipeline) {
+    NetworkTableInstance.getDefault().getTable(name).getEntry("pipeline").setNumber(pipeline.id);
+  }
+
   public static int getNumTargetsFast(String limelightName){
     String jsonDump = LimeLightHelpers.getJSONDump(limelightName);
     double start = Timer.getFPGATimestamp();
@@ -136,9 +135,5 @@ public class Limelight extends SubsystemBase {
     }
     numTargets_dt = Timer.getFPGATimestamp()-start;
     return count;
-  }
-
-  public void setPipeline(Pipeline pipeline) {
-    NetworkTableInstance.getDefault().getTable(name).getEntry("pipeline").setNumber(pipeline.id);
   }
 }
