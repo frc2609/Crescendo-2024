@@ -7,6 +7,9 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
+
+import java.util.function.Supplier;
+
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
@@ -19,6 +22,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Alert;
 import frc.robot.utils.BeaverLogger;
@@ -197,6 +202,16 @@ public class Elevator extends SubsystemBase {
    */
   public double getVelocity() {
     return RobotBase.isReal() ? liftEncoder.getVelocity() * velocityConversion : elevatorSim.getVelocityMetersPerSecond();
+  }
+
+  // command factories
+
+  public Command getSetpointAxisControl(Supplier<Double> setpointAxis) {
+    return new RunCommand(() -> setHeight(MathUtil.clamp(setpointAxis.get() * upperLimitMeters, lowerLimitMeters, upperLimitMeters)), this);
+  }
+
+  public Command getPercentOutputControl(Supplier<Double> percentOutputAxis) {
+    return new RunCommand(() -> setMotor(percentOutputAxis.get()), this);
   }
 
   // limits

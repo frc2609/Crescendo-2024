@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import frc.robot.commands.AutoScoreAmp;
@@ -23,6 +25,7 @@ import frc.robot.commands.IdleShooter;
 import frc.robot.commands.MoveElevatorToPosition;
 // import frc.robot.commands.ResetIntakeAndElevator;
 import frc.robot.commands.MoveElevatorToPosition.Position;
+import frc.robot.commands.ResetIntakeAndElevator;
 import frc.robot.commands.ShootNote;
 import frc.robot.commands.ShootNoteContinuously;
 import frc.robot.subsystems.Climber;
@@ -37,8 +40,9 @@ import frc.robot.utils.Visualizer;
 
 public class RobotContainer {
   public static final CommandXboxController driverController = new CommandXboxController(0);
+  public static final CommandXboxController operatorController = new CommandXboxController(1);
 
-  public static final Climber climber = new Climber(driverController::getRightTriggerAxis, driverController::getLeftTriggerAxis);
+  public static final Climber climber = new Climber(operatorController::getRightTriggerAxis, operatorController::getLeftTriggerAxis);
   public static final Drive drive = new Drive(false);
   public static final Elevator elevator = new Elevator();
   public static final Intake intake = new Intake();
@@ -80,22 +84,33 @@ public class RobotContainer {
     // TODO: Move these to 'Test' mode as applicable
 
     // Automation
-    // TODO: leftBumper is already mapped to swerve precision mode
     driverController.leftBumper().toggleOnTrue(
       new ShootNote().handleInterrupt(() -> new IdleShooter().schedule())
     );
-
+    driverController.rightBumper().onTrue(
+      new SequentialCommandGroup(
+        new MoveElevatorToPosition(Position.amp),
+        new WaitUntilCommand(() -> !driverController.getHID().getRightBumper()),
+        RobotContainer.intake.getExpelNote(),
+        Commands.waitSeconds(0.25),
+        new ResetIntakeAndElevator()
+      )
+    );
     // new Trigger(() -> driverController.getRightTriggerAxis() > 0.05)
     //   .whileTrue(new AutoScoreAmp(driverController::getRightTriggerAxis))
     //   .onFalse(new ResetIntakeAndElevator()); // if the above command is interrupted
 
     // Swerve
     driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro).ignoringDisable(true));
+    operatorController.start().onTrue(rearLimelight.getResetRobotPose().ignoringDisable(true));
 
     // Elevator
     driverController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
     driverController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
     driverController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
+    operatorController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
+    operatorController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
+    operatorController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
 
     // Climber
     new Trigger(() -> climber.raiseAxis.get() > 0.1)
@@ -108,11 +123,18 @@ public class RobotContainer {
     // Intake
     // Fake the note being picked up during simulation.
     // Doesn't require intake so intake commands aren't cancelled when run.
-    driverController.back().onTrue(new InstantCommand(() -> intake.noteHeld = true));
+    operatorController.back().onTrue(new InstantCommand(() -> intake.noteHeld = true));
+    new Trigger(() -> driverController.getRightTriggerAxis() > 0.2).toggleOnTrue(intake.getIntakeNote());
+    // we have no use for these buttons currently, but these buttons aren't strictly necessary
+    // if you need them for something, you can remove them, if not, we're leaving them as backups
     driverController.a().toggleOnTrue(intake.getIntakeNote());
     driverController.b().onTrue(intake.getExpelNote());
     driverController.y().onTrue(intake.getFeedNote());
     driverController.x().onTrue(intake.getTurnOff());
+    operatorController.a().toggleOnTrue(intake.getIntakeNote());
+    operatorController.b().onTrue(intake.getExpelNote());
+    operatorController.y().onTrue(intake.getFeedNote());
+    operatorController.x().onTrue(intake.getTurnOff());
     
     // Shooter Angle
     
