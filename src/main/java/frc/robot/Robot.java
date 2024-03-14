@@ -83,7 +83,9 @@ public class Robot extends TimedRobot {
       autonomousCommand.cancel();
     }
     RobotContainer.drive.setDefaultCommand(new TeleopVelocityDrive(true));
-    RobotContainer.rearLimelight.setDefaultCommand(RobotContainer.rearLimelight.getEstimateRobotPose(true));
+    RobotContainer.rearLimelight.getResetRobotPose().schedule(); // TODO: Remove this at comp
+    // Update odometry without updating heading
+    // RobotContainer.rearLimelight.setDefaultCommand(RobotContainer.rearLimelight.getEstimateRobotPose(false));
   }
 
   @Override
