@@ -48,6 +48,7 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     CommandScheduler.getInstance().cancelAll();
     RobotContainer.climber.stop();
+    RobotContainer.elevator.stop();
     new IdleShooter().schedule(); // reset saved shooter setpoints on disable
   }
 
@@ -117,9 +118,9 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().schedule(
       new RunCommand(() -> {
         SpinType spinType = SpinType.disable;
-        if (RobotContainer.driverController.leftBumper().getAsBoolean())
+        if (RobotContainer.driverController.getHID().getLeftBumper())
           spinType = SpinType.slowLeftMotor;
-        if (RobotContainer.driverController.rightBumper().getAsBoolean())
+        if (RobotContainer.driverController.getHID().getRightBumper())
           spinType = SpinType.slowRightMotor;
         RobotContainer.shooterFlywheel.setSpeed(SmartDashboard.getNumber("Test/Shooter Target RPM", 0), spinType);
       }, RobotContainer.shooterFlywheel)

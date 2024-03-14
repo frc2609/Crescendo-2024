@@ -33,7 +33,7 @@ public class TeleopVelocityDrive extends Command {
       true,
       false,
       false,
-      true,
+      false,
       DriveUtil.getSensitivity(RobotContainer.driverController),
       isFieldRelative
     );

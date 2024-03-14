@@ -9,6 +9,8 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoScoreAmp;
+import frc.robot.commands.IdleShooter;
 import frc.robot.commands.MoveElevatorToPosition;
 import frc.robot.commands.ResetIntakeAndElevator;
 import frc.robot.commands.MoveElevatorToPosition.Position;
@@ -28,12 +31,13 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterAngle;
 import frc.robot.subsystems.ShooterFlywheel;
+import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.Visualizer;
 
 public class RobotContainer {
   public static final CommandXboxController driverController = new CommandXboxController(0);
 
-  public static final Climber climber = new Climber();
+  public static final Climber climber = new Climber(driverController::getRightTriggerAxis, driverController::getLeftTriggerAxis);
   public static final Drive drive = new Drive(false);
   public static final Elevator elevator = new Elevator();
   public static final Intake intake = new Intake();
@@ -41,7 +45,9 @@ public class RobotContainer {
   public static final ShooterAngle shooterAngle = new ShooterAngle();
   public static final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
   public static final Visualizer visualizer = new Visualizer();
+  public static final PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
 
+  private final BeaverLogger logger = new BeaverLogger();
   private final SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
@@ -63,6 +69,8 @@ public class RobotContainer {
     // the auto specified here is chosen by default
     autoChooser = AutoBuilder.buildAutoChooser("Four Piece");
     SmartDashboard.putData("Auto Chooser", autoChooser);
+
+    logger.addLoggable("General/Total Current (A)", pdh::getTotalCurrent, true);
   }
 
   private void configureBindings() {
@@ -70,14 +78,16 @@ public class RobotContainer {
 
     // Automation
     // TODO: leftBumper is already mapped to swerve precision mode
-    driverController.leftBumper().onTrue(new ShootNote());
-    
+    driverController.leftBumper().toggleOnTrue(
+      new ShootNote().handleInterrupt(() -> new IdleShooter().schedule())
+    );
+
     new Trigger(() -> driverController.getRightTriggerAxis() > 0.05)
       .whileTrue(new AutoScoreAmp(driverController::getRightTriggerAxis))
       .onFalse(new ResetIntakeAndElevator()); // if the above command is interrupted
 
     // Swerve
-    driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro));
+    driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro).ignoringDisable(true));
 
     // Elevator
     driverController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
@@ -96,9 +106,9 @@ public class RobotContainer {
     // Fake the note being picked up during simulation.
     // Doesn't require intake so intake commands aren't cancelled when run.
     driverController.back().onTrue(new InstantCommand(() -> intake.noteHeld = true));
-    driverController.a().onTrue(intake.getIntakeNote());
+    driverController.a().toggleOnTrue(intake.getIntakeNote());
     driverController.b().onTrue(intake.getExpelNote());
-    driverController.y().onTrue(intake.getFeedNote());
+    // driverController.y().onTrue(intake.getFeedNote());
     driverController.x().onTrue(intake.getTurnOff());
     
     // Shooter Angle
