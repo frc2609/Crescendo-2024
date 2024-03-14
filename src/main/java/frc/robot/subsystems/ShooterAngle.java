@@ -106,12 +106,19 @@ public class ShooterAngle extends SubsystemBase {
     logger.logAll();
   }
 
+  public void syncRelativeEncoder() {
+    relativeEncoder.setPosition(getAbsoluteAngle().getDegrees());
+  }
+
   // set angle using PID
   // will HOLD (read: this function doesn't run run) until 'stop' called
   public void setAngle(Rotation2d angle) {
     if (hasError() && !errorOverridden()) {
       stop();
       return;
+    }
+    if (angle.getDegrees() == Double.NaN) {
+      return; // continue with whatever the motor was doing before
     }
     // clamp angle to allowable setpoints
     SmartDashboard.putNumber("Shooter/Angle/Desired Target (deg)", angle.getDegrees());
