@@ -83,7 +83,7 @@ public class Robot extends TimedRobot {
       autonomousCommand.cancel();
     }
     RobotContainer.drive.setDefaultCommand(new TeleopVelocityDrive(true));
-    RobotContainer.limelight.setDefaultCommand(new RunCommand(() -> RobotContainer.limelight.addPoseEstimate(false), RobotContainer.limelight));
+    RobotContainer.rearLimelight.setDefaultCommand(RobotContainer.rearLimelight.getEstimateRobotPose(true));
   }
 
   @Override
@@ -92,7 +92,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopExit() {
     RobotContainer.drive.removeDefaultCommand();
-    RobotContainer.limelight.removeDefaultCommand();
+    RobotContainer.rearLimelight.removeDefaultCommand();
   }
 
   @Override

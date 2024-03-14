@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.IdleShooter;
@@ -40,7 +39,7 @@ public class RobotContainer {
   public static final Drive drive = new Drive(false);
   public static final Elevator elevator = new Elevator();
   public static final Intake intake = new Intake();
-  public static final Limelight limelight = new Limelight("limelight");
+  public static final Limelight rearLimelight = new Limelight("Rear Limelight");
   public static final ShooterAngle shooterAngle = new ShooterAngle();
   public static final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
   public static final Visualizer visualizer = new Visualizer();
@@ -52,7 +51,7 @@ public class RobotContainer {
   public RobotContainer() {
     configureBindings();
 
-    NamedCommands.registerCommand("ResetPoseToLimelight", new RunCommand(limelight::resetOdometryToVision).withTimeout(0.1));
+    NamedCommands.registerCommand("ResetPoseToLimelight", rearLimelight.getResetRobotPose().withTimeout(0.1));
     NamedCommands.registerCommand("IntakeNote", intake.getIntakeNote());
     NamedCommands.registerCommand("ShootNote", new ShootNote());
     NamedCommands.registerCommand("PrintOnCheckpoint", Commands.print("Reached Checkpoint!"));
