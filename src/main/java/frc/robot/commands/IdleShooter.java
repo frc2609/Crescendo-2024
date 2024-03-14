@@ -6,7 +6,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.ShooterFlywheel.SpinType;
 
 public class IdleShooter extends InstantCommand {
   /**
@@ -19,7 +18,7 @@ public class IdleShooter extends InstantCommand {
   @Override
   public void initialize() {
     RobotContainer.shooterAngle.stop();
-    RobotContainer.shooterFlywheel.setSpeed(0, SpinType.disable);
+    RobotContainer.shooterFlywheel.coast();
   }
 
   @Override
