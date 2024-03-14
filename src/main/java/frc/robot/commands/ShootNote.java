@@ -27,7 +27,8 @@ public class ShootNote extends SequentialCommandGroup {
           "Commands/ShootNote"
         ), // deadline
         alignToSpeaker,
-        autoSetShooter
+        autoSetShooter,
+        RobotContainer.rearLimelight.getEstimateRobotPose(false)
       ),
       RobotContainer.intake.getFeedNote(),
       new IdleShooter()
