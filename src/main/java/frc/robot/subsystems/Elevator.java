@@ -70,7 +70,7 @@ public class Elevator extends SubsystemBase {
 
     liftPID.setSmartMotionMaxVelocity(5000, 0);
     liftPID.setSmartMotionMinOutputVelocity(0, 0);
-    liftPID.setSmartMotionMaxAccel(10000, 0);
+    liftPID.setSmartMotionMaxAccel(4000, 0);
     liftPID.setSmartMotionAllowedClosedLoopError(0.1, 0);
     liftPID.setP(0.00002);
     liftPID.setI(0.000001);
