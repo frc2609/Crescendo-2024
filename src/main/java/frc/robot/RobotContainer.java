@@ -32,7 +32,7 @@ import frc.robot.utils.Visualizer;
 public class RobotContainer {
   public static final CommandXboxController driverController = new CommandXboxController(0);
 
-  public static final Climber climber = new Climber();
+  public static final Climber climber = new Climber(driverController::getRightTriggerAxis, driverController::getLeftTriggerAxis);
   public static final Drive drive = new Drive(false);
   public static final Elevator elevator = new Elevator();
   public static final Intake intake = new Intake();
@@ -83,10 +83,10 @@ public class RobotContainer {
     driverController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
 
     // Climber
-    new Trigger(() -> Climber.raiseAxis.get() > 0.1)
+    new Trigger(() -> climber.raiseAxis.get() > 0.1)
       .whileTrue(climber.raise())
       .onFalse(climber.hold());
-    new Trigger(() -> Climber.lowerAxis.get() > 0.1)
+    new Trigger(() -> climber.lowerAxis.get() > 0.1)
       .whileTrue(climber.lower())
       .onFalse(climber.hold());
     
