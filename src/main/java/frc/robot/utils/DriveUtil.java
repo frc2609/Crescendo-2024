@@ -34,7 +34,7 @@ public class DriveUtil {
    */
   public static double getSensitivity(CommandXboxController controller) {
     // define sensitivity calculations here, that way if they change, they will change everywhere
-    boolean precision = controller.getHID().getLeftBumper() || controller.getHID().getRightBumper();
+    boolean precision = false; //controller.getHID().getLeftBumper() || controller.getHID().getRightBumper();
     return precision ? 0.5 : 1.0;
   }
 
