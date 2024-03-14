@@ -26,7 +26,9 @@ public class TeleopMatchVelocityDrive extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    RobotContainer.drive.drive.swerveController.lastAngleScalar = RobotContainer.drive.drive.getOdometryHeading().getRotations();
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
