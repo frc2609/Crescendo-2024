@@ -10,8 +10,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.AprilTag;
 import frc.robot.Constants.AprilTag.ID;
-import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterFlywheel.SpinType;
 
 /**
@@ -50,7 +50,7 @@ public class AutoSetShooter extends Command {
   @Override
   public void initialize() {
     final ID speakerID = RobotContainer.isRedAlliance("AutoSetAngle") ? ID.kRedSpeakerCenter : ID.kBlueSpeakerCenter;
-    speakerTranslation = Limelight.getTargetPose2d(speakerID).getTranslation();
+    speakerTranslation = AprilTag.getPose2d(speakerID).getTranslation();
     isRunning = true;
   }
 
