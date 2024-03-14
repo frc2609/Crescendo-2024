@@ -118,7 +118,7 @@ public class RobotContainer {
     // Intake
     // Fake the note being picked up during simulation.
     // Doesn't require intake so intake commands aren't cancelled when run.
-    driverController.back().onTrue(new InstantCommand(() -> intake.noteHeld = true));
+    operatorController.back().onTrue(new InstantCommand(() -> intake.noteHeld = true));
     driverController.a().toggleOnTrue(intake.getIntakeNote());
     driverController.b().onTrue(intake.getExpelNote());
     driverController.y().onTrue(intake.getFeedNote());
