@@ -4,90 +4,98 @@
 
 package frc.robot.subsystems;
 
-import java.util.Optional;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.utils.LimeLightHelpers;
 import frc.robot.utils.LimeLightHelpers.LimelightTarget_Fiducial;
+import frc.robot.utils.LimeLightHelpers.Results;
 
 public class Limelight extends SubsystemBase {
-  public static Pose2d limelightPose = new Pose2d();
-  private static NetworkTable limelightTable;
+  private final String limelightName;
+  private Pose2d pose = new Pose2d();
+  private boolean poseValid = false;
+  private double latencyMS = 0;
+  // reference: https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization
+  private double xyStds = 0;
+  private double degStds = 0;
 
-  /** Creates a new Limelight. */
-  public Limelight() {
-    limelightTable = NetworkTableInstance.getDefault().getTable("limelight");
+  /**
+   * Creates a new Limelight.
+   * @param limelightName The limelight's name (in Limelight config!).
+   */
+  public Limelight(String limelightName) {
+    this.limelightName = limelightName;
   }
 
   @Override
   public void periodic() {
-    // Only consider updating odometry if the reading from limelight is valid
-    // False when no valid tags detected
-    boolean seesValidTags = limelightTable.getEntry("tv").getBoolean(false);
-    if (seesValidTags) {
+    poseValid = false;
 
-      // Contains X,Y,Z, Roll,Pitch,Yaw, total latency (cl + tl), tag count, tag span, avg distance of tag from camera, average tag area (% of image)
-      double[] poseArray = limelightTable.getEntry("botpose_wpiblue").getDoubleArray(new double[11]);
-      
-      // Record recently detected pose
-      limelightPose = new Pose2d(poseArray[0], poseArray[1], new Rotation2d(poseArray[5]));
+    if (LimeLightHelpers.getTV(limelightName)) {
+      Results results = LimeLightHelpers.getLatestResults(limelightName).targetingResults;
+      pose = results.getBotPose2d_wpiBlue();
+      latencyMS = results.latency_capture / 1000.0;
+      var odometryDifference = RobotContainer.drive.drive.getPose().minus(pose);
+      var distance = Math.hypot(odometryDifference.getX(), odometryDifference.getY());
+      var totalTargetArea = LimeLightHelpers.getTA(limelightName);
 
-      // get percentage
-      double totalArea = limelightTable.getEntry("ta").getDouble(0);
-
-      double latency = poseArray[6];
-
-      // Calculate the vector between the current drivetrain pose and vision pose
-      Transform2d odometryDifference = RobotContainer.drive.drive.field.getRobotPose().minus(limelightPose);
-      // Calculate the cartesian distance between poses
-      double distance = Math.sqrt(Math.pow(odometryDifference.getX(), 2) + Math.pow(odometryDifference.getY(), 2));
-      // Record odometry error to smartdashboard
-      SmartDashboard.putNumber("swerve/Odometry Error", distance);
-
-      // reference: https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization
-      double xyStds;
-      double degStds;
-      
-      int numTargets = (int) poseArray[7];
-      SmartDashboard.putNumber("Limelight/Target Area", totalArea);
-      
-      if (numTargets >= 2) {
-        // trust vision odometry more if we see more than one apriltag
-        // orientation should also be more accurate in this case
+      // multiple targets detected
+      if (results.targets_Fiducials.length >= 2) {
         xyStds = 0.5;
         degStds = 6;
-      } else if (totalArea > 0.8 && distance < 0.5) {
+        poseValid = true;
+      }
+      // 1 target with large area and close to estimated pose
+      else if (totalTargetArea > 0.8 && distance < 0.5) {
         xyStds = 1.0;
         degStds = 12;
-      } else if (totalArea > 0.1 && distance < 0.3) {
+        poseValid = true;
+      }
+      // 1 target farther away and estimated pose is close
+      else if (totalTargetArea > 0.1 && distance < 0.3) {
         xyStds = 2.0;
         degStds = 30;
-      } else {
-        // WARNING: Anything below this will not get executed if conditions don't match
-        return;
+        poseValid = true;
+      }
+      // conditions don't match to add a vision measurement
+      else {
+        xyStds = 0;
+        degStds = 0;
+        poseValid = false;
       }
 
-      // set the "trust factor" of the vision measurement
-      RobotContainer.drive.drive.swerveDrivePoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(xyStds, xyStds, Units.degreesToRadians(degStds)));
-      
-      if (distance > 0.02 && RobotContainer.drive.getVelocity() < 0.05) {
-        // add a vision measurement if the cartesian error in odometry is greater than 0.02m
-        RobotContainer.drive.drive.swerveDrivePoseEstimator.addVisionMeasurement(limelightPose, Timer.getFPGATimestamp() - (latency/1000.0));
-      }
+      // only run when pose valid
+      SmartDashboard.putNumber("Limelight/" + limelightName + "/Latency (MS)", latencyMS);
+      SmartDashboard.putNumber("Limelight/" + limelightName + "/Odometry Error", distance);
+      SmartDashboard.putNumber("Limelight/" + limelightName + "/Best Target Area", getBestTargetArea(results.targets_Fiducials));
+      SmartDashboard.putNumber("Limelight/" + limelightName + "/Total Target Area", totalTargetArea);
     }
 
-    RobotContainer.drive.drive.field.getObject("Limelight Estimated Pose").setPose(limelightPose);
+    // always run
+    SmartDashboard.putBoolean("Limelight/" + limelightName + "/Pose Valid", poseValid);
+    RobotContainer.drive.drive.field.getObject(limelightName + " Estimated Pose").setPose(pose);
+  }
+
+  public void resetOdometryToVision() {
+    if (poseValid) {
+      RobotContainer.drive.drive.resetOdometry(pose);
+    }
+  }
+
+  public void addPoseEstimate(boolean setGyro) {
+    var poseToSet = setGyro ? pose : new Pose2d(pose.getTranslation(), new Rotation2d());
+
+    if (poseValid && RobotContainer.drive.getVelocity() < 0.05 && RobotContainer.drive.drive.getRobotVelocity().omegaRadiansPerSecond < Math.toRadians(10)) {
+      RobotContainer.drive.drive.swerveDrivePoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(xyStds, xyStds, Units.degreesToRadians(degStds))); 
+      RobotContainer.drive.drive.swerveDrivePoseEstimator.addVisionMeasurement(poseToSet, Timer.getFPGATimestamp() - latencyMS);
+    }
   }
 
   /**
@@ -104,19 +112,5 @@ public class Limelight extends SubsystemBase {
       }
     }
     return largestArea;
-  }
-
-  /**
-   * Helper function that returns the 2d pose of the requested AprilTag ID
-   * @param targetID enum representing the desired target
-   * @return Pose2d of the requested target
-   */
-  public static Pose2d getTargetPose2d(Constants.AprilTag.ID targetID) {
-    Optional<Pose3d> targetPose3d = Constants.AprilTag.fieldLayout.getTagPose(targetID.getID());
-    Pose2d targetPose2d = new Pose2d(); // NOTE: if targetPose3d is NOT present, we will just return this
-    if (targetPose3d.isPresent()) {
-      targetPose2d = targetPose3d.get().toPose2d();
-    }
-    return targetPose2d;
   }
 }
