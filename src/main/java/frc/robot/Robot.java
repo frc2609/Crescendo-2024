@@ -82,8 +82,8 @@ public class Robot extends TimedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
-    RobotContainer.drive.drive.setHeadingCorrection(false);
     RobotContainer.drive.setDefaultCommand(new TeleopVelocityDrive(true));
+    RobotContainer.limelight.setDefaultCommand(new RunCommand(() -> RobotContainer.limelight.addPoseEstimate(false), RobotContainer.limelight));
   }
 
   @Override
@@ -91,9 +91,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopExit() {
-    // avoid interfering with PathPlanner's heading PIDs
-    RobotContainer.drive.drive.setHeadingCorrection(false);
     RobotContainer.drive.removeDefaultCommand();
+    RobotContainer.limelight.removeDefaultCommand();
   }
 
   @Override
