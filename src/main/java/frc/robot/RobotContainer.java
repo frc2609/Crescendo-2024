@@ -24,6 +24,7 @@ import frc.robot.commands.MoveElevatorToPosition;
 import frc.robot.commands.ResetIntakeAndElevator;
 import frc.robot.commands.MoveElevatorToPosition.Position;
 import frc.robot.commands.ShootNote;
+import frc.robot.commands.ShootNoteContinuously;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
@@ -55,6 +56,7 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("IntakeNote", intake.getIntakeNote());
     NamedCommands.registerCommand("ShootNote", new ShootNote());
+    NamedCommands.registerCommand("ShootNoteContinuously", new ShootNoteContinuously());
     NamedCommands.registerCommand("PrintOnCheckpoint", Commands.print("Reached Checkpoint!"));
     NamedCommands.registerCommand("WaitForButtonPress", Commands.waitUntil(driverController.back()));
 
