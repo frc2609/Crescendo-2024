@@ -46,7 +46,7 @@ public class RobotContainer {
   public static final Drive drive = new Drive(false);
   public static final Elevator elevator = new Elevator();
   public static final Intake intake = new Intake();
-  public static final Limelight limelight = new Limelight();
+  public static final Limelight rearLimelight = new Limelight("limelight-shooter");
   public static final ShooterAngle shooterAngle = new ShooterAngle();
   public static final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
   public static final Visualizer visualizer = new Visualizer();
@@ -58,6 +58,7 @@ public class RobotContainer {
   public RobotContainer() {
     configureBindings();
 
+    NamedCommands.registerCommand("ResetPoseToLimelight", rearLimelight.getResetRobotPose().withTimeout(0.1));
     NamedCommands.registerCommand("IntakeNote", intake.getIntakeNote());
     NamedCommands.registerCommand("ShootNote", new ShootNote());
     NamedCommands.registerCommand("ShootNoteContinuously", new ShootNoteContinuously());

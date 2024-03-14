@@ -4,8 +4,12 @@
 
 package frc.robot;
 
+import java.util.Optional;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.util.Units;
 import swervelib.math.SwerveMath;
 
@@ -45,6 +49,20 @@ public final class Constants {
       public int getID() {
         return id;
       } 
+    }
+
+    /**
+     * Helper function that returns the 2d pose of the requested AprilTag ID.
+     * @param AprilTag ID
+     * @return Pose2d of the requested AprilTag
+     */
+    public static Pose2d getPose2d(ID id) {
+      Optional<Pose3d> pose3d = fieldLayout.getTagPose(id.getID());
+      Pose2d pose2d = new Pose2d(); // NOTE: if targetPose3d is NOT present, we will just return this
+      if (pose3d.isPresent()) {
+        pose2d = pose3d.get().toPose2d();
+      }
+      return pose2d;
     }
   }
 

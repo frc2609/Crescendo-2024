@@ -13,9 +13,9 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.AprilTag;
 import frc.robot.Constants.AprilTag.ID;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.Limelight;
 import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.DriveUtil;
 
@@ -59,7 +59,7 @@ public class AlignToAmp extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    target = Limelight.getTargetPose2d(aprilTagID);
+    target = AprilTag.getPose2d(aprilTagID);
     offset = target.minus(getPose());
     heading = target.getRotation().times(-1); // to face apriltag
 
