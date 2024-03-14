@@ -102,11 +102,15 @@ public class RobotContainer {
 
     // Swerve
     driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro).ignoringDisable(true));
+    operatorController.start().onTrue(rearLimelight.getResetRobotPose().ignoringDisable(true));
 
     // Elevator
     driverController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
     driverController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
     driverController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
+    operatorController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
+    operatorController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
+    operatorController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
 
     // Climber
     new Trigger(() -> climber.raiseAxis.get() > 0.1)
@@ -127,6 +131,10 @@ public class RobotContainer {
     driverController.b().onTrue(intake.getExpelNote());
     driverController.y().onTrue(intake.getFeedNote());
     driverController.x().onTrue(intake.getTurnOff());
+    operatorController.a().toggleOnTrue(intake.getIntakeNote());
+    operatorController.b().onTrue(intake.getExpelNote());
+    operatorController.y().onTrue(intake.getFeedNote());
+    operatorController.x().onTrue(intake.getTurnOff());
     
     // Shooter Angle
     
