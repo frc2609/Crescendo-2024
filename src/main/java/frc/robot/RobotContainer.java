@@ -18,10 +18,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+// import frc.robot.commands.AutoScoreAmp;
 import frc.robot.commands.IdleShooter;
 import frc.robot.commands.MoveElevatorToPosition;
+// import frc.robot.commands.ResetIntakeAndElevator;
 import frc.robot.commands.MoveElevatorToPosition.Position;
 import frc.robot.commands.ShootNote;
+import frc.robot.commands.ShootNoteContinuously;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
@@ -53,6 +56,7 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("IntakeNote", intake.getIntakeNote());
     NamedCommands.registerCommand("ShootNote", new ShootNote());
+    NamedCommands.registerCommand("ShootNoteContinuously", new ShootNoteContinuously());
     NamedCommands.registerCommand("PrintOnCheckpoint", Commands.print("Reached Checkpoint!"));
     NamedCommands.registerCommand("WaitForButtonPress", Commands.waitUntil(driverController.back()));
 
@@ -76,10 +80,13 @@ public class RobotContainer {
 
     // Automation
     // TODO: leftBumper is already mapped to swerve precision mode
-
     driverController.leftBumper().toggleOnTrue(
       new ShootNote().handleInterrupt(() -> new IdleShooter().schedule())
     );
+
+    // new Trigger(() -> driverController.getRightTriggerAxis() > 0.05)
+    //   .whileTrue(new AutoScoreAmp(driverController::getRightTriggerAxis))
+    //   .onFalse(new ResetIntakeAndElevator()); // if the above command is interrupted
 
     // Swerve
     driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro).ignoringDisable(true));
@@ -103,7 +110,7 @@ public class RobotContainer {
     driverController.back().onTrue(new InstantCommand(() -> intake.noteHeld = true));
     driverController.a().toggleOnTrue(intake.getIntakeNote());
     driverController.b().onTrue(intake.getExpelNote());
-    // driverController.y().onTrue(intake.getFeedNote());
+    driverController.y().onTrue(intake.getFeedNote());
     driverController.x().onTrue(intake.getTurnOff());
     
     // Shooter Angle
