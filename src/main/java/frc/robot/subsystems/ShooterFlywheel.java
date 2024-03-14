@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -14,6 +16,9 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.TunableNumber;
@@ -25,10 +30,10 @@ public class ShooterFlywheel extends SubsystemBase {
     slowRightMotor
   }
 
-  public static final double maxRPM = 5200;
+  public static final double maxRPM = 4700;
 
   /** Used to determine whether or not the shooter has reached the set speed. */
-  public static final double rpmTolerance = 100.0;
+  public static final double rpmTolerance = 250.0;
 
   // 0.5 * m * r^2
   // mass = 0.1kg/wheel * 9 + 0.04kg/hex shaft * 3 + 0.1kg/gear * 3 + 0.04kg/pulley * 4
@@ -85,6 +90,8 @@ public class ShooterFlywheel extends SubsystemBase {
     logger.addLoggable("Shooter/Flywheel/Right RPM", () -> rightMotor.getRotorVelocity().getValueAsDouble() * 60, true);
     logger.addLoggable("Shooter/Flywheel/Left Target RPM", () -> leftMotor.getClosedLoopReference().getValueAsDouble() * 60, true);
     logger.addLoggable("Shooter/Flywheel/Right Target RPM", () -> rightMotor.getClosedLoopReference().getValueAsDouble() * 60, true);
+    logger.addLoggable("Shooter/Flywheel/Left Duty Cycle", () -> leftMotor.getDutyCycle().getValueAsDouble(), true);
+    logger.addLoggable("Shooter/Flywheel/Right Duty Cycle", () -> rightMotor.getDutyCycle().getValueAsDouble(), true);
   }
 
   @Override
@@ -138,5 +145,27 @@ public class ShooterFlywheel extends SubsystemBase {
     rightMotor.setControl(velocityRequest.withVelocity(
       spinType == SpinType.slowRightMotor ? rps * spinMultiplier.get() : rps
     ));
+  }
+
+  public void coast() {
+    setMotors(0);
+  }
+
+  private void setMotors(double percentOutput) {
+    percentOutput = MathUtil.clamp(percentOutput, -1, 1);
+    leftMotor.set(percentOutput);
+    rightMotor.set(percentOutput);
+  }
+
+  public Command getCoast() {
+    return new InstantCommand(this::coast, this);
+  }
+
+  public Command getSetpointAxisControl(Supplier<Double> setpointAxis, SpinType spinType) {
+    return new RunCommand(() -> setSpeed(MathUtil.clamp(setpointAxis.get() * maxRPM, 0, maxRPM), spinType), this);
+  }
+
+  public Command getPercentOutputControl(Supplier<Double> percentOutputAxis) {
+    return new RunCommand(() -> setMotors(percentOutputAxis.get()), this);
   }
 }

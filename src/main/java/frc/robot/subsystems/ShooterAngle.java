@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
@@ -17,6 +19,7 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
@@ -169,6 +172,16 @@ public class ShooterAngle extends SubsystemBase {
 
   public Command getStop() {
     return new InstantCommand(this::stop, this);
+  }
+
+  public Command getSetpointControl(Supplier<Double> setpointAxis) {
+    return new InstantCommand(() -> setAngle(
+      Rotation2d.fromRotations(MathUtil.clamp(setpointAxis.get() * forwardLimit.getDegrees(), reverseLimit.getRotations(), forwardLimit.getRotations()))
+    ), this);
+  }
+
+  public Command getPercentOutputControl(Supplier<Double> percentOutputAxis) {
+    return new RunCommand(() -> setMotor(MathUtil.clamp(percentOutputAxis.get(), -1, 1)), this);
   }
 
   // get angle (in various formats)
