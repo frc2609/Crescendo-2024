@@ -18,10 +18,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.AutoScoreAmp;
+// import frc.robot.commands.AutoScoreAmp;
 import frc.robot.commands.IdleShooter;
 import frc.robot.commands.MoveElevatorToPosition;
-import frc.robot.commands.ResetIntakeAndElevator;
+// import frc.robot.commands.ResetIntakeAndElevator;
 import frc.robot.commands.MoveElevatorToPosition.Position;
 import frc.robot.commands.ShootNote;
 import frc.robot.commands.ShootNoteContinuously;
@@ -84,9 +84,9 @@ public class RobotContainer {
       new ShootNote().handleInterrupt(() -> new IdleShooter().schedule())
     );
 
-    new Trigger(() -> driverController.getRightTriggerAxis() > 0.05)
-      .whileTrue(new AutoScoreAmp(driverController::getRightTriggerAxis))
-      .onFalse(new ResetIntakeAndElevator()); // if the above command is interrupted
+    // new Trigger(() -> driverController.getRightTriggerAxis() > 0.05)
+    //   .whileTrue(new AutoScoreAmp(driverController::getRightTriggerAxis))
+    //   .onFalse(new ResetIntakeAndElevator()); // if the above command is interrupted
 
     // Swerve
     driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro).ignoringDisable(true));
@@ -97,12 +97,12 @@ public class RobotContainer {
     driverController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
 
     // Climber
-    // new Trigger(() -> Climber.raiseAxis.get() > 0.1)
-    //   .whileTrue(climber.raise())
-    //   .onFalse(climber.hold());
-    // new Trigger(() -> Climber.lowerAxis.get() > 0.1)
-    //   .whileTrue(climber.lower())
-    //   .onFalse(climber.hold());
+    new Trigger(() -> climber.raiseAxis.get() > 0.1)
+      .whileTrue(climber.raise())
+      .onFalse(climber.hold());
+    new Trigger(() -> climber.lowerAxis.get() > 0.1)
+      .whileTrue(climber.lower())
+      .onFalse(climber.hold());
     
     // Intake
     // Fake the note being picked up during simulation.
@@ -110,7 +110,7 @@ public class RobotContainer {
     driverController.back().onTrue(new InstantCommand(() -> intake.noteHeld = true));
     driverController.a().toggleOnTrue(intake.getIntakeNote());
     driverController.b().onTrue(intake.getExpelNote());
-    // driverController.y().onTrue(intake.getFeedNote());
+    driverController.y().onTrue(intake.getFeedNote());
     driverController.x().onTrue(intake.getTurnOff());
     
     // Shooter Angle
