@@ -9,6 +9,8 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,6 +29,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterAngle;
 import frc.robot.subsystems.ShooterFlywheel;
+import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.Visualizer;
 
 public class RobotContainer {
@@ -40,7 +43,9 @@ public class RobotContainer {
   public static final ShooterAngle shooterAngle = new ShooterAngle();
   public static final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
   public static final Visualizer visualizer = new Visualizer();
+  public static final PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
 
+  private final BeaverLogger logger = new BeaverLogger();
   private final SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
@@ -62,6 +67,8 @@ public class RobotContainer {
     // the auto specified here is chosen by default
     autoChooser = AutoBuilder.buildAutoChooser("Four Piece");
     SmartDashboard.putData("Auto Chooser", autoChooser);
+
+    logger.addLoggable("General/Total Current (A)", pdh::getTotalCurrent, true);
   }
 
   private void configureBindings() {
