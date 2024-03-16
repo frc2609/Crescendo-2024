@@ -4,22 +4,19 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.ShooterFlywheel.SpinType;
 
 
 public class ShootNoteContinuously extends ParallelCommandGroup {
   /**
-   * Aligns robot to the speaker, sets the shooter according to current distance from the speaker,
-   * Runs until cancelled.
+   * Aligns robot to the speaker while setting the shooter according to current distance from the
+   * speaker. Runs until cancelled.
    */
   public ShootNoteContinuously() {
     addCommands(
       AprilTagTrackDrive.getAlignToSpeaker(),
-      new AutoSetShooter(SpinType.slowRightMotor),
-      new InstantCommand(() -> RobotContainer.intake.setMotor(0.7), RobotContainer.intake)
+      new AutoSetShooter(SpinType.slowRightMotor)
     );
   }
 }
