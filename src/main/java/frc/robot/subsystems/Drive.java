@@ -13,6 +13,7 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -114,6 +115,16 @@ public class Drive extends SubsystemBase {
     }
     
     logger.logAll();
+  }
+
+  /**
+   * Set the gyro to 0 degrees when the robot is facing forward, relative to your alliance colour.
+   * (i.e. Pointing the robot forward will always reset the gyro correctly no matter which alliance you are on.)
+   * <p>Note that 'SwerveDrive.resetGyro' DOES NOT reset the gyro according to alliance colour, so
+   * you have to point the robot forward relative to the blue alliance.
+   */
+  public void teleopResetGyro() {
+    drive.resetOdometry(new Pose2d(drive.getPose().getTranslation(), Rotation2d.fromDegrees(RobotContainer.isRedAlliance("Drive::ZeroGyro()") ? 180 : 0)));
   }
 
   /**

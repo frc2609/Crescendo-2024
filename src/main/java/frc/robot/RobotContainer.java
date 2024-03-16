@@ -103,7 +103,7 @@ public class RobotContainer {
     //   .onFalse(new ResetIntakeAndElevator()); // if the above command is interrupted
 
     // Swerve
-    driverController.start().onTrue(new InstantCommand(drive.drive::zeroGyro).ignoringDisable(true));
+    driverController.start().onTrue(new InstantCommand(drive::teleopResetGyro).ignoringDisable(true));
     operatorController.start().onTrue(rearLimelight.getResetRobotPose().ignoringDisable(true));
 
     // Elevator
