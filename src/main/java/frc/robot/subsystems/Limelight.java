@@ -98,8 +98,7 @@ public class Limelight extends SubsystemBase {
 
       // check if robot is moving slowly first
       if (RobotContainer.drive.getVelocity() < 0.05 && RobotContainer.drive.drive.getRobotVelocity().omegaRadiansPerSecond < Math.toRadians(10)) {
-        RobotContainer.drive.drive.swerveDrivePoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(xyStds, xyStds, Units.degreesToRadians(degStds))); 
-        RobotContainer.drive.drive.swerveDrivePoseEstimator.addVisionMeasurement(poseToSet, Timer.getFPGATimestamp() - latencyMS);
+        RobotContainer.drive.drive.addVisionMeasurement(poseToSet, Timer.getFPGATimestamp() - latencyMS,VecBuilder.fill(xyStds, xyStds, Units.degreesToRadians(degStds)));
       }
     }, this);
   }
