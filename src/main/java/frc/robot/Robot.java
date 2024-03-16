@@ -19,6 +19,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.commands.IdleShooter;
 import frc.robot.commands.TeleopVelocityDrive;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.ShooterAngle;
 import frc.robot.subsystems.ShooterFlywheel.SpinType;
 import frc.robot.utils.TunableNumber;
 
@@ -101,8 +103,8 @@ public class Robot extends TimedRobot {
   public void testInit() {
     CommandScheduler.getInstance().cancelAll();
     
-    SmartDashboard.putNumber("Test/Elevator Target Height (m)", 0);
-    SmartDashboard.putNumber("Test/Shooter Target Angle (Deg)", 0);
+    SmartDashboard.putNumber("Test/Elevator Target Height (m)", Elevator.lowerLimitMeters);
+    SmartDashboard.putNumber("Test/Shooter Target Angle (Deg)", ShooterAngle.reverseLimit.getDegrees());
     SmartDashboard.putNumber("Test/Shooter Target RPM", 0);
 
     // Elevator
