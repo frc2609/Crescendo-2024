@@ -15,7 +15,7 @@ import frc.robot.subsystems.ShooterFlywheel.SpinType;
  */
 public class SetShooterToPreset extends Command {
   public enum ShooterPreset {
-    kAtSpeaker(3000.0, 55.0, SpinType.slowRightMotor,
+    kAtSpeaker(4000.0, 55.0, SpinType.slowRightMotor,
       new Pose2d(15.1, 5.5, Rotation2d.fromDegrees(0)),
       new Pose2d(1.4, 5.5, Rotation2d.fromDegrees(0))
     ),
