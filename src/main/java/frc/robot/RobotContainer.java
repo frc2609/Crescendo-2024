@@ -25,7 +25,9 @@ import frc.robot.commands.IdleShooter;
 import frc.robot.commands.MoveElevatorToPosition;
 // import frc.robot.commands.ResetIntakeAndElevator;
 import frc.robot.commands.MoveElevatorToPosition.Position;
+import frc.robot.commands.SetShooterToPreset.ShooterPreset;
 import frc.robot.commands.ResetIntakeAndElevator;
+import frc.robot.commands.SetShooterToPreset;
 import frc.robot.commands.ShootNote;
 import frc.robot.commands.ShootNoteContinuously;
 import frc.robot.subsystems.Climber;
@@ -43,7 +45,7 @@ public class RobotContainer {
   public static final CommandXboxController operatorController = new CommandXboxController(1);
 
   public static final Climber climber = new Climber(operatorController::getRightTriggerAxis, operatorController::getLeftTriggerAxis);
-  public static final Drive drive = new Drive(false);
+  public static final Drive drive = new Drive(true);
   public static final Elevator elevator = new Elevator();
   public static final Intake intake = new Intake();
   public static final Limelight rearLimelight = new Limelight("limelight-shooter");
@@ -123,7 +125,7 @@ public class RobotContainer {
     // Intake
     // Fake the note being picked up during simulation.
     // Doesn't require intake so intake commands aren't cancelled when run.
-    operatorController.back().onTrue(new InstantCommand(() -> intake.noteHeld = true));
+    // operatorController.back().onTrue(new InstantCommand(() -> intake.noteHeld = true));
     new Trigger(() -> driverController.getRightTriggerAxis() > 0.2).toggleOnTrue(intake.getIntakeNote());
     // we have no use for these buttons currently, but these buttons aren't strictly necessary
     // if you need them for something, you can remove them, if not, we're leaving them as backups
@@ -135,9 +137,11 @@ public class RobotContainer {
     operatorController.b().onTrue(intake.getExpelNote());
     operatorController.y().onTrue(intake.getFeedNote());
     operatorController.x().onTrue(intake.getTurnOff());
-    
+
     // Shooter Angle
-    
+    operatorController.back().onTrue(new InstantCommand(shooterAngle::syncRelativeEncoder));
+    operatorController.leftBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtSpeaker, true));
+    operatorController.rightBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtPodium, true));
     // Shooter Flywheel
   }
 
