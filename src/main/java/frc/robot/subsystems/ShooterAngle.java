@@ -16,6 +16,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -127,7 +128,10 @@ public class ShooterAngle extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/Angle/Desired Target (deg)", angle.getDegrees());
     angle = Rotation2d.fromDegrees(MathUtil.clamp(angle.getDegrees(), reverseLimit.getDegrees(), forwardLimit.getDegrees()));
     SmartDashboard.putNumber("Shooter/Angle/Target (deg)", targetAngle.getDegrees());
-    // set angle
+    // add difference between absolute and relative encoders to relative target angle
+    double absOffset = getAbsoluteAngle().getDegrees()-getAngle().getDegrees();
+    SmartDashboard.putNumber("Shooter/Angle/AbsoluteOffset", absOffset);
+    angle = new Rotation2d(Math.toRadians(angle.getDegrees()+absOffset));
     targetAngle = angle; // used to check 'atTarget()'
     anglePID.setReference(angle.getDegrees(), ControlType.kSmartMotion);
   }
@@ -191,7 +195,7 @@ public class ShooterAngle extends SubsystemBase {
    * @return The angle of the shooter as a Rotation2d.
    */
   public Rotation2d getAngle() {
-    return Rotation2d.fromDegrees(relativeEncoder.getPosition());
+    return Rotation2d.fromDegrees(RobotBase.isSimulation() ? targetAngle.getDegrees() : relativeEncoder.getPosition());
   }
 
   /**
@@ -199,7 +203,7 @@ public class ShooterAngle extends SubsystemBase {
    * @return The angle of the shooter as a Rotation2d.
    */
   public Rotation2d getAbsoluteAngle() {
-    return Rotation2d.fromRotations(getAbsolutePosition());
+    return Rotation2d.fromRotations(RobotBase.isSimulation() ? targetAngle.getRotations() : getAbsolutePosition());
   }
 
   /**
