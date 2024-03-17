@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.ShooterFlywheel.SpinType;
@@ -16,27 +17,27 @@ import frc.robot.subsystems.ShooterFlywheel.SpinType;
 public class SetShooterToPreset extends Command {
   public enum ShooterPreset {
     kAtSpeaker(4000.0, 55.0, SpinType.slowRightMotor,
-      new Pose2d(15.1, 5.5, Rotation2d.fromDegrees(0)),
-      new Pose2d(1.4, 5.5, Rotation2d.fromDegrees(0))
+      new Translation2d(15.1, 5.5),
+      new Translation2d(1.4, 5.5)
     ),
-    kAtPodium(4000.0, 35.0, SpinType.slowRightMotor,
-      new Pose2d(13.8, 4.11, Rotation2d.fromDegrees(0)),
-      new Pose2d(2.69, 4.11, Rotation2d.fromDegrees(0))
+    kAtPodium(4000.0, 40.0, SpinType.slowRightMotor,
+      new Translation2d(13.8, 4.11),
+      new Translation2d(2.69, 4.11)
     ),
-    kThrowNote(5800.0, 20.0, SpinType.slowRightMotor, new Pose2d(), new Pose2d());
+    kThrowNote(5800.0, 20.0, SpinType.slowRightMotor, new Translation2d(), new Translation2d());
 
     public final Rotation2d angle;
     public final double RPM;
     public final SpinType spinType;
-    public final Pose2d redPose;
-    public final Pose2d bluePose;
+    public final Translation2d redTranslation;
+    public final Translation2d blueTranslation;
 
-    private ShooterPreset(double RPM, double angleDeg, SpinType spinType, Pose2d redPose, Pose2d bluePose) {
+    private ShooterPreset(double RPM, double angleDeg, SpinType spinType, Translation2d redTranslation, Translation2d blueTranslation) {
       this.RPM = RPM;
       this.angle = Rotation2d.fromDegrees(angleDeg);
       this.spinType = spinType;
-      this.redPose = redPose;
-      this.bluePose = bluePose;
+      this.redTranslation = redTranslation;
+      this.blueTranslation = blueTranslation;
     }
   }
 
@@ -53,8 +54,13 @@ public class SetShooterToPreset extends Command {
   @Override
   public void initialize() {
     if (resetOdometry) {
-      RobotContainer.drive.drive.resetOdometry(RobotContainer.isRedAlliance("SetShooterToPreset") ? preset.redPose : preset.bluePose);
+      var translation = RobotContainer.isRedAlliance("SetShooterToPreset") ? preset.redTranslation : preset.blueTranslation;
+      RobotContainer.drive.drive.resetOdometry(new Pose2d(translation, RobotContainer.drive.drive.getOdometryHeading()));
     }
+  }
+
+  @Override
+  public void execute() {
     RobotContainer.shooterAngle.setAngle(preset.angle);
     RobotContainer.shooterFlywheel.setSpeed(preset.RPM, preset.spinType);
   }
