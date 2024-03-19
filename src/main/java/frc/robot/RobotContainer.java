@@ -142,7 +142,7 @@ public class RobotContainer {
     operatorController.x().onTrue(intake.getTurnOff());
 
     // Shooter Angle
-    operatorController.back().onTrue(new InstantCommand(shooterAngle::syncRelativeEncoder));
+    operatorController.back().onTrue(rearLimelight.getEstimateRobotPose(false));
     operatorController.leftBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtSpeaker, true));
     operatorController.rightBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtPodium, true));
     // Shooter Flywheel
