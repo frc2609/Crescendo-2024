@@ -55,9 +55,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "deadline",
           "data": {
-            "pathName": "Shoot to 6"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Shoot to 6"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeNote"
+                }
+              }
+            ]
           }
         }
       ]
