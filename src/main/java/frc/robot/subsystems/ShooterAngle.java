@@ -38,7 +38,7 @@ public class ShooterAngle extends SubsystemBase {
   public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(9.1);
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(1);
   public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(1);
-  private double prevOffset;
+  private double angleFudge = 0.0;
 
   // measure at 90 degrees
   public static final double absoluteEncoderOffset = 0.598 - (90.0 / 360.0);
@@ -67,7 +67,7 @@ public class ShooterAngle extends SubsystemBase {
     absoluteEncoder.setPositionOffset(absoluteEncoderOffset);
     relativeEncoder.setPositionConversionFactor(positionConversionFactor);
     relativeEncoder.setVelocityConversionFactor(velocityConversionFactor);
-
+    SmartDashboard.putNumber("AngleFudge", angleFudge);
     anglePID.setSmartMotionMaxVelocity(10000, 0);
     anglePID.setSmartMotionMinOutputVelocity(0, 0);
     anglePID.setSmartMotionMaxAccel(5000, 0);
@@ -129,14 +129,9 @@ public class ShooterAngle extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/Angle/Desired Target (deg)", angle.getDegrees());
     angle = Rotation2d.fromDegrees(MathUtil.clamp(angle.getDegrees(), reverseLimit.getDegrees(), forwardLimit.getDegrees()));
     SmartDashboard.putNumber("Shooter/Angle/Target (deg)", targetAngle.getDegrees());
-    // add difference between absolute and relative encoders to relative target angle
-    
-    // double absOffset = getAbsoluteAngle().getDegrees()-getAngle().getDegrees();
-    double absOffset = 0;
-    SmartDashboard.putNumber("Shooter/Angle/FinalAngleTarget", absOffset);
-    SmartDashboard.putNumber("Shooter/Angle/AbsoluteOffset", absOffset);
-    angle = new Rotation2d(Math.toRadians(angle.getDegrees()-absOffset));
+    angle = Rotation2d.fromDegrees(angle.getDegrees() + SmartDashboard.getNumber("Angle Fudge", 0.0));
     targetAngle = angle; // used to check 'atTarget()'
+    SmartDashboard.putNumber("Shooter/Angle/Final Target (deg)", targetAngle.getDegrees());
     anglePID.setReference(angle.getDegrees(), ControlType.kSmartMotion);
   }
 
