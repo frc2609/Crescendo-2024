@@ -23,7 +23,7 @@ import frc.robot.subsystems.ShooterFlywheel.SpinType;
 public class AutoSetShooter extends Command {
   // Units in meters, positive = up or forward
   public static final double speakerHeight = 1.98;
-  public static double heightOffset = 1.2;
+  public static double heightOffset = 1.1;
   public static final double noteHeight = 0.19; // distance from ground to note at shooter pivot
   public static final double shooterDistanceFromCenter = -0.02;
   public static double targetHeight = speakerHeight + heightOffset - noteHeight;
@@ -45,7 +45,7 @@ public class AutoSetShooter extends Command {
   public AutoSetShooter(SpinType spinType) {
     this.spinType = spinType;
     addRequirements(RobotContainer.shooterAngle, RobotContainer.shooterFlywheel);
-    SmartDashboard.putNumber("Commands/AutoSetShooter/Height Offset", heightOffset);
+    SmartDashboard.putNumber("Height Offset", heightOffset);
   }
 
   @Override
@@ -60,7 +60,7 @@ public class AutoSetShooter extends Command {
     final Pose2d robotPose = RobotContainer.drive.drive.getPose();
     final double distanceToSpeaker = robotPose.getTranslation().getDistance(speakerTranslation);
     final double pivotDistanceToSpeaker = distanceToSpeaker + shooterDistanceFromCenter;
-    heightOffset = SmartDashboard.getNumber("Commands/AutoSetShooter/Height Offset", heightOffset);
+    heightOffset = SmartDashboard.getNumber("Height Offset", heightOffset);
     targetHeight = speakerHeight + heightOffset - noteHeight;
     
     final Rotation2d angle = Rotation2d.fromRadians(Math.atan(targetHeight / pivotDistanceToSpeaker));
