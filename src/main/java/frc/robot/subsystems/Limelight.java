@@ -11,6 +11,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -97,9 +98,12 @@ public class Limelight extends SubsystemBase {
       var poseToSet = setGyro ? pose : new Pose2d(pose.getTranslation(), RobotContainer.drive.drive.getOdometryHeading());
 
       // check if robot is moving slowly first
-      if (RobotContainer.drive.getVelocity() < 0.05 && RobotContainer.drive.drive.getRobotVelocity().omegaRadiansPerSecond < Math.toRadians(10)) {
-        RobotContainer.drive.drive.swerveDrivePoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(xyStds, xyStds, Units.degreesToRadians(degStds))); 
-        RobotContainer.drive.drive.swerveDrivePoseEstimator.addVisionMeasurement(poseToSet, Timer.getFPGATimestamp() - latencyMS);
+      // TODO: this should change the stddevs of the measurement, not discard the measurement entirely
+      if (DriverStation.isAutonomous() && RobotContainer.drive.getVelocity() < 0.05 && RobotContainer.drive.drive.getRobotVelocity().omegaRadiansPerSecond < Math.toRadians(10)) {
+        RobotContainer.drive.drive.addVisionMeasurement(poseToSet, Timer.getFPGATimestamp() - latencyMS,VecBuilder.fill(xyStds, xyStds, Units.degreesToRadians(degStds)));
+      } else {
+        // don't check in teleop
+        RobotContainer.drive.drive.addVisionMeasurement(poseToSet, Timer.getFPGATimestamp() - latencyMS,VecBuilder.fill(xyStds, xyStds, Units.degreesToRadians(degStds)));
       }
     }, this);
   }

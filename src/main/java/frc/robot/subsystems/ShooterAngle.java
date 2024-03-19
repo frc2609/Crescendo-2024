@@ -16,6 +16,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -32,11 +33,12 @@ import frc.robot.utils.BeaverLogger;
 
 public class ShooterAngle extends SubsystemBase {
   // ** Angle Direction: +ve = Forward, towards elevator. **
-  public static final Rotation2d forwardLimit = Rotation2d.fromDegrees(65);
+  public static final Rotation2d forwardLimit = Rotation2d.fromDegrees(70);
   public static final Rotation2d forwardTolerance = Rotation2d.fromDegrees(3);
   public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(9.1);
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(1);
   public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(1);
+  private double angleFudge = 0.0;
 
   // measure at 90 degrees
   public static final double absoluteEncoderOffset = 0.598 - (90.0 / 360.0);
@@ -65,7 +67,7 @@ public class ShooterAngle extends SubsystemBase {
     absoluteEncoder.setPositionOffset(absoluteEncoderOffset);
     relativeEncoder.setPositionConversionFactor(positionConversionFactor);
     relativeEncoder.setVelocityConversionFactor(velocityConversionFactor);
-
+    SmartDashboard.putNumber("AngleFudge", angleFudge);
     anglePID.setSmartMotionMaxVelocity(10000, 0);
     anglePID.setSmartMotionMinOutputVelocity(0, 0);
     anglePID.setSmartMotionMaxAccel(5000, 0);
@@ -127,8 +129,9 @@ public class ShooterAngle extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/Angle/Desired Target (deg)", angle.getDegrees());
     angle = Rotation2d.fromDegrees(MathUtil.clamp(angle.getDegrees(), reverseLimit.getDegrees(), forwardLimit.getDegrees()));
     SmartDashboard.putNumber("Shooter/Angle/Target (deg)", targetAngle.getDegrees());
-    // set angle
+    angle = Rotation2d.fromDegrees(angle.getDegrees() + SmartDashboard.getNumber("Angle Fudge", 0.0));
     targetAngle = angle; // used to check 'atTarget()'
+    SmartDashboard.putNumber("Shooter/Angle/Final Target (deg)", targetAngle.getDegrees());
     anglePID.setReference(angle.getDegrees(), ControlType.kSmartMotion);
   }
 
@@ -191,7 +194,7 @@ public class ShooterAngle extends SubsystemBase {
    * @return The angle of the shooter as a Rotation2d.
    */
   public Rotation2d getAngle() {
-    return Rotation2d.fromDegrees(relativeEncoder.getPosition());
+    return Rotation2d.fromDegrees(RobotBase.isSimulation() ? targetAngle.getDegrees() : relativeEncoder.getPosition());
   }
 
   /**
@@ -199,7 +202,7 @@ public class ShooterAngle extends SubsystemBase {
    * @return The angle of the shooter as a Rotation2d.
    */
   public Rotation2d getAbsoluteAngle() {
-    return Rotation2d.fromRotations(getAbsolutePosition());
+    return Rotation2d.fromRotations(RobotBase.isSimulation() ? targetAngle.getRotations() : getAbsolutePosition());
   }
 
   /**
