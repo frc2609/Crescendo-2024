@@ -23,7 +23,7 @@ public class ShootNote extends SequentialCommandGroup {
       new ParallelDeadlineGroup(
         new WaitForCounter(
           () -> alignToSpeaker.atTarget() && autoSetShooter.atTarget(),
-          3,
+          5,
           "Commands/ShootNote"
         ), // deadline
         alignToSpeaker,
