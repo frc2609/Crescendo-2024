@@ -6,17 +6,18 @@ package frc.robot.subsystems;
 
 import java.util.function.Supplier;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.SparkAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -33,12 +34,11 @@ import frc.robot.utils.BeaverLogger;
 
 public class ShooterAngle extends SubsystemBase {
   // ** Angle Direction: +ve = Forward, towards elevator. **
-  public static final Rotation2d forwardLimit = Rotation2d.fromDegrees(70);
+  public static final Rotation2d forwardLimit = Rotation2d.fromDegrees(65);
   public static final Rotation2d forwardTolerance = Rotation2d.fromDegrees(3);
   public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(9.1);
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(1);
-  public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(1);
-  private double angleFudge = 0.0;
+  public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(1.5);
 
   // measure at 90 degrees
   public static final double absoluteEncoderOffset = 0.598 - (90.0 / 360.0);
@@ -49,7 +49,8 @@ public class ShooterAngle extends SubsystemBase {
   private final CANSparkMax angleMotor = new CANSparkMax(11, MotorType.kBrushless);
   private final RelativeEncoder relativeEncoder = angleMotor.getEncoder(); // unit: DEGREES
   private final SparkPIDController anglePID = angleMotor.getPIDController();
-  private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(5);
+  private final AbsoluteEncoder absoluteEncoder = angleMotor.getAbsoluteEncoder(Type.kDutyCycle);
+
 
   private Rotation2d targetAngle = reverseLimit; // used for 'atTarget()' exclusively
   private final Alert absoluteAngleOutOfRange = new Alert("Shooter Absolute Angle Out of Reasonable Range", AlertType.ERROR);
@@ -64,19 +65,27 @@ public class ShooterAngle extends SubsystemBase {
     angleMotor.setSmartCurrentLimit(40);
     // Spark soft limits?
 
-    absoluteEncoder.setPositionOffset(absoluteEncoderOffset);
+    absoluteEncoder.setZeroOffset(absoluteEncoderOffset);
+    absoluteEncoder.setPositionConversionFactor(360);
     relativeEncoder.setPositionConversionFactor(positionConversionFactor);
     relativeEncoder.setVelocityConversionFactor(velocityConversionFactor);
-    SmartDashboard.putNumber("AngleFudge", angleFudge);
+
+    anglePID.setFeedbackDevice(absoluteEncoder);
     anglePID.setSmartMotionMaxVelocity(10000, 0);
     anglePID.setSmartMotionMinOutputVelocity(0, 0);
     anglePID.setSmartMotionMaxAccel(5000, 0);
     anglePID.setSmartMotionAllowedClosedLoopError(0.02, 0);
-    anglePID.setP(0.000005);
-    anglePID.setI(0.00001);
-    anglePID.setD(0.00005);
-    anglePID.setIZone(0.05);
-    anglePID.setFF(0.00015);
+    anglePID.setP(0.00003);
+    anglePID.setI(0.0); // doesn't do anything
+    anglePID.setD(0.001);
+    anglePID.setIZone(10.0);
+    anglePID.setFF(0.00004);
+    
+    // anglePID.setP(0.0);
+    // anglePID.setI(0.0); // doesn't do anything
+    // anglePID.setD(0.002);
+    // anglePID.setIZone(0.0);
+    // anglePID.setFF(0.0001);
     anglePID.setOutputRange(-1.0, 1.0);
 
     // armSim.update(0); // setup simulation before periodic() runs for the first time
@@ -87,8 +96,11 @@ public class ShooterAngle extends SubsystemBase {
     logger.addLoggable("Shooter/Angle/Absolute/Angle (deg)", () -> getAbsoluteAngle().getDegrees(), true);
     logger.addLoggable("Shooter/Angle/Current (deg)", () -> getAngle().getDegrees(), true);
     logger.addLoggable("Shooter/Angle/Applied Output (-1-1)", angleMotor::getAppliedOutput, true);
+    logger.addLoggable("Shooter/Angle/Accumulated I", anglePID::getIAccum, true);
   }
-
+  public void logAll(){
+    this.logger.logAll();
+  }
   @Override
   public void periodic() {
     if (!absoluteAngleOutOfRange.isActive() && relativeEncoder.getVelocity() < 2 && absSetCounter < 5) {
@@ -129,9 +141,22 @@ public class ShooterAngle extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/Angle/Desired Target (deg)", angle.getDegrees());
     angle = Rotation2d.fromDegrees(MathUtil.clamp(angle.getDegrees(), reverseLimit.getDegrees(), forwardLimit.getDegrees()));
     SmartDashboard.putNumber("Shooter/Angle/Target (deg)", targetAngle.getDegrees());
-    angle = Rotation2d.fromDegrees(angle.getDegrees() + SmartDashboard.getNumber("Angle Fudge", 0.0));
+    // set angle
     targetAngle = angle; // used to check 'atTarget()'
-    SmartDashboard.putNumber("Shooter/Angle/Final Target (deg)", targetAngle.getDegrees());
+    if(angle.getDegrees() > 58.0){
+      anglePID.setP(0.00003);
+      anglePID.setI(0.0); // doesn't do anything
+      anglePID.setD(0.001);
+      anglePID.setIZone(10.0);
+      anglePID.setFF(0.00004);
+    }else{
+      anglePID.setP(0.00005);
+      anglePID.setI(0.0); // doesn't do anything
+      anglePID.setD(0.0013);
+      anglePID.setIZone(10.0);
+      anglePID.setFF(0.00005);
+
+    }
     anglePID.setReference(angle.getDegrees(), ControlType.kSmartMotion);
   }
 
@@ -160,7 +185,7 @@ public class ShooterAngle extends SubsystemBase {
   }
 
   public boolean atTarget() {
-    return Math.abs(targetAngle.getDegrees() - getAngle().getDegrees()) <= setpointTolerance.getDegrees();
+    return Math.abs(targetAngle.getDegrees() - getAbsoluteAngle().getDegrees()) <= setpointTolerance.getDegrees();
   }
 
   public boolean hasError() {
@@ -194,7 +219,7 @@ public class ShooterAngle extends SubsystemBase {
    * @return The angle of the shooter as a Rotation2d.
    */
   public Rotation2d getAngle() {
-    return Rotation2d.fromDegrees(RobotBase.isSimulation() ? targetAngle.getDegrees() : relativeEncoder.getPosition());
+    return Rotation2d.fromDegrees(relativeEncoder.getPosition());
   }
 
   /**
@@ -202,7 +227,7 @@ public class ShooterAngle extends SubsystemBase {
    * @return The angle of the shooter as a Rotation2d.
    */
   public Rotation2d getAbsoluteAngle() {
-    return Rotation2d.fromRotations(RobotBase.isSimulation() ? targetAngle.getRotations() : getAbsolutePosition());
+    return Rotation2d.fromDegrees(getAbsolutePosition());
   }
 
   /**
@@ -210,7 +235,7 @@ public class ShooterAngle extends SubsystemBase {
    * @return Absolute position of shooter.
    */
   private double getRawAbsolutePosition() {
-    return absoluteEncoder.getAbsolutePosition();
+    return absoluteEncoder.getPosition();
     // return RobotBase.isReal()
       // ? angleEncoder.getAbsolutePosition()
       // : armSim.getAngleRads() / (2 * Math.PI);
@@ -221,15 +246,7 @@ public class ShooterAngle extends SubsystemBase {
    * @return Absolute position of shooter - position offset.
    */
   private double getAbsolutePosition() {
-    double position = absoluteEncoder.getAbsolutePosition() - absoluteEncoder.getPositionOffset();
-    // double position = RobotBase.isReal()
-    //   ? angleEncoder.getAbsolutePosition() - angleEncoder.getPositionOffset()
-    //   : armSim.getAngleRads() / (2 * Math.PI);
-    // if negative, roll over to positive value
-    if (position < 0) {
-      position = position + 1;
-    }
-    return position;
+    return absoluteEncoder.getPosition();
   }
   
   // limits
