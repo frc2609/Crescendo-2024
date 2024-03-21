@@ -106,7 +106,7 @@ public class Limelight extends SubsystemBase {
       double latencyMS = LimeLightHelpers.getLatency_Capture(name) / 1000.0;
       double[] stdDevs = lazyStdDevs();
 
-      RobotContainer.drive.drive.addVisionMeasurement(detectedPose.get(), Timer.getFPGATimestamp() - latencyMS, VecBuilder.fill(stdDevs[0], stdDevs[0], Units.degreesToRadians(stdDevs[1])));
+      RobotContainer.drive.drive.addVisionMeasurement(new Pose2d(detectedPose.get().getTranslation(), RobotContainer.drive.drive.getOdometryHeading()), Timer.getFPGATimestamp() - latencyMS, VecBuilder.fill(stdDevs[0], stdDevs[0], Units.degreesToRadians(stdDevs[1])));
       
       SmartDashboard.putNumber("Limelight/" + name + "/Latency (MS)", latencyMS);
       SmartDashboard.putNumber("Limelight/" + name + "/Odometry Error", getOdometryDifference(detectedPose.get()));
@@ -119,7 +119,7 @@ public class Limelight extends SubsystemBase {
     double velocityStdDevMultiplier = SmartDashboard.getNumber(name + " velocity Std Devs", 0.5);
     double tagArea = LimeLightHelpers.getTA(name); // SKETCHY
     double xyStds = distanceStdDevMultiplier * (1 / tagArea) + velocityStdDevMultiplier * RobotContainer.drive.getVelocity();
-    double rotStds = 2;
+    double rotStds = 20;
     SmartDashboard.putNumber("TA", tagArea);
     SmartDashboard.putNumber("XY STDS", xyStds);
     SmartDashboard.putNumber("ROT STDS", rotStds);
