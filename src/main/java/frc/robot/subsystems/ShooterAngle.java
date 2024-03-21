@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
 import frc.robot.utils.BeaverLogger;
+// import frc.robot.utils.TunableNumber;
 
 // TODO: add back simulation
 // TODO: javadocs
@@ -45,6 +46,10 @@ public class ShooterAngle extends SubsystemBase {
   // 15:22 chain and 1:81 planetary
   public static final double positionConversionFactor = (15.0 / 22.0) * (1.0 / 81.0) * 360; // deg
   public static final double velocityConversionFactor = positionConversionFactor / 60; // deg/s
+  
+  // private final TunableNumber anglePGain = new TunableNumber("Shooter Angle P", 0.00003);
+  // private final TunableNumber angleDGain = new TunableNumber("Shooter Angle D", 0.001);
+  // private final TunableNumber angleFFGain = new TunableNumber("Shooter Angle FF", 0.00004);
 
   private final CANSparkMax angleMotor = new CANSparkMax(11, MotorType.kBrushless);
   private final RelativeEncoder relativeEncoder = angleMotor.getEncoder(); // unit: DEGREES
@@ -74,11 +79,11 @@ public class ShooterAngle extends SubsystemBase {
     anglePID.setSmartMotionMinOutputVelocity(0, 0);
     anglePID.setSmartMotionMaxAccel(5000, 0);
     anglePID.setSmartMotionAllowedClosedLoopError(0.02, 0);
-    anglePID.setP(0.00003);
+    anglePID.setP(0.000055);
     anglePID.setI(0.0); // doesn't do anything
     anglePID.setD(0.001);
     anglePID.setIZone(10.0);
-    anglePID.setFF(0.00004);
+    anglePID.setFF(0.000053);
     
     // anglePID.setP(0.0);
     // anglePID.setI(0.0); // doesn't do anything
@@ -114,6 +119,13 @@ public class ShooterAngle extends SubsystemBase {
       absoluteAngleOutOfRange.set(false);
     }
 
+    // check tunable numbers
+    // if (anglePGain.hasChanged(hashCode()) || angleDGain.hasChanged(hashCode()) || angleFFGain.hasChanged(hashCode())) {
+    //   anglePID.setP(anglePGain.get());
+    //   anglePID.setD(angleDGain.get());
+    //   anglePID.setFF(angleFFGain.get());
+    // }
+
     // set sim mechanism here (using % output from Spark)
 
     SmartDashboard.putBoolean("Shooter/Angle/At Target", atTarget());
@@ -142,17 +154,9 @@ public class ShooterAngle extends SubsystemBase {
     targetAngle = angle; // used to check 'atTarget()'
     // adjust PID according to target angle
     if (angle.getDegrees() > 58.0) {
-      anglePID.setP(0.00003);
-      anglePID.setI(0.0); // doesn't do anything
-      anglePID.setD(0.001);
-      anglePID.setIZone(10.0);
       anglePID.setFF(0.00004);
     } else {
-      anglePID.setP(0.00005);
-      anglePID.setI(0.0); // doesn't do anything
-      anglePID.setD(0.0013);
-      anglePID.setIZone(10.0);
-      anglePID.setFF(0.00005);
+      anglePID.setFF(0.000053);
     }
     anglePID.setReference(angle.getDegrees(), ControlType.kSmartMotion);
   }
@@ -228,7 +232,7 @@ public class ShooterAngle extends SubsystemBase {
    * @return The angle of the shooter as a Rotation2d.
    */
   public Rotation2d getAbsoluteAngle() {
-    return RobotBase.isSimulation() ? targetAngle : Rotation2d.fromDegrees(getAbsolutePosition());
+    return RobotBase.isSimulation() ? targetAngle : Rotation2d.fromDegrees(absoluteEncoder.getPosition());
   }
 
   /**
