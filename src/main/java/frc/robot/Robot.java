@@ -47,6 +47,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
+    RobotContainer.rearLimelight.updateOdometry();
     CommandScheduler.getInstance().run();
     RobotContainer.visualizer.update();
   }
@@ -80,6 +81,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
+    // yeah so that doesn't actually do anything
+    // nice
+    // fyi schedule the command, this does nothing except create a new command during autonomous
     RobotContainer.rearLimelight.getEstimateRobotPose(true);
   }
 
