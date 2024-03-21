@@ -100,9 +100,9 @@ public class Limelight extends SubsystemBase {
   public void updateOdometry() {
     var detectedPose = getPose();
     if (!isPoseValid(detectedPose)) return;
-    if (!isPoseValid(RobotContainer.drive.drive.getPose()) && movingSlowly()) {
-      RobotContainer.drive.drive.resetOdometry(detectedPose.get());
-    } else {
+    // if (!isPoseValid(RobotContainer.drive.drive.getPose()) && movingSlowly()) {
+    //   RobotContainer.drive.drive.resetOdometry(detectedPose.get());
+    // } else {
       double latencyMS = LimeLightHelpers.getLatency_Capture(name) / 1000.0;
       double[] stdDevs = lazyStdDevs();
 
@@ -111,7 +111,7 @@ public class Limelight extends SubsystemBase {
       SmartDashboard.putNumber("Limelight/" + name + "/Latency (MS)", latencyMS);
       SmartDashboard.putNumber("Limelight/" + name + "/Odometry Error", getOdometryDifference(detectedPose.get()));
       SmartDashboard.putNumber("Limelight/" + name + "/Total Target Area", LimeLightHelpers.getTA(name));
-    }
+    // }
   }
 
   public double[] lazyStdDevs() {
