@@ -80,6 +80,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
+    // TODO: this doesn't actually do anything
+    // fyi schedule the command, this does nothing except create a new command during autonomous
     RobotContainer.rearLimelight.getEstimateRobotPose(true);
   }
 
