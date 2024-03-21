@@ -54,7 +54,7 @@ public class Visualizer {
     }
 
     // --- shooter and targeting laser
-    double shooterAngleRad = RobotContainer.shooterAngle.getAngle().getRadians();
+    double shooterAngleRad = RobotContainer.shooterAngle.getAbsoluteAngle().getRadians();
     shooterPublisher.set(defaultShooterPose.plus(new Transform3d(new Translation3d(), new Rotation3d(0, shooterAngleRad, 0))));
     laserPublisher.set(defaultLaserPose.plus(new Transform3d(new Translation3d(), new Rotation3d(0, shooterAngleRad, 0))));
   }

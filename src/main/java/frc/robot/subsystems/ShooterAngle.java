@@ -92,8 +92,8 @@ public class ShooterAngle extends SubsystemBase {
     SmartDashboard.putBoolean("Overrides/Shooter Angle", false);
     logger.addLoggable("Shooter/Angle/Absolute/Raw (0-1)", this::getRawAbsolutePosition, true);
     logger.addLoggable("Shooter/Angle/Absolute/Position (0-1)", this::getAbsolutePosition, true);
-    logger.addLoggable("Shooter/Angle/Absolute/Angle (deg)", () -> getAbsoluteAngle().getDegrees(), true);
-    logger.addLoggable("Shooter/Angle/Current (deg)", () -> getAngle().getDegrees(), true);
+    logger.addLoggable("Shooter/Angle/Current Absolute Angle (deg)", () -> getAbsoluteAngle().getDegrees(), true);
+    logger.addLoggable("Shooter/Angle/Current Relative Angle(deg)", () -> getRelativeAngle().getDegrees(), true);
     logger.addLoggable("Shooter/Angle/Applied Output (-1-1)", angleMotor::getAppliedOutput, true);
     logger.addLoggable("Shooter/Angle/Accumulated I", anglePID::getIAccum, true);
   }
@@ -181,6 +181,10 @@ public class ShooterAngle extends SubsystemBase {
     angleMotor.set(0);
   }
 
+  /**
+   * Check whether the absolute angle is within the angle tolerance to the target.
+   * @return Whether the absolute angle is within the angle tolerance to the target.
+   */
   public boolean atTarget() {
     return Math.abs(targetAngle.getDegrees() - getAbsoluteAngle().getDegrees()) <= setpointTolerance.getDegrees();
   }
@@ -215,7 +219,7 @@ public class ShooterAngle extends SubsystemBase {
    * Get the angle of the shooter according to the relative encoder.
    * @return The angle of the shooter as a Rotation2d.
    */
-  public Rotation2d getAngle() {
+  public Rotation2d getRelativeAngle() {
     return RobotBase.isSimulation() ? targetAngle : Rotation2d.fromDegrees(relativeEncoder.getPosition());
   }
 
