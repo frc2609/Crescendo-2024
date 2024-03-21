@@ -229,10 +229,10 @@ public class ShooterAngle extends SubsystemBase {
 
   /**
    * Get absolute position of shooter without accounting for position offset.
-   * @return Absolute position of shooter.
+   * @return Absolute position of shooter from 0-1.
    */
   private double getRawAbsolutePosition() {
-    return absoluteEncoder.getPosition();
+    return (absoluteEncoder.getPosition() + absoluteEncoder.getZeroOffset()) / 360.0;
     // return RobotBase.isReal()
       // ? angleEncoder.getAbsolutePosition()
       // : armSim.getAngleRads() / (2 * Math.PI);
@@ -240,12 +240,12 @@ public class ShooterAngle extends SubsystemBase {
 
   /**
    * Get absolute position of shooter, accounting for the position offset.
-   * @return Absolute position of shooter - position offset.
+   * @return Absolute position of shooter from 0-1 accounting for position offset.
    */
   private double getAbsolutePosition() {
-    return absoluteEncoder.getPosition();
+    return absoluteEncoder.getPosition() / 360.0;
   }
-  
+
   // limits
   
   // restrict motor from moving in direction when true
