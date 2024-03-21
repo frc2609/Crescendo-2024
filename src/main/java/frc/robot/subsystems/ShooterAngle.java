@@ -17,7 +17,6 @@ import com.revrobotics.SparkAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -50,7 +49,6 @@ public class ShooterAngle extends SubsystemBase {
   private final RelativeEncoder relativeEncoder = angleMotor.getEncoder(); // unit: DEGREES
   private final SparkPIDController anglePID = angleMotor.getPIDController();
   private final AbsoluteEncoder absoluteEncoder = angleMotor.getAbsoluteEncoder(Type.kDutyCycle);
-
 
   private Rotation2d targetAngle = reverseLimit; // used for 'atTarget()' exclusively
   private final Alert absoluteAngleOutOfRange = new Alert("Shooter Absolute Angle Out of Reasonable Range", AlertType.ERROR);
@@ -141,19 +139,19 @@ public class ShooterAngle extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/Angle/Target (deg)", targetAngle.getDegrees());
     // set angle
     targetAngle = angle; // used to check 'atTarget()'
-    if(angle.getDegrees() > 58.0){
+    // adjust PID according to target angle
+    if (angle.getDegrees() > 58.0) {
       anglePID.setP(0.00003);
       anglePID.setI(0.0); // doesn't do anything
       anglePID.setD(0.001);
       anglePID.setIZone(10.0);
       anglePID.setFF(0.00004);
-    }else{
+    } else {
       anglePID.setP(0.00005);
       anglePID.setI(0.0); // doesn't do anything
       anglePID.setD(0.0013);
       anglePID.setIZone(10.0);
       anglePID.setFF(0.00005);
-
     }
     anglePID.setReference(angle.getDegrees(), ControlType.kSmartMotion);
   }
