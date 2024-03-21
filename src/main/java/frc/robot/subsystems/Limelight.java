@@ -39,6 +39,8 @@ public class Limelight extends SubsystemBase {
   /** Creates a new Limelight. */
   public Limelight(String name) {
     this.name = name;
+    SmartDashboard.putNumber(name + " distance Std Devs", 0.1);
+    SmartDashboard.putNumber(name + " velocity Std Devs", 0.5);
   }
 
   @Override
@@ -97,11 +99,10 @@ public class Limelight extends SubsystemBase {
 
   public void updateOdometry() {
     var detectedPose = getPose();
-    // if (!isPoseValid(detectedPose)) return;
-    // if (!isPoseValid(RobotContainer.drive.drive.getPose()) && movingSlowly()) {
-    //   RobotContainer.drive.drive.resetOdometry(detectedPose.get());
-    // } else {
-    
+    if (!isPoseValid(detectedPose)) return;
+    if (!isPoseValid(RobotContainer.drive.drive.getPose()) && movingSlowly()) {
+      RobotContainer.drive.drive.resetOdometry(detectedPose.get());
+    } else {
       double latencyMS = LimeLightHelpers.getLatency_Capture(name) / 1000.0;
       double[] stdDevs = lazyStdDevs();
 
@@ -110,12 +111,14 @@ public class Limelight extends SubsystemBase {
       SmartDashboard.putNumber("Limelight/" + name + "/Latency (MS)", latencyMS);
       SmartDashboard.putNumber("Limelight/" + name + "/Odometry Error", getOdometryDifference(detectedPose.get()));
       SmartDashboard.putNumber("Limelight/" + name + "/Total Target Area", LimeLightHelpers.getTA(name));
-    // }
+    }
   }
 
   public double[] lazyStdDevs() {
+    double distanceStdDevMultiplier = SmartDashboard.getNumber(name + " distance Std Devs", 0.1);
+    double velocityStdDevMultiplier = SmartDashboard.getNumber(name + " velocity Std Devs", 0.5);
     double tagArea = LimeLightHelpers.getTA(name); // SKETCHY
-    double xyStds = 0.1 * (1 / tagArea) + 0.5 * RobotContainer.drive.getVelocity();
+    double xyStds = distanceStdDevMultiplier * (1 / tagArea) + velocityStdDevMultiplier * RobotContainer.drive.getVelocity();
     double rotStds = 2;
     SmartDashboard.putNumber("TA", tagArea);
     SmartDashboard.putNumber("XY STDS", xyStds);
