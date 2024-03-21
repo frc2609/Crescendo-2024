@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,13 +12,13 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.AprilTag;
 import frc.robot.utils.LimeLightHelpers;
 
 public class Limelight extends SubsystemBase {
@@ -44,72 +45,12 @@ public class Limelight extends SubsystemBase {
   public void periodic() {}
 
   public RunCommand getEstimateRobotPose(boolean setGyro) {
-    setPipeline(Pipeline.localizeRobot);
-    return new RunCommand(() -> {
-      if (!LimeLightHelpers.getTV(name)) { 
-        SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", false);
-        return;
-      }
-      var pose = LimeLightHelpers.getBotPose2d_wpiBlue(name);
-      var latencyMS = LimeLightHelpers.getLatency_Capture(name) / 1000.0;
-      var odometryDifference = RobotContainer.drive.drive.getPose().minus(pose);
-      var distance = Math.hypot(odometryDifference.getX(), odometryDifference.getY());
-      var totalTargetArea = LimeLightHelpers.getTA(name);
-
-      double xyStds;
-      double degStds;
-
-      // multiple targets detected
-      if (getNumTargetsFast(name) >= 2) {
-        if (totalTargetArea < 0.4 && totalTargetArea > 0.3) {
-          xyStds = 1;
-          degStds = 6;
-        } else if (totalTargetArea <= 0.3) {
-          xyStds = 1.5;
-          degStds = 6;
-        } else {
-          xyStds = 0.5;
-          degStds = 6;
-        }
-      }
-      // 1 target with large area and close to estimated pose
-      else if (totalTargetArea > 0.8 && distance < 0.5) {
-        xyStds = 1.0;
-        degStds = 12;
-      }
-      // 1 target farther away and estimated pose is close
-      else if (totalTargetArea > 0.1 && distance < 0.3) {
-        xyStds = 2.0;
-        degStds = 30;
-      }
-      // conditions don't match to add a vision measurement
-      else {
-        xyStds = 0;
-        degStds = 0;
-        return;
-      }
-
-      SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", true);
-      SmartDashboard.putNumber("Limelight/" + name + "/Latency (MS)", latencyMS);
-      SmartDashboard.putNumber("Limelight/" + name + "/Odometry Error", distance);
-      SmartDashboard.putNumber("Limelight/" + name + "/Total Target Area", totalTargetArea);
-      RobotContainer.drive.drive.field.getObject(name + " Estimated Pose").setPose(pose);
-    
-      var poseToSet = setGyro ? pose : new Pose2d(pose.getTranslation(), RobotContainer.drive.drive.getOdometryHeading());
-
-      // check if robot is moving slowly first
-      // TODO: this should change the stddevs of the measurement, not discard the measurement entirely
-      if (DriverStation.isAutonomous() && RobotContainer.drive.getVelocity() < 0.05 && RobotContainer.drive.drive.getRobotVelocity().omegaRadiansPerSecond < Math.toRadians(10)) {
-        RobotContainer.drive.drive.addVisionMeasurement(poseToSet, Timer.getFPGATimestamp() - latencyMS,VecBuilder.fill(xyStds, xyStds, Units.degreesToRadians(degStds)));
-      } else {
-        // don't check in teleop
-        RobotContainer.drive.drive.addVisionMeasurement(poseToSet, Timer.getFPGATimestamp() - latencyMS,VecBuilder.fill(xyStds, xyStds, Units.degreesToRadians(degStds)));
-      }
-    }, this);
+    setPipeline(Pipeline.localizeRobot); // oh that's horrible btw: this gets called when the command is created, not when it actually runs (as it should)
+    return new RunCommand(this::updateOdometry, this);
   }
 
   public InstantCommand getResetRobotPose() {
-    setPipeline(Pipeline.localizeRobot);
+    setPipeline(Pipeline.localizeRobot); // same issue here!
     return new InstantCommand(() -> {
       if (!LimeLightHelpers.getTV(name)) { 
         SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", false);
@@ -139,5 +80,89 @@ public class Limelight extends SubsystemBase {
     }
     numTargets_dt = Timer.getFPGATimestamp()-start;
     return count;
+  }
+
+  // check in periodic and set to member variable???
+  public Optional<Pose2d> getPose() {
+    if (!LimeLightHelpers.getTV(name)) { 
+      SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", false);
+      return Optional.empty();
+    } else {
+      var pose = LimeLightHelpers.getBotPose2d_wpiBlue(name);
+      SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", true);
+      RobotContainer.drive.drive.field.getObject(name + " Estimated Pose").setPose(pose);
+      return Optional.of(pose);
+    }
+  }
+
+  public void updateOdometry() {
+    var detectedPose = getPose();
+    // if (!isPoseValid(detectedPose)) return;
+    // if (!isPoseValid(RobotContainer.drive.drive.getPose()) && movingSlowly()) {
+    //   RobotContainer.drive.drive.resetOdometry(detectedPose.get());
+    // } else {
+    
+      double latencyMS = LimeLightHelpers.getLatency_Capture(name) / 1000.0;
+      double[] stdDevs = lazyStdDevs();
+
+      RobotContainer.drive.drive.addVisionMeasurement(detectedPose.get(), Timer.getFPGATimestamp() - latencyMS, VecBuilder.fill(stdDevs[0], stdDevs[0], Units.degreesToRadians(stdDevs[1])));
+      
+      SmartDashboard.putNumber("Limelight/" + name + "/Latency (MS)", latencyMS);
+      SmartDashboard.putNumber("Limelight/" + name + "/Odometry Error", getOdometryDifference(detectedPose.get()));
+      SmartDashboard.putNumber("Limelight/" + name + "/Total Target Area", LimeLightHelpers.getTA(name));
+    // }
+  }
+
+  public double[] lazyStdDevs() {
+    double tagArea = LimeLightHelpers.getTA(name); // SKETCHY
+    double xyStds = 0.1 * (1 / tagArea) + 0.5 * RobotContainer.drive.getVelocity();
+    double rotStds = 2;
+    SmartDashboard.putNumber("TA", tagArea);
+    SmartDashboard.putNumber("XY STDS", xyStds);
+    SmartDashboard.putNumber("ROT STDS", rotStds);
+    return new double[] { xyStds, rotStds };
+  }
+
+  /**
+   * Calculate the distance between the current vision and odometry poses.
+   * @param pose Estimated Vision Pose
+   * @return Linear distance between vision and odometry poses.
+   */
+  public static double getOdometryDifference(Pose2d pose) {
+    var odometryDifference = RobotContainer.drive.drive.getPose().minus(pose);
+    return Math.hypot(odometryDifference.getX(), odometryDifference.getY());
+  }
+
+  /**
+   * Check whether pose is within game field.
+   * @param pose Pose to check.
+   * @return Whether pose is within game field.
+   */
+  public static boolean isPoseValid(Pose2d pose) {
+    return (pose.getX() >= 0 && pose.getX() <= AprilTag.fieldLayout.getFieldLength())
+      && (pose.getY() >= 0 && pose.getY() <= AprilTag.fieldLayout.getFieldWidth());
+  }
+
+  /**
+   * Check whether pose is present and within game field.
+   * @param pose Optional<Pose2d> to check.
+   * @return Whether pose is present and within game field.
+   */
+  public static boolean isPoseValid(Optional<Pose2d> pose) {
+    if (pose.isPresent()) {
+      return isPoseValid(pose.get());
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Check whether the robot is translating and rotating slowly.
+   * @return Whether the robot is translating and rotating slowly.
+   */
+  public static boolean movingSlowly() {
+    boolean rotationSlow = RobotContainer.drive.drive.getRobotVelocity().omegaRadiansPerSecond < Math.toDegrees(60);
+    boolean driveSlow = RobotContainer.drive.getVelocity() < 1.0;
+    return rotationSlow && driveSlow;
   }
 }
