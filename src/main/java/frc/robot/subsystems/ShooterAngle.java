@@ -90,10 +90,10 @@ public class ShooterAngle extends SubsystemBase {
     // armSim.update(0); // setup simulation before periodic() runs for the first time
 
     SmartDashboard.putBoolean("Overrides/Shooter Angle", false);
-    logger.addLoggable("Shooter/Angle/Absolute/Raw (0-1)", this::getRawAbsolutePosition, true);
-    logger.addLoggable("Shooter/Angle/Absolute/Position (0-1)", this::getAbsolutePosition, true);
-    logger.addLoggable("Shooter/Angle/Current Absolute Angle (deg)", () -> getAbsoluteAngle().getDegrees(), true);
-    logger.addLoggable("Shooter/Angle/Current Relative Angle(deg)", () -> getRelativeAngle().getDegrees(), true);
+    logger.addLoggable("Shooter/Angle/Raw Absolute Position (0-1)", this::getRawAbsolutePosition, true);
+    logger.addLoggable("Shooter/Angle/Absolute Position (0-1)", this::getAbsolutePosition, true);
+    logger.addLoggable("Shooter/Angle/Absolute Angle (deg)", () -> getAbsoluteAngle().getDegrees(), true);
+    logger.addLoggable("Shooter/Angle/Relative Angle (deg)", () -> getRelativeAngle().getDegrees(), true);
     logger.addLoggable("Shooter/Angle/Applied Output (-1-1)", angleMotor::getAppliedOutput, true);
     logger.addLoggable("Shooter/Angle/Accumulated I", anglePID::getIAccum, true);
   }
