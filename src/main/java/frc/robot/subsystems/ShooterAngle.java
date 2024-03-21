@@ -98,9 +98,7 @@ public class ShooterAngle extends SubsystemBase {
     logger.addLoggable("Shooter/Angle/Applied Output (-1-1)", angleMotor::getAppliedOutput, true);
     logger.addLoggable("Shooter/Angle/Accumulated I", anglePID::getIAccum, true);
   }
-  public void logAll(){
-    this.logger.logAll();
-  }
+
   @Override
   public void periodic() {
     if (!absoluteAngleOutOfRange.isActive() && relativeEncoder.getVelocity() < 2 && absSetCounter < 5) {
