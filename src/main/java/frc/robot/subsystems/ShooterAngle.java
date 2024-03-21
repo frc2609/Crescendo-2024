@@ -17,6 +17,7 @@ import com.revrobotics.SparkAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -215,7 +216,7 @@ public class ShooterAngle extends SubsystemBase {
    * @return The angle of the shooter as a Rotation2d.
    */
   public Rotation2d getAngle() {
-    return Rotation2d.fromDegrees(relativeEncoder.getPosition());
+    return RobotBase.isSimulation() ? targetAngle : Rotation2d.fromDegrees(relativeEncoder.getPosition());
   }
 
   /**
@@ -223,7 +224,7 @@ public class ShooterAngle extends SubsystemBase {
    * @return The angle of the shooter as a Rotation2d.
    */
   public Rotation2d getAbsoluteAngle() {
-    return Rotation2d.fromDegrees(getAbsolutePosition());
+    return RobotBase.isSimulation() ? targetAngle : Rotation2d.fromDegrees(getAbsolutePosition());
   }
 
   /**
