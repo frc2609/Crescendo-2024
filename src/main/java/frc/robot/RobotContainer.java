@@ -146,6 +146,8 @@ public class RobotContainer {
     operatorController.back().whileTrue(rearLimelight.getEstimateRobotPose(false));
     operatorController.leftBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtSpeaker, true));
     operatorController.rightBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtPodium, true));
+    operatorController.leftStick().whileTrue(new RunCommand(rearLimelight::updateOdometry));
+    operatorController.rightStick().whileTrue(new RunCommand(sideLimelight::updateOdometry));
     // Shooter Flywheel
   }
 
