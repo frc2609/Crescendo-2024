@@ -136,6 +136,12 @@ public class Limelight extends SubsystemBase {
     return Math.hypot(odometryDifference.getX(), odometryDifference.getY());
   }
 
+  public boolean isPoseValid() {
+    // sketchy, could be valid when called but invalid when actually detecting
+    // TODO: record pose to member then check that for validity
+    return isPoseValid(getPose());
+  }
+
   /**
    * Check whether pose is within game field.
    * @param pose Pose to check.
