@@ -23,6 +23,8 @@ import frc.robot.commands.IdleShooter;
 import frc.robot.commands.TeleopVelocityDrive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.ShooterAngle;
+import frc.robot.subsystems.LED.BlinkMode;
+import frc.robot.subsystems.LED.Pattern;
 import frc.robot.subsystems.ShooterFlywheel.SpinType;
 import frc.robot.utils.TunableNumber;
 
@@ -43,12 +45,15 @@ public class Robot extends TimedRobot {
     AprilTag.getPose2d(ID.kBlueAmp);
 
     robotContainer = new RobotContainer();
+    robotContainer.led.setDrive(Pattern.INTAKE_IDLE, BlinkMode.SOLID);
+    robotContainer.led.setHuman(Pattern.INTAKE_IDLE, BlinkMode.SOLID);
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
     RobotContainer.visualizer.update();
+    RobotContainer.led.periodic();
   }
 
   @Override
