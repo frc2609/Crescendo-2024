@@ -60,8 +60,7 @@ public class AutoSetShooter extends Command {
     final Pose2d robotPose = RobotContainer.drive.drive.getPose();
     final double distanceToSpeaker = robotPose.getTranslation().getDistance(speakerTranslation);
     final double pivotDistanceToSpeaker = distanceToSpeaker + shooterDistanceFromCenter;
-    heightOffset = pivotDistanceToSpeaker > 3.0 ? 0.6 : 0.4;//SmartDashboard.getNumber("Height Offset", heightOffset);
-    SmartDashboard.putNumber("AutoSetShooter/Height Offset", heightOffset);
+    heightOffset = SmartDashboard.getNumber("Height Offset", heightOffset);
     targetHeight = speakerHeight + heightOffset - noteHeight;
     
     final Rotation2d angle = Rotation2d.fromRadians(Math.atan(targetHeight / pivotDistanceToSpeaker));
