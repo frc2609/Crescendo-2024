@@ -50,6 +50,8 @@ public class Robot extends TimedRobot {
     robotContainer = new RobotContainer();
     RobotContainer.led.setDrive(Pattern.INTAKE_IDLE, BlinkMode.SOLID);
     RobotContainer.led.setHuman(Pattern.INTAKE_IDLE, BlinkMode.SOLID);
+    RobotContainer.drive.drive.field.getObject("limelight Estimated Pose");
+    RobotContainer.drive.drive.field.getObject("limelight-shooter Estimated Pose");
   }
 
   @Override
