@@ -24,6 +24,7 @@ public class AprilTagTrackDrive extends Command {
   private ID trackedAprilTagID;
   private final Rotation2d headingOffset;
   private Timer odometryValidTimer = new Timer();
+  private boolean aligningToTag = false;
   // exists since 'isScheduled()' doesn't work when command is scheduled as part of a group
   private boolean isRunning = false;
 
@@ -60,19 +61,22 @@ public class AprilTagTrackDrive extends Command {
     if (!RobotContainer.drive.odometryOutOfRange() && (RobotContainer.rearLimelight.isPoseValid() || RobotContainer.sideLimelight.isPoseValid())) {
       odometryValidTimer.restart();
       heading = getHeadingToTag();
+      aligningToTag = true;
     } else if (!odometryValidTimer.hasElapsed(0.5)) {
       // if we lose heading, wait for a bit before reverting to gyro
       heading = getHeadingToTag();
+      aligningToTag = true;
     } else {
       // only align to tag heading because odometry isn't reliable
       heading = aprilTagPose.getRotation();
+      aligningToTag = false;
     }
 
-    // TODO: necessary only in getHeadingToTag or always? test in simulation
     heading.plus(Rotation2d.fromDegrees(180)) // so the robot's front faces the apriltag
       .plus(headingOffset);
     
     SmartDashboard.putNumber("AprilTagTrack/Target Heading (Deg)", heading.getDegrees());
+    SmartDashboard.putBoolean("AprilTagTrack/Aligning to Odometry", aligningToTag);
     SmartDashboard.putBoolean("AprilTagTrack/At Target", atTarget());
 
     RobotContainer.drive.overrideHeading(heading);
@@ -85,7 +89,7 @@ public class AprilTagTrackDrive extends Command {
   }
 
   public boolean atTarget() {
-    return isRunning && RobotContainer.drive.drive.swerveController.thetaController.atSetpoint();
+    return isRunning && aligningToTag && RobotContainer.drive.drive.swerveController.thetaController.atSetpoint();
   }
 
   private Rotation2d getHeadingToTag() {
