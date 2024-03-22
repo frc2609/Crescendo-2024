@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -41,6 +42,8 @@ public class Robot extends TimedRobot {
 
     // PathPlanner logs its own info automatically (no need to here)
     
+    CameraServer.startAutomaticCapture();
+
     // preload apriltag field layout so autonomous isn't delayed by it (takes ~1-2s)
     AprilTag.getPose2d(ID.kBlueAmp);
 
