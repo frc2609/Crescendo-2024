@@ -27,7 +27,7 @@ cross_b_a:1
 cross_b_x:0
 cross_b_y:0
 debugpipe:0
-desc:2024_tags
+desc:2024_localization_shooter
 desired_contour_region:0
 detector_conf:0.800000
 detector_idfilters:
@@ -35,7 +35,7 @@ dilation_steps:1
 direction_filter:0
 dual_close_sort_origin:0
 erosion_steps:1
-exposure:200
+exposure:350
 fiducial_backend:umich
 fiducial_decoder_strictness:strict
 fiducial_denoise:0.000000
@@ -48,7 +48,7 @@ fiducial_resdiv:2
 fiducial_size:165.1
 fiducial_skip3d:0
 fiducial_type:aprilClassic36h11
-fiducial_vis_mode:3dbotposefieldspace
+fiducial_vis_mode:3dcamposetargspace
 flicker_correction:0
 force_convex:1
 hue_max:162
@@ -58,7 +58,7 @@ image_source:0
 img_to_show:0
 intersection_filter:0
 invert_hue:1
-lcgain:15
+lcgain:1
 multigroup_max:6
 multigroup_min:1
 multigroup_rejector:1
@@ -70,7 +70,7 @@ python_snapscript_name:
 red_balance:1200
 roi_x:0
 roi_y:0.000000
-rsf:0
+rsf:-0.032
 rspitch:15
 rsroll:0
 rss:0

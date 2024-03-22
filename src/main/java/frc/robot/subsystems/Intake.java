@@ -16,6 +16,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
+import frc.robot.subsystems.LED.BlinkMode;
+import frc.robot.subsystems.LED.Pattern;
 
 public class Intake extends SubsystemBase {
   private final VictorSPX intakeMotor = new VictorSPX(14);
@@ -65,8 +68,12 @@ public class Intake extends SubsystemBase {
    */
   public Command getIntakeNote() {
     return Commands.startEnd(
-      () -> setMotor(0.7),
-      () -> setMotor(0),
+      () -> {setMotor(0.7);
+            RobotContainer.led.setDrive(Pattern.INTAKE_NO_NOTE, BlinkMode.SOLID); 
+            RobotContainer.led.setHuman(Pattern.INTAKE_NO_NOTE, BlinkMode.BLINKING_ON);},
+      () -> {setMotor(0);
+        RobotContainer.led.setDrive(Pattern.INTAKE_NOTE, BlinkMode.SOLID);
+        RobotContainer.led.setHuman(Pattern.RED, BlinkMode.SOLID); },
       this
     ).until(this::getSensor);
   }

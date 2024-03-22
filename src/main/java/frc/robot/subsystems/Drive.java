@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.AprilTag;
 import frc.robot.Constants.Swerve;
 import frc.robot.utils.BeaverLogger;
 import swervelib.SwerveDrive;
@@ -114,6 +115,7 @@ public class Drive extends SubsystemBase {
       applyChassisSpeeds();
     }
     
+    SmartDashboard.putBoolean("swerve/Odometry Out Of Range", odometryOutOfRange());
     logger.logAll();
   }
 
@@ -125,6 +127,16 @@ public class Drive extends SubsystemBase {
    */
   public void teleopResetGyro() {
     drive.resetOdometry(new Pose2d(drive.getPose().getTranslation(), Rotation2d.fromDegrees(RobotContainer.isRedAlliance("Drive::ZeroGyro()") ? 180 : 0)));
+  }
+
+  /**
+   * Check if odometry exceeds the border of the field.
+   * @return If odometry exceeds the border of the field.
+   */
+  public boolean odometryOutOfRange() {
+    var pose = drive.getPose();
+    return pose.getX() < 0 || pose.getX() > AprilTag.fieldLayout.getFieldLength()
+      || pose.getY() < 0 || pose.getY() > AprilTag.fieldLayout.getFieldWidth();
   }
 
   /**
