@@ -133,7 +133,7 @@ public class Drive extends SubsystemBase {
    */
   public double getVelocity() {
     var speeds = drive.getRobotVelocity();
-    return Math.sqrt(Math.pow(speeds.vxMetersPerSecond, 2) + Math.pow(speeds.vyMetersPerSecond, 2));
+    return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
   }
 
   /**
