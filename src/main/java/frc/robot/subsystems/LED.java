@@ -13,9 +13,7 @@ import java.util.Map;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
-// import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.util.Color;
-import frc.robot.Constants;
 
 /** Add your docs here. */
 public class LED {
@@ -36,6 +34,7 @@ public class LED {
     BLINKING_OFF,
     OFF;
   };
+
   public enum Pattern{
     INTAKE_NO_NOTE,
     INTAKE_NOTE,
@@ -43,18 +42,19 @@ public class LED {
     RED
   };
 
-  public static final Map<Pattern, Color> PATTERN_MAP = new HashMap<Pattern, Color>(){{
+  public static final Map<Pattern, Color> PATTERN_MAP = new HashMap<Pattern, Color>() {{
       put(Pattern.INTAKE_NO_NOTE, new Color(50, 30, 0));
       put(Pattern.INTAKE_NOTE, new Color(0, 100, 0));
       put(Pattern.INTAKE_IDLE, new Color(50, 0, 50));
       put(Pattern.RED, new Color(50, 0, 0));
   }};
+
   int DRIVE_START = 0;
   int DRIVE_END = 46;
   final int HUMAN_START = 47;
   final int HUMAN_END = 91;
   
-  public LED(){
+  public LED() {
     pattern_drive = Pattern.INTAKE_IDLE;
     pattern_human = Pattern.INTAKE_IDLE;
     blinkMode_drive = BlinkMode.SOLID;
@@ -71,80 +71,79 @@ public class LED {
   }
 
 
-  public void periodic(){
-    
+  public void periodic() {
     setBuffer();
     led_dev.setData(led);
   }
 
-  public void setBuffer(){
+  public void setBuffer() {
     Color color = new Color(0, 0, 0);
-    for(int i = DRIVE_START; i < DRIVE_END; i++){
+    for (int i = DRIVE_START; i < DRIVE_END; i++) {
       led.setLED(i, color);
     }
-    switch(blinkMode_drive){
+    switch (blinkMode_drive) {
       case BLINKING_OFF:
-        for(int i = DRIVE_START; i < DRIVE_END; i++){
+        for (int i = DRIVE_START; i < DRIVE_END; i++) {
           led.setLED(i, color);
         }
-        if(blinking_i < 2){
+        if (blinking_i < 2) {
           blinking_i++;
-        }else{
+        } else {
           blinking_i = 0;
           blinkMode_drive = BlinkMode.BLINKING_ON;
         }
         break;
       case BLINKING_ON:
         color = PATTERN_MAP.getOrDefault(pattern_drive, new Color(0, 0, 0));
-        for(int i = DRIVE_START; i < DRIVE_END; i++){
+        for (int i = DRIVE_START; i < DRIVE_END; i++) {
           led.setLED(i, color);
         }
-        if(blinking_i < 2){
+        if (blinking_i < 2) {
           blinking_i++;
-        }else{
+        } else {
           blinking_i = 0;
           blinkMode_drive = BlinkMode.BLINKING_OFF;
         }
         break;
       case SOLID:
         color = PATTERN_MAP.getOrDefault(pattern_drive, new Color(0, 0, 0));
-        for(int i = DRIVE_START; i < DRIVE_END; i++){
+        for (int i = DRIVE_START; i < DRIVE_END; i++) {
           led.setLED(i, color);
         }
         break;
       case OFF:
         color = new Color(0, 0, 0);
-        for(int i = DRIVE_START; i < DRIVE_END; i++){
+        for (int i = DRIVE_START; i < DRIVE_END; i++) {
           led.setLED(i, color);
         }
         break;
       default:
         color = new Color(10, 10, 10);
-        for(int i = DRIVE_START; i < DRIVE_END; i++){
+        for (int i = DRIVE_START; i < DRIVE_END; i++) {
           led.setLED(i, color);
         }
         DriverStation.reportError("INVALID LED STATE", null);
     }
     
     color = new Color(0, 0, 0);
-    switch(blinkMode_human){
+    switch (blinkMode_human) {
       case OFF:
-        for(int i = HUMAN_START; i < HUMAN_END; i++){
+        for (int i = HUMAN_START; i < HUMAN_END; i++) {
           led.setLED(i, color);
         }
         break;
       case SOLID:
         color = PATTERN_MAP.getOrDefault(pattern_human, new Color(0, 0, 0));
 
-        for(int i = HUMAN_START; i < HUMAN_END; i++){
+        for (int i = HUMAN_START; i < HUMAN_END; i++) {
           led.setLED(i, color);
         }
         break;
       case BLINKING_OFF:
-      for(int i = HUMAN_START; i < HUMAN_END; i++){
+      for (int i = HUMAN_START; i < HUMAN_END; i++) {
         led.setLED(i, color);
       }
-        if(blinking_i_human < 2){
+        if (blinking_i_human < 2) {
           blinking_i_human++;
         }else{
           blinking_i_human = 0;
@@ -153,12 +152,12 @@ public class LED {
         break;
       case BLINKING_ON:
         color = PATTERN_MAP.getOrDefault(pattern_human, new Color(0, 0, 0));
-        for(int i = HUMAN_START; i < HUMAN_END; i++){
+        for (int i = HUMAN_START; i < HUMAN_END; i++) {
           led.setLED(i, color);
         }
-        if(blinking_i_human < 2){
+        if (blinking_i_human < 2) {
           blinking_i_human++;
-        }else{
+        } else {
           blinking_i_human = 0;
           blinkMode_human = BlinkMode.BLINKING_OFF;
         }
