@@ -39,14 +39,14 @@ public class Limelight extends SubsystemBase {
   /** Creates a new Limelight. */
   public Limelight(String name) {
     this.name = name;
-    SmartDashboard.putNumber(name + " distance Std Devs", 0.1);
-    SmartDashboard.putNumber(name + " velocity Std Devs", 0.5);
+    SmartDashboard.putNumber("Limelight/" + name + "/Distance Std Devs", 0.1);
+    SmartDashboard.putNumber("Limelight/" + name + "/Velocity Std Devs", 0.5);
   }
 
   @Override
   public void periodic() {}
 
-  public RunCommand getEstimateRobotPose(boolean setGyro) {
+  public RunCommand getEstimateRobotPose() {
     setPipeline(Pipeline.localizeRobot); // oh that's horrible btw: this gets called when the command is created, not when it actually runs (as it should)
     return new RunCommand(this::updateOdometry, this);
   }
@@ -115,14 +115,14 @@ public class Limelight extends SubsystemBase {
   }
 
   public double[] lazyStdDevs() {
-    double distanceStdDevMultiplier = SmartDashboard.getNumber(name + " distance Std Devs", 0.1);
-    double velocityStdDevMultiplier = SmartDashboard.getNumber(name + " velocity Std Devs", 0.5);
+    double distanceStdDevMultiplier = SmartDashboard.getNumber("Limelight/" + name + "/Distance Std Devs", 0.1);
+    double velocityStdDevMultiplier = SmartDashboard.getNumber("Limelight/" + name + "/Velocity Std Devs", 0.5);
     double tagArea = LimeLightHelpers.getTA(name); // SKETCHY
     double xyStds = distanceStdDevMultiplier * (1 / tagArea) + velocityStdDevMultiplier * RobotContainer.drive.getVelocity();
     double rotStds = 20;
-    SmartDashboard.putNumber("TA", tagArea);
-    SmartDashboard.putNumber("XY STDS", xyStds);
-    SmartDashboard.putNumber("ROT STDS", rotStds);
+    SmartDashboard.putNumber("Limelight/" + name + "/TA", tagArea);
+    SmartDashboard.putNumber("Limelight/" + name + "/XY STDS", xyStds);
+    SmartDashboard.putNumber("Limelight/" + name + "/ROT STDS", rotStds);
     return new double[] { xyStds, rotStds };
   }
 
