@@ -7,6 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
@@ -22,6 +23,7 @@ public class AprilTagTrackDrive extends Command {
   private final ID redAprilTagID;
   private ID trackedAprilTagID;
   private final Rotation2d headingOffset;
+  private Timer odometryValidTimer = new Timer();
   // exists since 'isScheduled()' doesn't work when command is scheduled as part of a group
   private boolean isRunning = false;
 
@@ -43,7 +45,8 @@ public class AprilTagTrackDrive extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    this.trackedAprilTagID = RobotContainer.isRedAlliance("AprilTagTrackDrive") ? redAprilTagID : blueAprilTagID;
+    odometryValidTimer.restart();
+    trackedAprilTagID = RobotContainer.isRedAlliance("AprilTagTrackDrive") ? redAprilTagID : blueAprilTagID;
     SmartDashboard.putNumber("AprilTagTrack/AprilTag ID", trackedAprilTagID.getID());
     isRunning = true;
   }
@@ -51,12 +54,27 @@ public class AprilTagTrackDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // strip the rotation component of the apriltag pose because we don't require it
-    Pose2d apriltagPose = new Pose2d(AprilTag.getPose2d(trackedAprilTagID).getTranslation(), new Rotation2d());
-    Transform2d relativePose = RobotContainer.drive.drive.getPose().minus(apriltagPose);
-    Rotation2d heading =
-      Rotation2d.fromRadians(Math.atan2(relativePose.getY(), relativePose.getX()))
-      .plus(Rotation2d.fromDegrees(180)) // so the robot's front faces the apriltag
+    Pose2d aprilTagPose = AprilTag.getPose2d(trackedAprilTagID);
+    Rotation2d heading;
+
+    // pose valid according to ONE or more limelights
+    // AND drive odometry valid
+    // if (RobotContainer.drive.odometryValid() && rearLimelight.poseValid() || sideLimelight.poseValid()) {
+      // TODO: pull full code and change this
+      // TODO: verify this works as expected
+    if (RobotContainer.driverController.getHID().getRawButton(0)) {
+      odometryValidTimer.restart();
+      heading = getHeadingToTag();
+    } else if (!odometryValidTimer.hasElapsed(0.5)) {
+      // if we lose heading, wait for a bit before reverting to gyro
+      heading = getHeadingToTag();
+    } else {
+      // only align to tag heading because odometry isn't reliable
+      heading = aprilTagPose.getRotation();
+    }
+
+    // TODO: necessary only in getHeadingToTag or always? test in simulation
+    heading.plus(Rotation2d.fromDegrees(180)) // so the robot's front faces the apriltag
       .plus(headingOffset);
     
     SmartDashboard.putNumber("AprilTagTrack/Target Heading (Deg)", heading.getDegrees());
@@ -67,11 +85,19 @@ public class AprilTagTrackDrive extends Command {
 
   @Override
   public void end(boolean interrupted) {
+    odometryValidTimer.stop();
     isRunning = false;
   }
 
   public boolean atTarget() {
     return isRunning && RobotContainer.drive.drive.swerveController.thetaController.atSetpoint();
+  }
+
+  private Rotation2d getHeadingToTag() {
+    // strip the rotation component of the apriltag pose so coordinates align with the field
+    Pose2d aprilTagPose = new Pose2d(AprilTag.getPose2d(trackedAprilTagID).getTranslation(), new Rotation2d());
+    Transform2d relativePose = RobotContainer.drive.drive.getPose().minus(aprilTagPose);
+    return Rotation2d.fromRadians(Math.atan2(relativePose.getY(), relativePose.getX()));
   }
 
   // --- Common Configurations ---
