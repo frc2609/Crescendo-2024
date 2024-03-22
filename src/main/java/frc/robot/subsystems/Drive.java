@@ -85,6 +85,7 @@ public class Drive extends SubsystemBase {
     SmartDashboard.putNumber("swerve/teleop/linearSpeedMultiplier", 1.0);
     SmartDashboard.putNumber("swerve/teleop/angularSpeedMultiplier", 1.0);
     logger.addLoggable("swerve/Overall Speed (mps)", this::getVelocity, true);
+    logger.addLoggable("swerve/Target Heading (deg)", () -> Math.toDegrees(RobotContainer.drive.drive.swerveController.lastAngleScalar), true);
   }
 
   /**
