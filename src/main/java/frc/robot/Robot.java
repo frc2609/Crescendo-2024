@@ -48,8 +48,8 @@ public class Robot extends TimedRobot {
     AprilTag.getPose2d(ID.kBlueAmp);
 
     robotContainer = new RobotContainer();
-    robotContainer.led.setDrive(Pattern.INTAKE_IDLE, BlinkMode.SOLID);
-    robotContainer.led.setHuman(Pattern.INTAKE_IDLE, BlinkMode.SOLID);
+    RobotContainer.led.setDrive(Pattern.INTAKE_IDLE, BlinkMode.SOLID);
+    RobotContainer.led.setHuman(Pattern.INTAKE_IDLE, BlinkMode.SOLID);
   }
 
   @Override
