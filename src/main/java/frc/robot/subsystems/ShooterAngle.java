@@ -78,7 +78,7 @@ public class ShooterAngle extends SubsystemBase {
     anglePID.setSmartMotionMaxVelocity(10000, 0);
     anglePID.setSmartMotionMinOutputVelocity(0, 0);
     anglePID.setSmartMotionMaxAccel(5000, 0);
-    anglePID.setSmartMotionAllowedClosedLoopError(0.02, 0);
+    anglePID.setSmartMotionAllowedClosedLoopError(0.5, 0);
     anglePID.setP(0.000055);
     anglePID.setI(0.0); // doesn't do anything
     anglePID.setD(0.001);
@@ -153,10 +153,14 @@ public class ShooterAngle extends SubsystemBase {
     // set angle
     targetAngle = angle; // used to check 'atTarget()'
     // adjust PID according to target angle
-    if (angle.getDegrees() > 58.0) {
+    if (angle.getDegrees() > 40.0) {
+      anglePID.setP(0.000040);
+      anglePID.setD(0.003000);
       anglePID.setFF(0.00004);
     } else {
-      anglePID.setFF(0.000053);
+      anglePID.setP(0.000050);
+      anglePID.setD(0.002000);
+      anglePID.setFF(0.000050);
     }
     anglePID.setReference(angle.getDegrees(), ControlType.kSmartMotion);
   }
