@@ -36,6 +36,7 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterAngle;
 import frc.robot.subsystems.ShooterFlywheel;
@@ -56,6 +57,7 @@ public class RobotContainer {
   public static final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
   public static final Visualizer visualizer = new Visualizer();
   public static final PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
+  public static final LED led = new LED();
 
   private final BeaverLogger logger = new BeaverLogger();
   private final SendableChooser<Command> autoChooser;
