@@ -78,8 +78,8 @@ public class Intake extends SubsystemBase {
    */
   public Command getIntakeNote() {
     return Commands.startEnd(
-      () -> { setMotor(0.7); },
-      () -> { setMotor(0); },
+      () -> setMotor(0.7),
+      () -> setMotor(0),
       this
     ).until(this::getSensor);
   }
