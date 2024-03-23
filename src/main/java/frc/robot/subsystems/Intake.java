@@ -40,8 +40,18 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putBoolean("Intake/Intake Sensor", getSensor());
     SmartDashboard.putBoolean("Intake/Note Held", noteHeld);
-    // don't set it when false because we don't know if the note is still held
-    if (getSensor()) noteHeld = true;
+    if (getSensor()) { 
+      // don't set it when false because we don't know if the note is still held (e.g. could be in elevator)
+      noteHeld = true;
+      RobotContainer.led.setDrive(Pattern.INTAKE_NOTE, BlinkMode.SOLID);
+      RobotContainer.led.setHuman(Pattern.FIRE, BlinkMode.FIRE);
+    } else if (Math.abs(intakeMotor.getMotorOutputPercent()) > 0.0) {
+      RobotContainer.led.setDrive(Pattern.INTAKE_NO_NOTE, BlinkMode.BLINKING_ON);
+      RobotContainer.led.setHuman(Pattern.INTAKE_NO_NOTE, BlinkMode.BLINKING_ON);
+    } else {
+      RobotContainer.led.setDrive(Pattern.RED, BlinkMode.SOLID);
+      RobotContainer.led.setHuman(Pattern.RED, BlinkMode.SOLID);
+    }
   }
 
   /**
@@ -68,12 +78,8 @@ public class Intake extends SubsystemBase {
    */
   public Command getIntakeNote() {
     return Commands.startEnd(
-      () -> {setMotor(0.7);
-            RobotContainer.led.setDrive(Pattern.INTAKE_NO_NOTE, BlinkMode.SOLID); 
-            RobotContainer.led.setHuman(Pattern.INTAKE_NO_NOTE, BlinkMode.BLINKING_ON);},
-      () -> {setMotor(0);
-        RobotContainer.led.setDrive(Pattern.INTAKE_NOTE, BlinkMode.SOLID);
-        RobotContainer.led.setHuman(Pattern.RED, BlinkMode.SOLID); },
+      () -> { setMotor(0.7); },
+      () -> { setMotor(0); },
       this
     ).until(this::getSensor);
   }
