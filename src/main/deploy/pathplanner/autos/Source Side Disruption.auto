@@ -1,0 +1,43 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.2351263164064805,
+      "y": 3.877708524647819
+    },
+    "rotation": -54.38151016054787
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "ResetPoseToLimelight"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Source Side Disruption 1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Source Side Disruption 2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Source Side Disruption 3"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
