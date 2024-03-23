@@ -146,7 +146,7 @@ public class RobotContainer {
 
     // Shooter Angle
     operatorController.back().whileTrue(rearLimelight.getEstimateRobotPose());
-    operatorController.leftBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtSpeaker, true));
+    operatorController.leftBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtSpeaker, false));
     operatorController.rightBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtPodium, true));
     operatorController.leftStick().whileTrue(new RunCommand(rearLimelight::updateOdometry));
     operatorController.rightStick().whileTrue(new RunCommand(sideLimelight::updateOdometry));
