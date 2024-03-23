@@ -150,6 +150,8 @@ public class RobotContainer {
     operatorController.rightBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtPodium, true));
     operatorController.leftStick().whileTrue(new RunCommand(rearLimelight::updateOdometry));
     operatorController.rightStick().whileTrue(new RunCommand(sideLimelight::updateOdometry));
+    operatorController.povLeft().whileTrue(new SetShooterToPreset(ShooterPreset.kThrowNoteLow, false));
+    operatorController.povRight().whileTrue(new SetShooterToPreset(ShooterPreset.kThrowNoteHigh, false));
     // Shooter Flywheel
   }
 
