@@ -116,8 +116,8 @@ public class RobotContainer {
     driverController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
     driverController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
     driverController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
-    operatorController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
-    operatorController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
+    operatorController.povUp().onTrue(new MoveElevatorToPosition(Position.amp));
+    // operatorController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
     operatorController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
 
     // Climber
