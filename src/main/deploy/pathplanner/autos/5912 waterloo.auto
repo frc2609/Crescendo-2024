@@ -18,22 +18,9 @@
           }
         },
         {
-          "type": "deadline",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Start to 1"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "ShootNote"
-                }
-              }
-            ]
+            "pathName": "Start to 1"
           }
         },
         {
