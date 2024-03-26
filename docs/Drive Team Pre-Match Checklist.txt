@@ -1,0 +1,17 @@
+Checklist:
+- WiFi turned off (or FMS will report "No Radio")
+- Power plugged in
+- Ethernet plugged in
+- Driver/Operator controllers connected
+- Monitor plugged in
+
+Software:
+- SmartDashboard connected
+- AdvantageScope connected
+- AdvantageScope shows 3D field view
+
+When Robot Connected:
+- DS reports full Comms, Robot Code, Joysticks
+- Auto selected
+- Limelights report correct auto pose
+- Stand behind auto line !

@@ -3,45 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.168910700160914,
-        "y": 3.5366726368260153
+        "x": 2.65,
+        "y": 4.11050362756931
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0940667872776535,
-        "y": 2.599805713163495
+        "x": 1.2788871226815193,
+        "y": 3.9348410793825868
       },
       "isLocked": false,
-      "linkedName": "SafeShootingPos"
+      "linkedName": "Note 1"
     },
     {
       "anchor": {
-        "x": 5.038065653877384,
-        "y": 3.8294435504705535
+        "x": 3.2580184989185943,
+        "y": 2.459275674614116
       },
       "prevControl": {
-        "x": 4.0777770571233,
-        "y": 3.290745069364603
+        "x": 2.7440262058189133,
+        "y": 1.754030435244787
       },
       "nextControl": {
-        "x": 5.905493990509496,
-        "y": 4.316049690532471
+        "x": 3.7615844703872,
+        "y": 3.1502150308152252
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.607317751012106,
-        "y": 4.098792791023527
+        "x": 6.384811856642258,
+        "y": 4.1046482092964185
       },
       "prevControl": {
-        "x": 5.986165459701814,
-        "y": 4.098792791023527
+        "x": 5.516525169802502,
+        "y": 4.1046482092964185
       },
       "nextControl": {
-        "x": 7.131415184915947,
-        "y": 4.098792791023527
+        "x": 7.167447159375104,
+        "y": 4.1046482092964185
       },
       "isLocked": false,
       "linkedName": null
@@ -52,43 +52,50 @@
         "y": 4.1046482092964185
       },
       "prevControl": {
-        "x": 8.770256540513074,
-        "y": 4.075371117931965
+        "x": 7.270256540513081,
+        "y": 4.1046482092964185
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "Note 6"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.7,
-      "rotationDegrees": 37.03721294697691,
-      "rotateFast": false
-    },
-    {
-      "waypointRelativePos": 1.45,
-      "rotationDegrees": 0,
-      "rotateFast": false
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [
     {
       "name": "New Constraints Zone",
-      "minWaypointRelativePos": 1.5500000000000003,
+      "minWaypointRelativePos": 2.3000000000000003,
       "maxWaypointRelativePos": 3.0,
       "constraints": {
-        "maxVelocity": 2.0,
-        "maxAcceleration": 2.0,
+        "maxVelocity": 1.0,
+        "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0
       }
     }
   ],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 1.5500000000000003,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "IntakeNote"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 5.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 4.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
@@ -103,5 +110,5 @@
     "rotation": 0,
     "velocity": 0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -23,6 +24,8 @@ import frc.robot.commands.IdleShooter;
 import frc.robot.commands.TeleopVelocityDrive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.ShooterAngle;
+import frc.robot.subsystems.LED.BlinkMode;
+import frc.robot.subsystems.LED.Pattern;
 import frc.robot.subsystems.ShooterFlywheel.SpinType;
 import frc.robot.utils.TunableNumber;
 
@@ -39,10 +42,16 @@ public class Robot extends TimedRobot {
 
     // PathPlanner logs its own info automatically (no need to here)
     
+    CameraServer.startAutomaticCapture();
+
     // preload apriltag field layout so autonomous isn't delayed by it (takes ~1-2s)
     AprilTag.getPose2d(ID.kBlueAmp);
 
     robotContainer = new RobotContainer();
+    RobotContainer.led.setDrive(Pattern.INTAKE_IDLE, BlinkMode.SOLID);
+    RobotContainer.led.setHuman(Pattern.FIRE, BlinkMode.FIRE);
+    RobotContainer.drive.drive.field.getObject("limelight Estimated Pose");
+    RobotContainer.drive.drive.field.getObject("limelight-shooter Estimated Pose");
   }
 
   @Override
@@ -80,7 +89,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    RobotContainer.rearLimelight.getEstimateRobotPose(true);
+    RobotContainer.rearLimelight.updateOdometry();
+    RobotContainer.sideLimelight.updateOdometry();
   }
 
   @Override

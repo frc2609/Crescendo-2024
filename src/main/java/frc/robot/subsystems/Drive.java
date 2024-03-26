@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.AprilTag;
 import frc.robot.Constants.Swerve;
 import frc.robot.utils.BeaverLogger;
 import swervelib.SwerveDrive;
@@ -84,6 +85,7 @@ public class Drive extends SubsystemBase {
     SmartDashboard.putNumber("swerve/teleop/linearSpeedMultiplier", 1.0);
     SmartDashboard.putNumber("swerve/teleop/angularSpeedMultiplier", 1.0);
     logger.addLoggable("swerve/Overall Speed (mps)", this::getVelocity, true);
+    logger.addLoggable("swerve/Target Heading (deg)", () -> Math.toDegrees(RobotContainer.drive.drive.swerveController.lastAngleScalar), true);
   }
 
   /**
@@ -114,6 +116,7 @@ public class Drive extends SubsystemBase {
       applyChassisSpeeds();
     }
     
+    SmartDashboard.putBoolean("swerve/Odometry Out Of Range", odometryOutOfRange());
     logger.logAll();
   }
 
@@ -128,12 +131,22 @@ public class Drive extends SubsystemBase {
   }
 
   /**
+   * Check if odometry exceeds the border of the field.
+   * @return If odometry exceeds the border of the field.
+   */
+  public boolean odometryOutOfRange() {
+    var pose = drive.getPose();
+    return pose.getX() < 0 || pose.getX() > AprilTag.fieldLayout.getFieldLength()
+      || pose.getY() < 0 || pose.getY() > AprilTag.fieldLayout.getFieldWidth();
+  }
+
+  /**
    * Get the overall velocity (combined x and y) of the robot.
    * @return Velocity of the robot in m/s.
    */
   public double getVelocity() {
     var speeds = drive.getRobotVelocity();
-    return Math.sqrt(Math.pow(speeds.vxMetersPerSecond, 2) + Math.pow(speeds.vyMetersPerSecond, 2));
+    return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
   }
 
   /**

@@ -24,7 +24,8 @@ public class SetShooterToPreset extends Command {
       new Translation2d(13.8, 4.11),
       new Translation2d(2.69, 4.11)
     ),
-    kThrowNote(5800.0, 20.0, SpinType.slowRightMotor, new Translation2d(), new Translation2d());
+    kThrowNoteLow(2500.0, 20.0, SpinType.disable, new Translation2d(), new Translation2d()),
+    kThrowNoteHigh(3500.0, 45.0, SpinType.disable, new Translation2d(), new Translation2d());
 
     public final Rotation2d angle;
     public final double RPM;

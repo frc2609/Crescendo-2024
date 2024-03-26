@@ -1,0 +1,25 @@
+What we need to see during the match
+
+Intake running
+Intake on
+
+Shooter at target
+Flywheels at target
+
+Odometry pose
+Side limelight pose
+Rear limelight pose
+
+Odometry valid
+Rear limelight valid
+Side limelight valid
+
+Shooter flywheel setpoint being clamped or not
+
+Whether AlignToAprilTag is using odometry or heading
+
+Auto selector
+
+Height offset
+
+Webcam

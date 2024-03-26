@@ -111,6 +111,6 @@ public final class Constants {
      * The value in the YAGSL configuration is automatically applied to the
      * rotation joystick when controlling the robot with a desired angle.
      */
-    public static final double joystickDeadband = 0.075;
+    public static final double joystickDeadband = 0.11;
   }
 }

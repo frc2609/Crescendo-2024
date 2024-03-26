@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.293678213604645,
-        "y": 1.07
+        "x": 8.270256540513081,
+        "y": 4.1046482092964185
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.81363679198334,
-        "y": 1.5238793692972017
+        "x": 7.332896973486255,
+        "y": 5.791895429944707
       },
       "isLocked": false,
-      "linkedName": "Note 4"
+      "linkedName": "Note 6"
     },
     {
       "anchor": {
-        "x": 2.168910700160914,
-        "y": 3.5366726368260153
+        "x": 4.629354643324673,
+        "y": 6.9660616244309415
       },
       "prevControl": {
-        "x": 2.719320017812645,
-        "y": 3.1619258673610067
+        "x": 6.425138234891856,
+        "y": 6.679920282917489
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "SafeShootingPos"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -39,11 +39,11 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -38.15722658736903,
+    "rotation": 0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Source Side Disruption",
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0

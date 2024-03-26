@@ -1,0 +1,55 @@
+<xml version="1.0">
+<dashboard>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.CameraServerViewer">
+		<location x="292" y="3"/>
+		<width>690</width>
+		<height>521</height>
+		<property name="Camera Choice" value=""/>
+	</static-widget>
+	<widget field="Pigeon 2 (v6) [2]" type="Gyro" class="edu.wpi.first.smartdashboard.gui.elements.Compass">
+		<location x="9" y="362"/>
+	</widget>
+	<widget field="Auto Chooser" type="String Chooser" class="edu.wpi.first.smartdashboard.gui.elements.Chooser">
+		<location x="0" y="180"/>
+	</widget>
+	<widget field="limelight_Stream" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="160"/>
+	</widget>
+	<widget field="Height Offset" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="140"/>
+	</widget>
+	<widget field="limelight-shooter_Stream" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="120"/>
+	</widget>
+	<widget field="Git Branch" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="100"/>
+	</widget>
+	<widget field="Git Commit SHA" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="80"/>
+	</widget>
+	<widget field="limelight-shooter_PipelineName" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="60"/>
+	</widget>
+	<widget field="limelight_Interface" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="40"/>
+	</widget>
+	<widget field="limelight_PipelineName" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="20"/>
+	</widget>
+	<widget field="limelight-shooter_Interface" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="0"/>
+	</widget>
+</dashboard>
+<live-window>
+</live-window>
+	<hidden field="IMU"/>
+	<hidden field="Shooter Angle FF"/>
+	<hidden field="Field"/>
+	<hidden field="Swerve Drive"/>
+	<hidden field="Shooter Angle D"/>
+	<hidden field="Motors"/>
+	<hidden field="JSON"/>
+	<hidden field="Shooter Angle P"/>
+	<hidden field="Alerts"/>
+	<hidden field="Encoders"/>
+</xml>

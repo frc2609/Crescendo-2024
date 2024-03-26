@@ -105,10 +105,7 @@ public class AlignToAmp extends Command {
   }
 
   public double getEstimatedTimeToTarget() {
-    // TODO: replace velocity calc with function in drive
-    var velocity = RobotContainer.drive.drive.getRobotVelocity();
-    var velocityNorm = Math.hypot(velocity.vxMetersPerSecond, velocity.vyMetersPerSecond);
-    return getTranslationError() / velocityNorm;
+    return getTranslationError() / RobotContainer.drive.getVelocity();
   }
 
   public double getTranslationError() {

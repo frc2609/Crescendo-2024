@@ -36,6 +36,7 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterAngle;
 import frc.robot.subsystems.ShooterFlywheel;
@@ -50,11 +51,13 @@ public class RobotContainer {
   public static final Drive drive = new Drive(false);
   public static final Elevator elevator = new Elevator();
   public static final Intake intake = new Intake();
+  public static final Limelight sideLimelight = new Limelight("limelight");
   public static final Limelight rearLimelight = new Limelight("limelight-shooter");
   public static final ShooterAngle shooterAngle = new ShooterAngle();
   public static final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
   public static final Visualizer visualizer = new Visualizer();
   public static final PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
+  public static final LED led = new LED();
 
   private final BeaverLogger logger = new BeaverLogger();
   private final SendableChooser<Command> autoChooser;
@@ -113,8 +116,8 @@ public class RobotContainer {
     driverController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
     driverController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
     driverController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
-    operatorController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
-    operatorController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
+    operatorController.povUp().onTrue(new MoveElevatorToPosition(Position.amp));
+    // operatorController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
     operatorController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
 
     // Climber
@@ -142,9 +145,13 @@ public class RobotContainer {
     operatorController.x().onTrue(intake.getTurnOff());
 
     // Shooter Angle
-    operatorController.back().onTrue(rearLimelight.getEstimateRobotPose(false));
-    operatorController.leftBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtSpeaker, true));
+    operatorController.back().whileTrue(rearLimelight.getEstimateRobotPose());
+    operatorController.leftBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtSpeaker, false));
     operatorController.rightBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtPodium, true));
+    operatorController.leftStick().whileTrue(new RunCommand(rearLimelight::updateOdometry));
+    operatorController.rightStick().whileTrue(new RunCommand(sideLimelight::updateOdometry));
+    operatorController.povLeft().whileTrue(new SetShooterToPreset(ShooterPreset.kThrowNoteLow, false));
+    operatorController.povRight().whileTrue(new SetShooterToPreset(ShooterPreset.kThrowNoteHigh, false));
     // Shooter Flywheel
   }
 

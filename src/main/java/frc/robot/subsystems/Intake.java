@@ -16,6 +16,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
+import frc.robot.subsystems.LED.BlinkMode;
+import frc.robot.subsystems.LED.Pattern;
 
 public class Intake extends SubsystemBase {
   private final VictorSPX intakeMotor = new VictorSPX(14);
@@ -37,8 +40,18 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putBoolean("Intake/Intake Sensor", getSensor());
     SmartDashboard.putBoolean("Intake/Note Held", noteHeld);
-    // don't set it when false because we don't know if the note is still held
-    if (getSensor()) noteHeld = true;
+    if (getSensor()) { 
+      // don't set it when false because we don't know if the note is still held (e.g. could be in elevator)
+      noteHeld = true;
+      RobotContainer.led.setDrive(Pattern.INTAKE_NOTE, BlinkMode.SOLID);
+      RobotContainer.led.setHuman(Pattern.FIRE, BlinkMode.FIRE);
+    } else if (Math.abs(intakeMotor.getMotorOutputPercent()) > 0.0) {
+      RobotContainer.led.setDrive(Pattern.INTAKE_NO_NOTE, BlinkMode.BLINKING_ON);
+      RobotContainer.led.setHuman(Pattern.INTAKE_NO_NOTE, BlinkMode.BLINKING_ON);
+    } else {
+      RobotContainer.led.setDrive(Pattern.RED, BlinkMode.SOLID);
+      RobotContainer.led.setHuman(Pattern.RED, BlinkMode.SOLID);
+    }
   }
 
   /**
