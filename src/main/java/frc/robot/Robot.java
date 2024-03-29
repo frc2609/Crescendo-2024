@@ -20,8 +20,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import frc.robot.Constants.AprilTag;
-import frc.robot.Constants.AprilTag.ID;
 import frc.robot.commands.IdleShooter;
 import frc.robot.commands.TeleopVelocityDrive;
 import frc.robot.subsystems.Elevator;
@@ -45,9 +43,6 @@ public class Robot extends TimedRobot {
     // PathPlanner logs its own info automatically (no need to here)
     
     CameraServer.startAutomaticCapture();
-
-    // preload apriltag field layout so autonomous isn't delayed by it (takes ~1-2s)
-    AprilTag.getPose2d(ID.kBlueAmp);
 
     robotContainer = new RobotContainer();
     RobotContainer.led.setDrive(Pattern.INTAKE_IDLE, BlinkMode.SOLID);
