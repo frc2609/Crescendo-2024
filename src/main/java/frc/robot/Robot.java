@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import com.pathplanner.lib.commands.FollowPathCommand;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -52,6 +54,9 @@ public class Robot extends TimedRobot {
     RobotContainer.led.setHuman(Pattern.FIRE, BlinkMode.FIRE);
     RobotContainer.drive.drive.field.getObject("limelight Estimated Pose");
     RobotContainer.drive.drive.field.getObject("limelight-shooter Estimated Pose");
+
+    // preload PathPlanner follow path command so it doesn't delay autonomous
+    FollowPathCommand.warmupCommand().schedule();
   }
 
   @Override
