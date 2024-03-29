@@ -33,9 +33,7 @@ public class Limelight extends SubsystemBase {
       this.id = id;
     }
   }
-
   private final String name;
-  public static double numTargets_dt = 0.0;
 
   /** Creates a new Limelight. */
   public Limelight(String name) {
@@ -80,6 +78,28 @@ public class Limelight extends SubsystemBase {
       SmartDashboard.putNumber("Limelight/" + name + "/Odometry Error", getOdometryDifference(detectedPose.get()));
       SmartDashboard.putNumber("Limelight/" + name + "/Total Target Area", LimeLightHelpers.getTA(name));
     }
+  }
+
+  /**
+   * Find the number of targets without parsing the JSON the Limelight puts on NT.
+   * @param printTime Prints the elapsed time if true.
+   * @return The amount of targets detected.
+   */
+  public int getNumTargetsFast(boolean printTime) {
+    String jsonDump = LimeLightHelpers.getJSONDump(name);
+    double start = Timer.getFPGATimestamp();
+    Pattern pattern = Pattern.compile("\"fID\":\\d+");
+    Matcher matcher = pattern.matcher(jsonDump);
+
+    int count = 0;
+    while (matcher.find()) {
+      count++;
+    }
+
+    if (printTime) {
+      System.out.println("Limelight " + name + " NumTargets DT: " + (Timer.getFPGATimestamp() - start));
+    }
+    return count;
   }
 
   /**
@@ -156,20 +176,6 @@ public class Limelight extends SubsystemBase {
   }
 
   // --- Static Functions ---
-
-  public static int getNumTargetsFast(String limelightName){
-    String jsonDump = LimeLightHelpers.getJSONDump(limelightName);
-    double start = Timer.getFPGATimestamp();
-    Pattern pattern = Pattern.compile("\"fID\":\\d+");
-    Matcher matcher = pattern.matcher(jsonDump);
-
-    int count = 0;
-    while (matcher.find()){
-      count++;
-    }
-    numTargets_dt = Timer.getFPGATimestamp()-start;
-    return count;
-  }
 
   /**
    * Calculate the distance between the current vision and odometry poses.
