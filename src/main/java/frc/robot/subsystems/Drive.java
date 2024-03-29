@@ -72,9 +72,8 @@ public class Drive extends SubsystemBase {
           new PIDConstants(5.0, 0.0, 0.0),
           // limit speeds in the paths, NOT HERE.
           drive.getMaximumVelocity(),
-          // Calculate drivetrain radius
-          Math.sqrt(Math.pow(drive.swerveDriveConfiguration.moduleLocationsMeters[0].getY(), 2) + Math.pow(drive.swerveDriveConfiguration.moduleLocationsMeters[0].getX(), 2)),
-          new ReplanningConfig() // customize this as desired
+          drive.swerveDriveConfiguration.getDriveBaseRadiusMeters(),
+          new ReplanningConfig()
       ),
       () -> {
         return RobotContainer.isRedAlliance("Drive (PathPlanner)");
