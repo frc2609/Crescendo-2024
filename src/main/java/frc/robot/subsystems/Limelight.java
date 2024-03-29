@@ -47,6 +47,60 @@ public class Limelight extends SubsystemBase {
   @Override
   public void periodic() {}
 
+  public double[] calculateStdDevs() {
+    double distanceStdDevMultiplier = SmartDashboard.getNumber("Limelight/" + name + "/Distance Std Devs", 0.1);
+    double velocityStdDevMultiplier = SmartDashboard.getNumber("Limelight/" + name + "/Velocity Std Devs", 0.5);
+    double tagArea = LimeLightHelpers.getTA(name); // SKETCHY
+    double xyStds = distanceStdDevMultiplier * (1 / tagArea) + velocityStdDevMultiplier * RobotContainer.drive.getVelocity();
+    double rotStds = 20;
+    SmartDashboard.putNumber("Limelight/" + name + "/TA", tagArea);
+    SmartDashboard.putNumber("Limelight/" + name + "/XY STDS", xyStds);
+    SmartDashboard.putNumber("Limelight/" + name + "/ROT STDS", rotStds);
+    return new double[] { xyStds, rotStds };
+  }
+
+  public Optional<Pose2d> getPose() {
+    // TODO: check in periodic and set to member variable (instead of potentially calling multiple times per loop)
+    if (!LimeLightHelpers.getTV(name)) { 
+      SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", false);
+      return Optional.empty();
+    } else {
+      var pose = LimeLightHelpers.getBotPose2d_wpiBlue(name);
+      SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", true);
+      RobotContainer.drive.drive.field.getObject(name + " Estimated Pose").setPose(pose);
+      return Optional.of(pose);
+    }
+  }
+
+  public boolean isPoseValid() {
+    // sketchy, could be valid when called but invalid when actually detecting
+    // TODO: record pose to member then check that for validity
+    return isPoseValid(getPose());
+  }
+
+  public void setPipeline(Pipeline pipeline) {
+    NetworkTableInstance.getDefault().getTable(name).getEntry("pipeline").setNumber(pipeline.id);
+  }
+
+  public void updateOdometry() {
+    var detectedPose = getPose();
+    if (!isPoseValid(detectedPose)) return;
+    // if (!isPoseValid(RobotContainer.drive.drive.getPose()) && movingSlowly()) {
+    //   RobotContainer.drive.drive.resetOdometry(detectedPose.get());
+    // } else {
+      double latencyMS = LimeLightHelpers.getLatency_Capture(name) / 1000.0;
+      double[] stdDevs = calculateStdDevs();
+
+      RobotContainer.drive.drive.addVisionMeasurement(new Pose2d(detectedPose.get().getTranslation(), RobotContainer.drive.drive.getOdometryHeading()), Timer.getFPGATimestamp() - latencyMS, VecBuilder.fill(stdDevs[0], stdDevs[0], Units.degreesToRadians(stdDevs[1])));
+      
+      SmartDashboard.putNumber("Limelight/" + name + "/Latency (MS)", latencyMS);
+      SmartDashboard.putNumber("Limelight/" + name + "/Odometry Error", getOdometryDifference(detectedPose.get()));
+      SmartDashboard.putNumber("Limelight/" + name + "/Total Target Area", LimeLightHelpers.getTA(name));
+    // }
+  }
+
+  // --- Command Factories ---
+
   public Command getEstimateRobotPose() {
     setPipeline(Pipeline.localizeRobot); // oh that's horrible btw: this gets called when the command is created, not when it actually runs (as it should)
     return new RunCommand(this::updateOdometry, this).ignoringDisable(true);
@@ -67,9 +121,7 @@ public class Limelight extends SubsystemBase {
     }, this).ignoringDisable(true);
   }
 
-  public void setPipeline(Pipeline pipeline) {
-    NetworkTableInstance.getDefault().getTable(name).getEntry("pipeline").setNumber(pipeline.id);
-  }
+  // --- Static Functions ---
 
   public static int getNumTargetsFast(String limelightName){
     String jsonDump = LimeLightHelpers.getJSONDump(limelightName);
@@ -85,48 +137,6 @@ public class Limelight extends SubsystemBase {
     return count;
   }
 
-  // check in periodic and set to member variable???
-  public Optional<Pose2d> getPose() {
-    if (!LimeLightHelpers.getTV(name)) { 
-      SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", false);
-      return Optional.empty();
-    } else {
-      var pose = LimeLightHelpers.getBotPose2d_wpiBlue(name);
-      SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", true);
-      RobotContainer.drive.drive.field.getObject(name + " Estimated Pose").setPose(pose);
-      return Optional.of(pose);
-    }
-  }
-
-  public void updateOdometry() {
-    var detectedPose = getPose();
-    if (!isPoseValid(detectedPose)) return;
-    // if (!isPoseValid(RobotContainer.drive.drive.getPose()) && movingSlowly()) {
-    //   RobotContainer.drive.drive.resetOdometry(detectedPose.get());
-    // } else {
-      double latencyMS = LimeLightHelpers.getLatency_Capture(name) / 1000.0;
-      double[] stdDevs = lazyStdDevs();
-
-      RobotContainer.drive.drive.addVisionMeasurement(new Pose2d(detectedPose.get().getTranslation(), RobotContainer.drive.drive.getOdometryHeading()), Timer.getFPGATimestamp() - latencyMS, VecBuilder.fill(stdDevs[0], stdDevs[0], Units.degreesToRadians(stdDevs[1])));
-      
-      SmartDashboard.putNumber("Limelight/" + name + "/Latency (MS)", latencyMS);
-      SmartDashboard.putNumber("Limelight/" + name + "/Odometry Error", getOdometryDifference(detectedPose.get()));
-      SmartDashboard.putNumber("Limelight/" + name + "/Total Target Area", LimeLightHelpers.getTA(name));
-    // }
-  }
-
-  public double[] lazyStdDevs() {
-    double distanceStdDevMultiplier = SmartDashboard.getNumber("Limelight/" + name + "/Distance Std Devs", 0.1);
-    double velocityStdDevMultiplier = SmartDashboard.getNumber("Limelight/" + name + "/Velocity Std Devs", 0.5);
-    double tagArea = LimeLightHelpers.getTA(name); // SKETCHY
-    double xyStds = distanceStdDevMultiplier * (1 / tagArea) + velocityStdDevMultiplier * RobotContainer.drive.getVelocity();
-    double rotStds = 20;
-    SmartDashboard.putNumber("Limelight/" + name + "/TA", tagArea);
-    SmartDashboard.putNumber("Limelight/" + name + "/XY STDS", xyStds);
-    SmartDashboard.putNumber("Limelight/" + name + "/ROT STDS", rotStds);
-    return new double[] { xyStds, rotStds };
-  }
-
   /**
    * Calculate the distance between the current vision and odometry poses.
    * @param pose Estimated Vision Pose
@@ -135,12 +145,6 @@ public class Limelight extends SubsystemBase {
   public static double getOdometryDifference(Pose2d pose) {
     var odometryDifference = RobotContainer.drive.drive.getPose().minus(pose);
     return Math.hypot(odometryDifference.getX(), odometryDifference.getY());
-  }
-
-  public boolean isPoseValid() {
-    // sketchy, could be valid when called but invalid when actually detecting
-    // TODO: record pose to member then check that for validity
-    return isPoseValid(getPose());
   }
 
   /**
