@@ -65,7 +65,7 @@ public class RobotContainer {
   public RobotContainer() {
     configureBindings();
 
-    NamedCommands.registerCommand("ResetPoseToLimelight", rearLimelight.getResetRobotPose().withTimeout(0.1));
+    NamedCommands.registerCommand("ResetPoseToLimelight", rearLimelight.getResetRobotPose());
     NamedCommands.registerCommand("IntakeNote", intake.getIntakeNote());
     NamedCommands.registerCommand("ShootNote", new ShootNote());
     NamedCommands.registerCommand("ShootNoteContinuously", new ShootNoteContinuously());
@@ -89,7 +89,11 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    // TODO: Move these to 'Test' mode as applicable
+    // Vision
+    operatorController.start().onTrue(rearLimelight.getResetRobotPose());
+    operatorController.back().onTrue(sideLimelight.getResetRobotPose());
+    operatorController.leftStick().whileTrue(rearLimelight.getEstimateRobotPose());
+    operatorController.rightStick().whileTrue(sideLimelight.getEstimateRobotPose());
 
     // Automation
     driverController.leftBumper().toggleOnTrue(
@@ -110,14 +114,11 @@ public class RobotContainer {
 
     // Swerve
     driverController.start().onTrue(new InstantCommand(drive::teleopResetGyro).ignoringDisable(true));
-    operatorController.start().onTrue(rearLimelight.getResetRobotPose().ignoringDisable(true));
 
     // Elevator
-    driverController.povUp().onTrue(new MoveElevatorToPosition(Position.trap));
-    driverController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
+    driverController.povUp().onTrue(new MoveElevatorToPosition(Position.amp));
     driverController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
     operatorController.povUp().onTrue(new MoveElevatorToPosition(Position.amp));
-    // operatorController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
     operatorController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
 
     // Climber
@@ -144,15 +145,11 @@ public class RobotContainer {
     operatorController.y().onTrue(intake.getFeedNote());
     operatorController.x().onTrue(intake.getTurnOff());
 
-    // Shooter Angle
-    operatorController.back().whileTrue(rearLimelight.getEstimateRobotPose());
+    // Shooter
     operatorController.leftBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtSpeaker, false));
     operatorController.rightBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtPodium, true));
-    operatorController.leftStick().whileTrue(new RunCommand(rearLimelight::updateOdometry));
-    operatorController.rightStick().whileTrue(new RunCommand(sideLimelight::updateOdometry));
     operatorController.povLeft().whileTrue(new SetShooterToPreset(ShooterPreset.kThrowNoteLow, false));
     operatorController.povRight().whileTrue(new SetShooterToPreset(ShooterPreset.kThrowNoteHigh, false));
-    // Shooter Flywheel
   }
 
   public Command getAutonomousCommand() {
