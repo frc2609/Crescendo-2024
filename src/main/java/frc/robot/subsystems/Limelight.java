@@ -47,6 +47,11 @@ public class Limelight extends SubsystemBase {
   @Override
   public void periodic() {}
 
+  /**
+   * Calculate standard deviations for the robot's pose estimator based on the accuracy of the
+   * current detected pose.
+   * @return [x/y std devs, rotation std devs]
+   */
   public double[] calculateStdDevs() {
     double distanceStdDevMultiplier = SmartDashboard.getNumber("Limelight/" + name + "/Distance Std Devs", 0.1);
     double velocityStdDevMultiplier = SmartDashboard.getNumber("Limelight/" + name + "/Velocity Std Devs", 0.5);
@@ -59,6 +64,27 @@ public class Limelight extends SubsystemBase {
     return new double[] { xyStds, rotStds };
   }
 
+  /**
+   * Add the current detected pose to the robot's pose estimator.
+   */
+  public void estimateRobotPose() {
+    var detectedPose = getPose();
+    if (isPoseValid(detectedPose)) {
+      double latencyMS = LimeLightHelpers.getLatency_Capture(name) / 1000.0;
+      double[] stdDevs = calculateStdDevs();
+
+      RobotContainer.drive.drive.addVisionMeasurement(new Pose2d(detectedPose.get().getTranslation(), RobotContainer.drive.drive.getOdometryHeading()), Timer.getFPGATimestamp() - latencyMS, VecBuilder.fill(stdDevs[0], stdDevs[0], Units.degreesToRadians(stdDevs[1])));
+      
+      SmartDashboard.putNumber("Limelight/" + name + "/Latency (MS)", latencyMS);
+      SmartDashboard.putNumber("Limelight/" + name + "/Odometry Error", getOdometryDifference(detectedPose.get()));
+      SmartDashboard.putNumber("Limelight/" + name + "/Total Target Area", LimeLightHelpers.getTA(name));
+    }
+  }
+
+  /**
+   * Get the current detected pose. May or may not be valid.
+   * @return The current detected robot pose if valid or Optional.empty() if not.
+   */
   public Optional<Pose2d> getPose() {
     // TODO: check in periodic and set to member variable (instead of potentially calling multiple times per loop)
     if (!LimeLightHelpers.getTV(name)) { 
@@ -72,53 +98,61 @@ public class Limelight extends SubsystemBase {
     }
   }
 
+  /**
+   * Check if the current detected pose is valid.
+   * @return If the current detected pose is valid.
+   */
   public boolean isPoseValid() {
     // sketchy, could be valid when called but invalid when actually detecting
     // TODO: record pose to member then check that for validity
     return isPoseValid(getPose());
   }
 
+  /**
+   * Reset the robot pose to the detected pose if it is valid.
+   */
+  public void resetRobotPose() {
+    if (!LimeLightHelpers.getTV(name)) { 
+      SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", false);
+      return;
+    }
+    SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", true);
+    var pose = LimeLightHelpers.getBotPose2d_wpiBlue(name);
+
+    RobotContainer.drive.drive.field.getObject(name + " Estimated Pose").setPose(pose);
+    RobotContainer.drive.drive.resetOdometry(pose);
+  }
+
+  /**
+   * Set this limelight's pipeline through NetworkTables.
+   * @param pipeline The pipeline to set.
+   */
   public void setPipeline(Pipeline pipeline) {
     NetworkTableInstance.getDefault().getTable(name).getEntry("pipeline").setNumber(pipeline.id);
   }
 
-  public void updateOdometry() {
-    var detectedPose = getPose();
-    if (!isPoseValid(detectedPose)) return;
-    // if (!isPoseValid(RobotContainer.drive.drive.getPose()) && movingSlowly()) {
-    //   RobotContainer.drive.drive.resetOdometry(detectedPose.get());
-    // } else {
-      double latencyMS = LimeLightHelpers.getLatency_Capture(name) / 1000.0;
-      double[] stdDevs = calculateStdDevs();
-
-      RobotContainer.drive.drive.addVisionMeasurement(new Pose2d(detectedPose.get().getTranslation(), RobotContainer.drive.drive.getOdometryHeading()), Timer.getFPGATimestamp() - latencyMS, VecBuilder.fill(stdDevs[0], stdDevs[0], Units.degreesToRadians(stdDevs[1])));
-      
-      SmartDashboard.putNumber("Limelight/" + name + "/Latency (MS)", latencyMS);
-      SmartDashboard.putNumber("Limelight/" + name + "/Odometry Error", getOdometryDifference(detectedPose.get()));
-      SmartDashboard.putNumber("Limelight/" + name + "/Total Target Area", LimeLightHelpers.getTA(name));
-    // }
-  }
-
   // --- Command Factories ---
 
+  /**
+   * Get a command that adds a pose estimate to the robot's pose estimator repeatedly until it
+   * ends. Runs when disabled.
+   * @return A command that adds pose estimates from the Limelight until interrupted.
+   */
   public Command getEstimateRobotPose() {
     setPipeline(Pipeline.localizeRobot); // oh that's horrible btw: this gets called when the command is created, not when it actually runs (as it should)
-    return new RunCommand(this::updateOdometry, this).ignoringDisable(true);
+    return new RunCommand(this::estimateRobotPose, this)
+      .ignoringDisable(true);
   }
 
+  /**
+   * Get a command that resets the robot pose to the detected pose (if valid) and then ends. Runs
+   * when disabled.
+   * @return A command that resets the robot pose once and then ends.
+   */
   public Command getResetRobotPose() {
-    setPipeline(Pipeline.localizeRobot); // same issue here!
-    return new InstantCommand(() -> {
-      if (!LimeLightHelpers.getTV(name)) { 
-        SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", false);
-        return;
-      }
-      SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", true);
-      var pose = LimeLightHelpers.getBotPose2d_wpiBlue(name);
-
-      RobotContainer.drive.drive.field.getObject(name + " Estimated Pose").setPose(pose);
-      RobotContainer.drive.drive.resetOdometry(pose);
-    }, this).ignoringDisable(true);
+    setPipeline(Pipeline.localizeRobot);
+    return new InstantCommand(this::resetRobotPose, this)
+      .ignoringDisable(true);
   }
 
   // --- Static Functions ---
