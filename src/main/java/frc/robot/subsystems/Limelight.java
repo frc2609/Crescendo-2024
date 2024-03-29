@@ -68,6 +68,7 @@ public class Limelight extends SubsystemBase {
    * Add the current detected pose to the robot's pose estimator.
    */
   public void estimateRobotPose() {
+    setPipeline(Pipeline.localizeRobot);
     var detectedPose = getPose();
     if (isPoseValid(detectedPose)) {
       double latencyMS = LimeLightHelpers.getLatency_Capture(name) / 1000.0;
@@ -112,6 +113,7 @@ public class Limelight extends SubsystemBase {
    * Reset the robot pose to the detected pose if it is valid.
    */
   public void resetRobotPose() {
+    setPipeline(Pipeline.localizeRobot);
     if (!LimeLightHelpers.getTV(name)) { 
       SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", false);
       return;
@@ -139,7 +141,6 @@ public class Limelight extends SubsystemBase {
    * @return A command that adds pose estimates from the Limelight until interrupted.
    */
   public Command getEstimateRobotPose() {
-    setPipeline(Pipeline.localizeRobot); // oh that's horrible btw: this gets called when the command is created, not when it actually runs (as it should)
     return new RunCommand(this::estimateRobotPose, this)
       .ignoringDisable(true);
   }
@@ -150,7 +151,6 @@ public class Limelight extends SubsystemBase {
    * @return A command that resets the robot pose once and then ends.
    */
   public Command getResetRobotPose() {
-    setPipeline(Pipeline.localizeRobot);
     return new InstantCommand(this::resetRobotPose, this)
       .ignoringDisable(true);
   }
