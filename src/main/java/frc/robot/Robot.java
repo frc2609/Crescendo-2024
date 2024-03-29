@@ -102,9 +102,6 @@ public class Robot extends TimedRobot {
       autonomousCommand.cancel();
     }
     RobotContainer.drive.setDefaultCommand(new TeleopVelocityDrive(true));
-    // RobotContainer.rearLimelight.getResetRobotPose().schedule(); // TODO: Remove this at comp
-    // Update odometry without updating heading
-    // RobotContainer.rearLimelight.setDefaultCommand(RobotContainer.rearLimelight.getEstimateRobotPose(false));
   }
 
   @Override
@@ -113,7 +110,6 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopExit() {
     RobotContainer.drive.removeDefaultCommand();
-    // RobotContainer.rearLimelight.removeDefaultCommand();
   }
 
   @Override
