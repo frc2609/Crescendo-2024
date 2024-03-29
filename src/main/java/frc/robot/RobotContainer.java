@@ -47,7 +47,7 @@ public class RobotContainer {
   public static final CommandXboxController driverController = new CommandXboxController(0);
   public static final CommandXboxController operatorController = new CommandXboxController(1);
 
-  public static final Climber climber = new Climber(operatorController::getRightTriggerAxis, operatorController::getLeftTriggerAxis);
+  public static final Climber climber = new Climber(operatorController::getLeftTriggerAxis, operatorController::getRightTriggerAxis);
   public static final Drive drive = new Drive(false);
   public static final Elevator elevator = new Elevator();
   public static final Intake intake = new Intake();
