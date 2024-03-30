@@ -73,7 +73,7 @@ public final class Constants {
   /** Swerve drive related constants. */
   public final static class Swerve {
     /** The maximum possible RPM of a Kraken X60 with FOC disabled. */
-    public static final double maxDriveRPM = 5800;
+    public static final double maxDriveRPM = 4350;
     /** Make sure to adjust this as the wheels wear. */
     public static final double wheelDiameter = Units.inchesToMeters(3.75);
     // 5 : 1 drives 4 : 1 ultraplanetary attached to 22T pulley spinning 64T module pulley
