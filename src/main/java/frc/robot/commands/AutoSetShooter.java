@@ -12,7 +12,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.AprilTag;
 import frc.robot.Constants.AprilTag.ID;
+import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterFlywheel.SpinType;
+import frc.robot.utils.LimeLightHelpers;
 
 /**
  * Calculate shooter angle and RPM using the robot's distance from the speaker.
@@ -23,7 +25,7 @@ import frc.robot.subsystems.ShooterFlywheel.SpinType;
 public class AutoSetShooter extends Command {
   // Units in meters, positive = up or forward
   public static final double speakerHeight = 1.98;
-  public static double heightOffset = 0.7;
+  public static double heightOffset = 0; // 0.7
   public static final double noteHeight = 0.19; // distance from ground to note at shooter pivot
   public static final double shooterDistanceFromCenter = -0.02;
   public static double targetHeight = speakerHeight + heightOffset - noteHeight;
@@ -35,11 +37,14 @@ public class AutoSetShooter extends Command {
   public static final double farDistance = 5.0;
   public static final double farRPM = 5800;
   public static final double rpmEquationSlope = (farRPM - closeRPM) / (farDistance - closeDistance);
+  public static final double limelightHeight = 0.64;
+  public static final double heightToTag = 1.343 - limelightHeight; // speaker tag height - limelight height (both from floor)
 
   private final SpinType spinType;
   private Translation2d speakerTranslation;
   // exists since 'isScheduled()' doesn't work when command is scheduled as part of a group
   private boolean isRunning = false;
+  private boolean is2DAvailable = true;
 
   /** Creates a new AutoSetShooter. */
   public AutoSetShooter(SpinType spinType) {
@@ -53,12 +58,23 @@ public class AutoSetShooter extends Command {
     final ID speakerID = RobotContainer.isRedAlliance("AutoSetAngle") ? ID.kRedSpeakerCenter : ID.kBlueSpeakerCenter;
     speakerTranslation = AprilTag.getPose2d(speakerID).getTranslation();
     isRunning = true;
+    is2DAvailable = true;
+    LimeLightHelpers.setPipelineIndex("limelight-shooter", 1);
   }
 
   @Override
   public void execute() {
-    final Pose2d robotPose = RobotContainer.drive.drive.getPose();
-    final double distanceToSpeaker = robotPose.getTranslation().getDistance(speakerTranslation);
+    double distanceToSpeaker;
+    distanceToSpeaker = heightToTag/Math.tan(Math.toRadians(LimeLightHelpers.getTY("limelight-shooter")+15)); // 15 deg = limelight tilt angle from horizon
+
+    // if(is2DAvailable && LimeLightHelpers.getCurrentPipelineIndex("limelight-shooter") == 1 && LimeLightHelpers.getTV("limelight-shooter")){
+    //   distanceToSpeaker = heightToTag/Math.tan(Math.toRadians(LimeLightHelpers.getTY("limelight-shooter")+15)); // 15 deg = limelight tilt angle from horizon
+    // }else{
+    //   is2DAvailable = false;
+    //   LimeLightHelpers.setPipelineIndex("limelight-shooter", 1);
+    //   final Pose2d robotPose = RobotContainer.drive.drive.getPose();
+    //   distanceToSpeaker = robotPose.getTranslation().getDistance(speakerTranslation);
+    // }
     final double pivotDistanceToSpeaker = distanceToSpeaker + shooterDistanceFromCenter;
     heightOffset = SmartDashboard.getNumber("Height Offset", heightOffset);
     targetHeight = speakerHeight + heightOffset - noteHeight;

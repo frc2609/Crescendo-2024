@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.AprilTag;
 import frc.robot.Constants.AprilTag.ID;
+import frc.robot.utils.LimeLightHelpers;
 
 /**
  * Align robot heading to AprilTag according to automatically-detected alliance colour.
@@ -27,6 +28,7 @@ public class AprilTagTrackDrive extends Command {
   private boolean aligningToTag = false;
   // exists since 'isScheduled()' doesn't work when command is scheduled as part of a group
   private boolean isRunning = false;
+  private boolean is2DAvailable = true;
 
   /**
    * Creates a new AprilTagTrackDrive.
@@ -40,6 +42,7 @@ public class AprilTagTrackDrive extends Command {
     this.blueAprilTagID = blueAprilTagID;
     this.redAprilTagID = redAprilTagID;
     this.headingOffset = headingOffset;
+    this.is2DAvailable = true;
     // does not require drive since this is intended to be used in addition to a command controlling translation
   }
 
@@ -50,6 +53,8 @@ public class AprilTagTrackDrive extends Command {
     trackedAprilTagID = RobotContainer.isRedAlliance("AprilTagTrackDrive") ? redAprilTagID : blueAprilTagID;
     SmartDashboard.putNumber("AprilTagTrack/AprilTag ID", trackedAprilTagID.getID());
     isRunning = true;
+    this.is2DAvailable = true;
+    LimeLightHelpers.setPipelineIndex("limelight-shooter", 1);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -57,29 +62,41 @@ public class AprilTagTrackDrive extends Command {
   public void execute() {
     Pose2d aprilTagPose = AprilTag.getPose2d(trackedAprilTagID);
     Rotation2d heading;
-
-    if (!RobotContainer.drive.odometryOutOfRange() && (RobotContainer.rearLimelight.isPoseValid() || RobotContainer.sideLimelight.isPoseValid())) {
-      odometryValidTimer.restart();
-      heading = getHeadingToTag();
-      aligningToTag = true;
-    } else if (!odometryValidTimer.hasElapsed(0.5)) {
-      // if we lose heading, wait for a bit before reverting to gyro
-      heading = getHeadingToTag();
-      aligningToTag = true;
-    } else {
-      // only align to tag heading because odometry isn't reliable
-      heading = aprilTagPose.getRotation();
-      aligningToTag = false;
-    }
-
-    heading.plus(Rotation2d.fromDegrees(180)) // so the robot's front faces the apriltag
-      .plus(headingOffset);
-    
-    SmartDashboard.putNumber("AprilTagTrack/Target Heading (Deg)", heading.getDegrees());
-    SmartDashboard.putBoolean("AprilTagTrack/Aligning to Odometry", aligningToTag);
-    SmartDashboard.putBoolean("AprilTagTrack/At Target", atTarget());
-
+    aligningToTag = true;
+    heading = RobotContainer.drive.drive.getOdometryHeading().plus(Rotation2d.fromDegrees(-LimeLightHelpers.getTX("limelight-shooter")));
     RobotContainer.drive.overrideHeading(heading);
+    SmartDashboard.putNumber("AprilTagTrack/Target Heading (Deg)", heading.getDegrees());
+
+    // if(is2DAvailable && LimeLightHelpers.getCurrentPipelineIndex("limelight-shooter") == 1 && LimeLightHelpers.getTV("limelight-shooter")){
+    //   RobotContainer.drive.overrideHeading(headingOffset.plus(Rotation2d.fromDegrees(LimeLightHelpers.getTX("limelight-shooter"))));
+
+    // }else{
+    //   is2DAvailable = false;
+    //   LimeLightHelpers.setPipelineIndex("limelight-shooter", 0);
+      
+    //   if (!RobotContainer.drive.odometryOutOfRange() && (RobotContainer.rearLimelight.isPoseValid() || RobotContainer.sideLimelight.isPoseValid())) {
+    //     odometryValidTimer.restart();
+    //     heading = getHeadingToTag();
+    //     aligningToTag = true;
+    //   } else if (!odometryValidTimer.hasElapsed(0.5)) {
+    //     // if we lose heading, wait for a bit before reverting to gyro
+    //     heading = getHeadingToTag();
+    //     aligningToTag = true;
+    //   } else {
+    //     // only align to tag heading because odometry isn't reliable
+    //     heading = aprilTagPose.getRotation();
+    //     aligningToTag = false;
+    //   }
+
+    // heading.plus(Rotation2d.fromDegrees(180)) // so the robot's front faces the apriltag
+    //   .plus(headingOffset);
+    
+    // SmartDashboard.putNumber("AprilTagTrack/Target Heading (Deg)", heading.getDegrees());
+    // SmartDashboard.putBoolean("AprilTagTrack/Aligning to Odometry", aligningToTag);
+    // SmartDashboard.putBoolean("AprilTagTrack/At Target", atTarget());
+
+    // RobotContainer.drive.overrideHeading(heading);
+    // }
   }
 
   @Override
