@@ -55,8 +55,8 @@ public class AutoSetShooter extends Command {
 
   @Override
   public void initialize() {
-    final ID speakerID = RobotContainer.isRedAlliance("AutoSetAngle") ? ID.kRedSpeakerCenter : ID.kBlueSpeakerCenter;
-    speakerTranslation = AprilTag.getPose2d(speakerID).getTranslation();
+    // final ID speakerID = RobotContainer.isRedAlliance("AutoSetAngle") ? ID.kRedSpeakerCenter : ID.kBlueSpeakerCenter;
+    // speakerTranslation = AprilTag.getPose2d(speakerID).getTranslation();
     isRunning = true;
     is2DAvailable = true;
     LimeLightHelpers.setPipelineIndex("limelight-shooter", 1);
