@@ -44,7 +44,7 @@ public class ShooterAngle extends SubsystemBase {
   public static final Rotation2d forwardTolerance = Rotation2d.fromDegrees(3);
   public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(9.1);
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(1);
-  public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(1);
+  public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(1.5);
   private double angleFudge = 0.0;
 
   // Model constants
@@ -72,7 +72,7 @@ public class ShooterAngle extends SubsystemBase {
   
   // p = volts/degree of error
   // when you tune these, REMEMBER THERE IS A VOLTAGE LIMIT ON THE MOTOR!
-  public final ProfiledPIDController anglePID = new ProfiledPIDController(0.02, 0.0, 0.0, new Constraints(280, 600));
+  public final ProfiledPIDController anglePID = new ProfiledPIDController(0.02, 0.0, 0.0, new Constraints(280, 700));
   public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.005, comDistanceFromPivotMeters, comAngleFromForwardDegrees, massKg, "Shooter/Angle");
 
   
