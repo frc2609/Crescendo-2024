@@ -66,6 +66,7 @@ public class Robot extends TimedRobot {
     RobotContainer.climber.stop();
     RobotContainer.elevator.stop();
     new IdleShooter().schedule(); // reset saved shooter setpoints on disable
+    RobotContainer.shooterAngle.stop();
   }
 
   @Override
@@ -89,8 +90,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    RobotContainer.rearLimelight.estimateRobotPose();
-    RobotContainer.sideLimelight.estimateRobotPose();
+    // RobotContainer.rearLimelight.estimateRobotPose();
+    // RobotContainer.sideLimelight.estimateRobotPose();
   }
 
   @Override
@@ -117,12 +118,12 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().cancelAll();
     
     SmartDashboard.putNumber("Test/Elevator Target Height (m)", Elevator.lowerLimitMeters);
-    SmartDashboard.putNumber("Test/Shooter Target Angle (Deg)", ShooterAngle.reverseLimit.getDegrees());
+SmartDashboard.putNumber("Test/Shooter Target Angle (Deg)", ShooterAngle.reverseLimit.getDegrees());
     SmartDashboard.putNumber("Test/Shooter Target RPM", 0);
 
     // Elevator
     CommandScheduler.getInstance().schedule(
-      new RunCommand(() -> RobotContainer.elevator.setHeight(SmartDashboard.getNumber("Test/Elevator Target Height (m)", 0)), RobotContainer.elevator)
+    new RunCommand(() -> RobotContainer.elevator.setHeight(SmartDashboard.getNumber("Test/Elevator Target Height (m)", 0)), RobotContainer.elevator)
     );
 
     // Shooter Angle
@@ -132,14 +133,14 @@ public class Robot extends TimedRobot {
 
     // Shooter Flywheel
     CommandScheduler.getInstance().schedule(
-      new RunCommand(() -> {
-        SpinType spinType = SpinType.disable;
-        if (RobotContainer.driverController.getHID().getLeftBumper())
-          spinType = SpinType.slowLeftMotor;
-        if (RobotContainer.driverController.getHID().getRightBumper())
-          spinType = SpinType.slowRightMotor;
-        RobotContainer.shooterFlywheel.setSpeed(SmartDashboard.getNumber("Test/Shooter Target RPM", 0), spinType);
-      }, RobotContainer.shooterFlywheel)
+    new RunCommand(() -> {
+    SpinType spinType = SpinType.disable;
+    if (RobotContainer.driverController.getHID().getLeftBumper())
+    spinType = SpinType.slowLeftMotor;
+    if (RobotContainer.driverController.getHID().getRightBumper())
+    spinType = SpinType.slowRightMotor;
+    RobotContainer.shooterFlywheel.setSpeed(SmartDashboard.getNumber("Test/Shooter Target RPM", 0), spinType);
+    }, RobotContainer.shooterFlywheel)
     );
   }
 
