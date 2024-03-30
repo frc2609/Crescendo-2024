@@ -1,9 +1,6 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
 
@@ -20,7 +17,6 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LED extends SubsystemBase {
-  
   private List<Segment> segments;
   private static AddressableLED led_dev;
   private static AddressableLEDBuffer led;
@@ -34,14 +30,15 @@ public class LED extends SubsystemBase {
     int blinking_i;
 
     public Segment(String name, int start, int end, Pattern pattern, BlinkMode blinkMode) {
-        this.name = name;
-        this.start = start;
-        this.end = end;
-        this.pattern = pattern;
-        this.blinkMode = blinkMode;
-        this.blinking_i = 0;
+      this.name = name;
+      this.start = start;
+      this.end = end;
+      this.pattern = pattern;
+      this.blinkMode = blinkMode;
+      this.blinking_i = 0;
     }
-}
+  }
+  
   public enum BlinkMode {
     SOLID,
     BLINKING_ON,
@@ -175,17 +172,17 @@ public class LED extends SubsystemBase {
   }
 
   public void addSegment(Segment segment) {
-      segments.add(segment);
+    segments.add(segment);
   }
 
   public void setSegmentPattern(String segmentName, Pattern pattern, BlinkMode blinkMode) {
-      for (Segment segment : segments) {
-          if (segment.name.equals(segmentName)) {
-              segment.pattern = pattern;
-              segment.blinkMode = blinkMode;
-              break;
-          }
+    for (Segment segment : segments) {
+      if (segment.name.equals(segmentName)) {
+        segment.pattern = pattern;
+        segment.blinkMode = blinkMode;
+        break;
       }
+    }
   }
 
   public void setDrive(Pattern pattern, BlinkMode blink) {
