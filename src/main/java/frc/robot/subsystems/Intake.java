@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -22,6 +23,7 @@ import frc.robot.subsystems.LED.Pattern;
 
 public class Intake extends SubsystemBase {
   private final VictorSPX intakeMotor = new VictorSPX(14);
+  private final PWMTalonSRX wideIntakeMotor = new PWMTalonSRX(0);
   private final DigitalInput intakeSensor = new DigitalInput(4);
 
   /**
@@ -34,6 +36,7 @@ public class Intake extends SubsystemBase {
   public Intake() {
     intakeMotor.setNeutralMode(NeutralMode.Brake);
     intakeMotor.setInverted(true);
+    wideIntakeMotor.setInverted(false);
   }
 
   @Override
@@ -70,6 +73,7 @@ public class Intake extends SubsystemBase {
   public void setMotor(double percentOutput) {
     SmartDashboard.putNumber("Intake/Motor Percent Output (-1-1)", percentOutput);
     intakeMotor.set(VictorSPXControlMode.PercentOutput, percentOutput);
+    wideIntakeMotor.set(percentOutput);
   }
 
   /**
