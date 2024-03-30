@@ -21,10 +21,10 @@ import swervelib.math.SwerveMath;
  */
 public final class Constants {
   public final static class AprilTag {
-    public static AprilTagFieldLayout fieldLayout;
+    public static final AprilTagFieldLayout fieldLayout;
     static {
       // load field layout immediately so autonomous doesn't have to wait for it to load
-      AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+      fieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     }
     public enum ID {
       kBlueSourceRight(1),
