@@ -59,11 +59,14 @@ public class ShooterAngle extends SubsystemBase {
   public static final double positionConversionFactor = (15.0 / 22.0) * (1.0 / 81.0) * 360; // deg
   public static final double velocityConversionFactor = positionConversionFactor / 60; // deg/s
   
-  private final TunableNumber anglePGain = new TunableNumber("Shooter Angle P", 0.02);
-  private final TunableNumber angleIGain = new TunableNumber("Shooter Angle I", 0.0);
+  private final TunableNumber anglePGain = new TunableNumber("Shooter Angle P", 0.01);
+  private final TunableNumber angleIGain = new TunableNumber("Shooter Angle I", 0.1);
   private final TunableNumber angleDGain = new TunableNumber("Shooter Angle D", 0.0);
   private final TunableNumber angleKSGain = new TunableNumber("Shooter Angle kS", 0.0);
   private final TunableNumber angleKGGain = new TunableNumber("Shooter Angle kG", 0.005);
+  private final TunableNumber angleKVGain = new TunableNumber("Shooter Angle kV", 0.001);
+
+  private double kv = 0.0;
 
   private final CANSparkMax angleMotor = new CANSparkMax(11, MotorType.kBrushless);
   private final RelativeEncoder relativeEncoder = angleMotor.getEncoder(); // unit: DEGREES
@@ -82,6 +85,7 @@ public class ShooterAngle extends SubsystemBase {
   private final BeaverLogger logger = new BeaverLogger();
   private int absSetCounter = 0;
 
+  
   /** Creates a new NewShooterAngle. */
   public ShooterAngle() {
     angleMotor.restoreFactoryDefaults();
@@ -115,8 +119,18 @@ public class ShooterAngle extends SubsystemBase {
   public void periodic() {
     //test
     // setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("Test/Shooter Target Angle (Deg)", 0)));
+    if(anglePID.getSetpoint().velocity != 0.0 || Math.abs(anglePID.getSetpoint().position-forwardLimit.getDegrees())<setpointTolerance.getDegrees() || DriverStation.isDisabled()){
+      // don't calculate I on ramp-up
+      // or near rest
+      anglePID.reset(anglePID.getSetpoint());
+    }
     double voltage = anglePID.calculate(getAbsoluteAngle().getDegrees(), targetAngle.getDegrees()) + angleFF.calculate(Rotation2d.fromDegrees(getAbsoluteAngle().getDegrees()));
-
+    
+    double velocity_FF = MathUtil.clamp(kv*anglePID.getSetpoint().velocity, -0.4, 0.4);
+    
+    voltage += velocity_FF;
+    SmartDashboard.putNumber("Shooter/Angle/VelocitySetpoint", anglePID.getSetpoint().velocity);
+    SmartDashboard.putNumber("Shooter/Angle/VelocityFF", velocity_FF);
     SmartDashboard.putNumber("Shooter/Angle/Calculated Voltage", voltage);
     setMotor(voltage);
     // set alerts
@@ -128,12 +142,13 @@ public class ShooterAngle extends SubsystemBase {
     }
 
     // check tunable numbers
-    if (anglePGain.hasChanged(hashCode()) || angleDGain.hasChanged(hashCode()) || angleIGain.hasChanged(hashCode()) || angleKGGain.hasChanged(hashCode()) || angleKSGain.hasChanged(hashCode())) {
+    if (anglePGain.hasChanged(hashCode()) || angleDGain.hasChanged(hashCode()) || angleIGain.hasChanged(hashCode()) || angleKGGain.hasChanged(hashCode()) || angleKSGain.hasChanged(hashCode()) || angleKVGain.hasChanged(hashCode())) {
       anglePID.setP(anglePGain.get());
       anglePID.setI(angleIGain.get());
-      anglePID.setD(angleDGain.get());
+      anglePID.setD(angleDGain.get()); // this doesn't work properly
       angleFF.kG = angleKGGain.get();
       angleFF.kS = angleKSGain.get();
+      kv = angleKVGain.get();
     }
 
     // set sim mechanism here (using % output from Spark)
