@@ -7,7 +7,9 @@
 
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj.AddressableLED;
@@ -18,15 +20,28 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LED extends SubsystemBase {
-  private static Pattern pattern_drive;
-  private static Pattern pattern_human;
-  private static BlinkMode blinkMode_drive;
-  private static BlinkMode blinkMode_human;
+  
+  private List<Segment> segments;
   private static AddressableLED led_dev;
   private static AddressableLEDBuffer led;
-  private static int blinking_i = 0;
-  private static int blinking_i_human = 0;
 
+  private class Segment {
+    String name;
+    int start;
+    int end;
+    Pattern pattern;
+    BlinkMode blinkMode;
+    int blinking_i;
+
+    public Segment(String name, int start, int end, Pattern pattern, BlinkMode blinkMode) {
+        this.name = name;
+        this.start = start;
+        this.end = end;
+        this.pattern = pattern;
+        this.blinkMode = blinkMode;
+        this.blinking_i = 0;
+    }
+}
   public enum BlinkMode {
     SOLID,
     BLINKING_ON,
@@ -50,16 +65,11 @@ public class LED extends SubsystemBase {
     put(Pattern.RED, new Color(50, 0, 0));
   }};
 
-  int DRIVE_START = 0;
-  int DRIVE_END = 46;
-  final int HUMAN_START = 47;
-  final int HUMAN_END = 91;
   
   public LED() {
-    pattern_drive = Pattern.INTAKE_IDLE;
-    pattern_human = Pattern.INTAKE_IDLE;
-    blinkMode_drive = BlinkMode.SOLID;
-    blinkMode_human = BlinkMode.SOLID;
+    segments = new ArrayList<>();
+    segments.add(new Segment("drive", 0, 46, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
+    segments.add(new Segment("human", 47, 91, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
     led_dev = new AddressableLED(1);
     led_dev.setLength(92);
     led = new AddressableLEDBuffer(92);
@@ -107,109 +117,83 @@ public class LED extends SubsystemBase {
   }
 
   public void setBuffer() {
-    Color color = new Color(0, 0, 0);
-    for (int i = DRIVE_START; i < DRIVE_END; i++) {
-      led.setLED(i, color);
-    }
-    switch (blinkMode_drive) {
+    for(Segment segment : segments){
+      Color color = new Color(0, 0, 0);
+      switch (segment.blinkMode) {
       case BLINKING_OFF:
-        for (int i = DRIVE_START; i < DRIVE_END; i++) {
+        color = new Color(0, 0, 0);
+        for (int i = segment.start; i < segment.end; i++) {
           led.setLED(i, color);
         }
-        if (blinking_i < 2) {
-          blinking_i++;
+        if (segment.blinking_i < 2) {
+          segment.blinking_i++;
         } else {
-          blinking_i = 0;
-          blinkMode_drive = BlinkMode.BLINKING_ON;
+          segment.blinking_i = 0;
+          segment.blinkMode = BlinkMode.BLINKING_ON;
         }
         break;
       case BLINKING_ON:
-        color = PATTERN_MAP.getOrDefault(pattern_drive, new Color(0, 0, 0));
-        for (int i = DRIVE_START; i < DRIVE_END; i++) {
+        color = PATTERN_MAP.getOrDefault(segment.pattern, new Color(0, 0, 0));
+        for (int i = segment.start; i < segment.end; i++) {
           led.setLED(i, color);
         }
-        if (blinking_i < 2) {
-          blinking_i++;
+        if (segment.blinking_i < 2) {
+          segment.blinking_i++;
         } else {
-          blinking_i = 0;
-          blinkMode_drive = BlinkMode.BLINKING_OFF;
+          segment.blinking_i = 0;
+          segment.blinkMode = BlinkMode.BLINKING_OFF;
         }
         break;
       case SOLID:
-        color = PATTERN_MAP.getOrDefault(pattern_drive, new Color(0, 0, 0));
-        for (int i = DRIVE_START; i < DRIVE_END; i++) {
+        color = PATTERN_MAP.getOrDefault(segment.pattern, new Color(0, 0, 0));
+        for (int i = segment.start; i < segment.end; i++) {
           led.setLED(i, color);
         }
         break;
       case OFF:
         color = new Color(0, 0, 0);
-        for (int i = DRIVE_START; i < DRIVE_END; i++) {
+        for (int i = segment.start; i < segment.end; i++) {
+          led.setLED(i, color);
+        }
+        break;
+      case FIRE:
+        color = new Color(0, 0, 0);
+        int length = segment.start-segment.end;
+        for (int i = segment.start; i < segment.end; i++) {
+          color = getMovingFireColor(i - length, length);
           led.setLED(i, color);
         }
         break;
       default:
         color = new Color(10, 10, 10);
-        for (int i = DRIVE_START; i < DRIVE_END; i++) {
+        for (int i = segment.start; i < segment.end; i++) {
           led.setLED(i, color);
         }
         DriverStation.reportError("INVALID LED STATE", null);
+      }
     }
-    
-    color = new Color(0, 0, 0);
-    switch (blinkMode_human) {
-      case OFF:
-        for (int i = HUMAN_START; i < HUMAN_END; i++) {
-          led.setLED(i, color);
-        }
-        break;
-      case SOLID:
-        color = PATTERN_MAP.getOrDefault(pattern_human, new Color(0, 0, 0));
-        for (int i = HUMAN_START; i < HUMAN_END; i++) {
-          led.setLED(i, color);
-        }
-        break;
-      case BLINKING_OFF:
-        for (int i = HUMAN_START; i < HUMAN_END; i++) {
-          led.setLED(i, color);
-        }
-        if (blinking_i_human < 2) {
-          blinking_i_human++;
-        } else {
-          blinking_i_human = 0;
-          blinkMode_human = BlinkMode.BLINKING_ON;
-        }
-        break;
-      case BLINKING_ON:
-        color = PATTERN_MAP.getOrDefault(pattern_human, new Color(0, 0, 0));
-        for (int i = HUMAN_START; i < HUMAN_END; i++) {
-          led.setLED(i, color);
-        }
-        if (blinking_i_human < 2) {
-          blinking_i_human++;
-        } else { 
-          blinking_i_human = 0;
-          blinkMode_human = BlinkMode.BLINKING_OFF;
-        }
-        break;
-      case FIRE:
-        color = new Color(0, 0, 0);
-        int length = HUMAN_END-HUMAN_START;
-        for (int i = HUMAN_START; i < HUMAN_END; i++) {
-          color = getMovingFireColor(i - length, length);
-          led.setLED(i, color);
-        }
-        break;
-    }
+  }
+
+  public void addSegment(Segment segment) {
+      segments.add(segment);
+  }
+
+  public void setSegmentPattern(String segmentName, Pattern pattern, BlinkMode blinkMode) {
+      for (Segment segment : segments) {
+          if (segment.name.equals(segmentName)) {
+              segment.pattern = pattern;
+              segment.blinkMode = blinkMode;
+              break;
+          }
+      }
   }
 
   public void setDrive(Pattern pattern, BlinkMode blink) {
-    pattern_drive = pattern;
-    blinkMode_drive = blink;
+    setSegmentPattern("drive", pattern, blink);
   }
 
   public void setHuman(Pattern pattern, BlinkMode blink) {
-    pattern_human = pattern;
-    blinkMode_human = blink;
+    setSegmentPattern("human", pattern, blink);
   }
 
   public void setIdle() {

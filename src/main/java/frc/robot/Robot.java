@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import com.pathplanner.lib.commands.FollowPathCommand;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -18,8 +20,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import frc.robot.Constants.AprilTag;
-import frc.robot.Constants.AprilTag.ID;
 import frc.robot.commands.IdleShooter;
 import frc.robot.commands.TeleopVelocityDrive;
 import frc.robot.subsystems.Elevator;
@@ -44,14 +44,14 @@ public class Robot extends TimedRobot {
     
     CameraServer.startAutomaticCapture();
 
-    // preload apriltag field layout so autonomous isn't delayed by it (takes ~1-2s)
-    AprilTag.getPose2d(ID.kBlueAmp);
-
     robotContainer = new RobotContainer();
     RobotContainer.led.setDrive(Pattern.INTAKE_IDLE, BlinkMode.SOLID);
     RobotContainer.led.setHuman(Pattern.FIRE, BlinkMode.FIRE);
     RobotContainer.drive.drive.field.getObject("limelight Estimated Pose");
     RobotContainer.drive.drive.field.getObject("limelight-shooter Estimated Pose");
+
+    // preload PathPlanner follow path command so it doesn't delay autonomous
+    FollowPathCommand.warmupCommand().schedule();
   }
 
   @Override
@@ -89,8 +89,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    RobotContainer.rearLimelight.updateOdometry();
-    RobotContainer.sideLimelight.updateOdometry();
+    RobotContainer.rearLimelight.estimateRobotPose();
+    RobotContainer.sideLimelight.estimateRobotPose();
   }
 
   @Override
@@ -102,9 +102,6 @@ public class Robot extends TimedRobot {
       autonomousCommand.cancel();
     }
     RobotContainer.drive.setDefaultCommand(new TeleopVelocityDrive(true));
-    // RobotContainer.rearLimelight.getResetRobotPose().schedule(); // TODO: Remove this at comp
-    // Update odometry without updating heading
-    // RobotContainer.rearLimelight.setDefaultCommand(RobotContainer.rearLimelight.getEstimateRobotPose(false));
   }
 
   @Override
@@ -113,7 +110,6 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopExit() {
     RobotContainer.drive.removeDefaultCommand();
-    // RobotContainer.rearLimelight.removeDefaultCommand();
   }
 
   @Override
