@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.DriveSysId;
 // import frc.robot.commands.AutoScoreAmp;
 import frc.robot.commands.IdleShooter;
 import frc.robot.commands.MoveElevatorToPosition;
@@ -32,6 +33,7 @@ import frc.robot.commands.ResetIntakeAndElevator;
 import frc.robot.commands.SetShooterToPreset;
 import frc.robot.commands.ShootNote;
 import frc.robot.commands.ShootNoteContinuously;
+import frc.robot.commands.TeleopVelocityDrive;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
@@ -46,6 +48,7 @@ import frc.robot.utils.Visualizer;
 public class RobotContainer {
   public static final CommandXboxController driverController = new CommandXboxController(0);
   public static final CommandXboxController operatorController = new CommandXboxController(1);
+  public static final CommandXboxController testController = new CommandXboxController(2);
 
   public static final Climber climber = new Climber(operatorController::getLeftTriggerAxis, operatorController::getRightTriggerAxis);
   public static final Drive drive = new Drive(false);
@@ -89,6 +92,13 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
+    // SysId
+    // Make sure to disable the default command for swerve when you run these.
+    testController.a().whileTrue(DriveSysId.sysIdAngleMotorCommand());
+    testController.b().whileTrue(DriveSysId.sysIdDriveMotorCommand());
+    testController.y().whileTrue(DriveSysId.sysIdHeadingCommand());
+    testController.x().toggleOnTrue(new TeleopVelocityDrive(true));
+
     // Vision
     operatorController.start().onTrue(rearLimelight.getResetRobotPose());
     operatorController.back().onTrue(sideLimelight.getResetRobotPose());
