@@ -95,6 +95,9 @@ public class AprilTagTrackDrive extends Command {
   private Rotation2d getHeadingToTag() {
     // strip the rotation component of the apriltag pose so coordinates align with the field
     Pose2d aprilTagPose = new Pose2d(AprilTag.getPose2d(trackedAprilTagID).getTranslation(), new Rotation2d());
+    // TODO: this command never asks for vision measurements itself
+      // if vision stops being updated, command will use odometry only (unreliable)
+      // this should be fixed, or documented.
     Transform2d relativePose = RobotContainer.drive.drive.getPose().minus(aprilTagPose);
     return Rotation2d.fromRadians(Math.atan2(relativePose.getY(), relativePose.getX()));
   }
