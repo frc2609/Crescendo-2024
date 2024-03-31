@@ -117,7 +117,7 @@ public class AlignToAmp extends Command {
   }
 
   private Pose2d getPose() {
-    return new Pose2d(RobotContainer.drive.drive.getPose().getTranslation(), new Rotation2d())
+    return new Pose2d(RobotContainer.drive.getPoseEfficiently().getTranslation(), new Rotation2d())
       // TODO: measure actual distance
       .plus(new Transform2d(0, 0.45, new Rotation2d())); // offset distance from center of robot to front bumper
   }

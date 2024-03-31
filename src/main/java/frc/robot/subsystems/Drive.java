@@ -61,7 +61,7 @@ public class Drive extends SubsystemBase {
 
     // setup PathPlanner
     AutoBuilder.configureHolonomic(
-      drive::getPose,
+      this::getPoseEfficiently,
       drive::resetOdometry,
       drive::getRobotVelocity,
       // PathPlanner supplies *robot-relative* chassisSpeeds
@@ -126,7 +126,7 @@ public class Drive extends SubsystemBase {
    * you have to point the robot forward relative to the blue alliance.
    */
   public void teleopResetGyro() {
-    drive.resetOdometry(new Pose2d(drive.getPose().getTranslation(), Rotation2d.fromDegrees(RobotContainer.isRedAlliance("Drive::ZeroGyro()") ? 180 : 0)));
+    drive.resetOdometry(new Pose2d(getPoseEfficiently().getTranslation(), Rotation2d.fromDegrees(RobotContainer.isRedAlliance("Drive::ZeroGyro()") ? 180 : 0)));
   }
 
   /**
@@ -134,9 +134,24 @@ public class Drive extends SubsystemBase {
    * @return If odometry exceeds the border of the field.
    */
   public boolean odometryOutOfRange() {
-    var pose = drive.getPose();
+    var pose = getPoseEfficiently();
     return pose.getX() < 0 || pose.getX() > AprilTag.fieldLayout.getFieldLength()
       || pose.getY() < 0 || pose.getY() > AprilTag.fieldLayout.getFieldWidth();
+  }
+
+  /**
+   * Get the cached robot pose from SwerveDrive's Field2d.
+   * <p>Significantly faster than {@code drive.getPose()} since this does not use the pose estimator
+   * directly, so code doesn't have to wait for {@code drive.odometryLock}.
+   * @return The pose of the robot.
+   */
+  public Pose2d getPoseEfficiently() {
+    /*
+     * The robot pose on the field is updated at the same time as odometry, so getting the robot
+     * pose in this way means the code doesn't have to wait on 'drive.odometryLock'.
+     * HOWEVER, it doesn't update when telemetry verbosity is below 'low' (so don't do that).
+     */
+    return drive.field.getRobotPose();
   }
 
   /**

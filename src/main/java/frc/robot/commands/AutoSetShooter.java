@@ -57,7 +57,7 @@ public class AutoSetShooter extends Command {
 
   @Override
   public void execute() {
-    final Pose2d robotPose = RobotContainer.drive.drive.getPose();
+    final Pose2d robotPose = RobotContainer.drive.getPoseEfficiently();
     final double distanceToSpeaker = robotPose.getTranslation().getDistance(speakerTranslation);
     final double pivotDistanceToSpeaker = distanceToSpeaker + shooterDistanceFromCenter;
     heightOffset = SmartDashboard.getNumber("Height Offset", heightOffset);

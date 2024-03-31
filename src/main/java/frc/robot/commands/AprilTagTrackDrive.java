@@ -95,7 +95,7 @@ public class AprilTagTrackDrive extends Command {
   private Rotation2d getHeadingToTag() {
     // strip the rotation component of the apriltag pose so coordinates align with the field
     Pose2d aprilTagPose = new Pose2d(AprilTag.getPose2d(trackedAprilTagID).getTranslation(), new Rotation2d());
-    Transform2d relativePose = RobotContainer.drive.drive.getPose().minus(aprilTagPose);
+    Transform2d relativePose = RobotContainer.drive.getPoseEfficiently().minus(aprilTagPose);
     return Rotation2d.fromRadians(Math.atan2(relativePose.getY(), relativePose.getX()));
   }
 
