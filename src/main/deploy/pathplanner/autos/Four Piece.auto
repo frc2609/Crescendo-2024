@@ -2,21 +2,15 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2745940876497153,
-      "y": 4.657197006701706
+      "x": 1.32,
+      "y": 5.559321187148601
     },
-    "rotation": -32.0
+    "rotation": 0.0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
-        {
-          "type": "named",
-          "data": {
-            "name": "ResetPoseToLimelight"
-          }
-        },
         {
           "type": "named",
           "data": {
