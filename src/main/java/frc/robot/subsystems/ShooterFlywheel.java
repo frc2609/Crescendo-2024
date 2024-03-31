@@ -87,8 +87,8 @@ public class ShooterFlywheel extends SubsystemBase {
     leftMotor.setNeutralMode(NeutralModeValue.Coast);
     rightMotor.setNeutralMode(NeutralModeValue.Coast);
 
-    TalonFXUtil.setCurrentLimit(leftMotor, 60);
-    TalonFXUtil.setCurrentLimit(rightMotor, 60);
+    TalonFXUtil.setCurrentLimit(leftMotor, 80);
+    TalonFXUtil.setCurrentLimit(rightMotor, 80);
 
     logger.addLoggable("Shooter/Flywheel/Left RPM", () -> leftMotor.getRotorVelocity().getValueAsDouble() * 60, true);
     logger.addLoggable("Shooter/Flywheel/Right RPM", () -> rightMotor.getRotorVelocity().getValueAsDouble() * 60, true);
