@@ -88,10 +88,7 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {
-    RobotContainer.rearLimelight.estimateRobotPose();
-    RobotContainer.sideLimelight.estimateRobotPose();
-  }
+  public void autonomousPeriodic() {}
 
   @Override
   public void autonomousExit() {}
