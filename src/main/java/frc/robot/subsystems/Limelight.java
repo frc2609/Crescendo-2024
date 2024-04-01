@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -91,7 +90,7 @@ public class Limelight extends SubsystemBase {
    */
   public void estimateRobotPose() {
     setPipeline(Pipeline.localizeRobot);
-    PoseEstimate measurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(name);
+    PoseEstimate measurement = getPoseEstimate();
     if (measurement.tagCount >= 1) {
       SmartDashboard.putNumber("Limelight/" + name + "/Distance from Odometry", getOdometryDifference(measurement.pose));
       
@@ -129,30 +128,25 @@ public class Limelight extends SubsystemBase {
   }
 
   /**
-   * Get the current detected pose. May or may not be valid.
-   * @return The current detected robot pose if valid or Optional.empty() if not.
+   * Get the current pose estimate from LimelightHelpers.
+   * <p>Also logs some data to SmartDashboard.
+   * @return Current pose estimate.
    */
-  public Optional<Pose2d> getPose() {
-    // TODO: check in periodic and set to member variable (instead of potentially calling multiple times per loop)
-    if (!LimelightHelpers.getTV(name)) { 
-      SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", false);
-      return Optional.empty();
-    } else {
-      var pose = LimelightHelpers.getBotPose2d_wpiBlue(name);
-      SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", true);
-      RobotContainer.drive.drive.field.getObject(name + " Estimated Pose").setPose(pose);
-      return Optional.of(pose);
-    }
+  public PoseEstimate getPoseEstimate() {
+    PoseEstimate measurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(name);
+    SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", measurement.tagCount >= 1);
+    RobotContainer.drive.drive.field.getObject(name + " Estimated Pose").setPose(measurement.pose);
+    return measurement;
   }
 
   /**
-   * Check if the current detected pose is valid.
-   * @return If the current detected pose is valid.
+   * Check if the provided pose estimate is valid and within the field.
+   * @return If the provided pose estimate is valid.
    */
   public boolean isPoseValid() {
-    // sketchy, could be valid when called but invalid when actually detecting
-    // TODO: record pose to member then check that for validity
-    return isPoseValid(getPose());
+    // TODO: still sketchy, as pose can change between calls to getPoseEstimate()
+    var measurement = getPoseEstimate();
+    return poseWithinField(measurement.pose) && measurement.tagCount >= 1;
   }
 
   /**
@@ -160,15 +154,10 @@ public class Limelight extends SubsystemBase {
    */
   public void resetRobotPose() {
     setPipeline(Pipeline.localizeRobot);
-    if (!LimelightHelpers.getTV(name)) { 
-      SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", false);
-      return;
+    PoseEstimate measurement = getPoseEstimate();
+    if (measurement.tagCount >= 1) {
+      RobotContainer.drive.drive.resetOdometry(measurement.pose);
     }
-    SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", true);
-    var pose = LimelightHelpers.getBotPose2d_wpiBlue(name);
-
-    RobotContainer.drive.drive.field.getObject(name + " Estimated Pose").setPose(pose);
-    RobotContainer.drive.drive.resetOdometry(pose);
   }
 
   /**
@@ -218,22 +207,9 @@ public class Limelight extends SubsystemBase {
    * @param pose Pose to check.
    * @return Whether pose is within game field.
    */
-  public static boolean isPoseValid(Pose2d pose) {
+  public static boolean poseWithinField(Pose2d pose) {
     return (pose.getX() >= 0 && pose.getX() <= AprilTag.fieldLayout.getFieldLength())
       && (pose.getY() >= 0 && pose.getY() <= AprilTag.fieldLayout.getFieldWidth());
-  }
-
-  /**
-   * Check whether pose is present and within game field.
-   * @param pose Optional<Pose2d> to check.
-   * @return Whether pose is present and within game field.
-   */
-  public static boolean isPoseValid(Optional<Pose2d> pose) {
-    if (pose.isPresent()) {
-      return isPoseValid(pose.get());
-    } else {
-      return false;
-    }
   }
 
   /**
