@@ -41,9 +41,8 @@ public class Limelight extends SubsystemBase {
   /**
    * Creates a new Limelight.
    * @param name Limelight NetworkTables name.
-   * @param number Determines order of port forwarding (0 is from 5800:5809, 1 is 5810:5819, etc). Should be unique for every Limelight.
    */
-  public Limelight(String name, int number) {
+  public Limelight(String name) {
     this.name = name;
     distanceStdDevMultiplier = new TunableNumber("Limelight/" + name + "/Distance Std Dev Multiplier", 0.1);
     velocityStdDevMultiplier = new TunableNumber("Limelight/" + name + "/Velocity Std Dev Multiplier", 0.5);
@@ -52,7 +51,7 @@ public class Limelight extends SubsystemBase {
     RobotContainer.drive.drive.field.getObject(name + " Estimated Pose");
 
     // setup port forwarding
-    for (int port = 5800 + 10 * number; port <= 5809 + 10 * number; port++) {
+    for (int port = 5800; port <= 5809; port++) {
       PortForwarder.add(port, name + ".local", port);
     }
   }
@@ -98,9 +97,10 @@ public class Limelight extends SubsystemBase {
       SmartDashboard.putNumber("Limelight/" + name + "/XY Std Devs", xyStds);
 
       RobotContainer.drive.drive.addVisionMeasurement(
-        measurement.pose,
-        measurement.latency,
-        VecBuilder.fill(xyStds, xyStds, 9999999) // ignore rotation
+        // ignore rotation
+        new Pose2d(measurement.pose.getTranslation(), RobotContainer.drive.drive.getOdometryHeading()),
+        measurement.timestampSeconds,
+        VecBuilder.fill(xyStds, xyStds, 1)
       );
     }
   }
