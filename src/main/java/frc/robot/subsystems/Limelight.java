@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
@@ -22,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.AprilTag;
 import frc.robot.utils.LimelightHelpers;
+import frc.robot.utils.TunableNumber;
 import frc.robot.utils.LimelightHelpers.PoseEstimate;
 
 public class Limelight extends SubsystemBase {
@@ -36,6 +36,8 @@ public class Limelight extends SubsystemBase {
     }
   }
   private final String name;
+  private final TunableNumber velocityStdDevMultiplier;
+  private final TunableNumber distanceStdDevMultiplier;
 
   /**
    * Creates a new Limelight.
@@ -44,11 +46,13 @@ public class Limelight extends SubsystemBase {
    */
   public Limelight(String name, int number) {
     this.name = name;
-    SmartDashboard.putNumber("Limelight/" + name + "/Distance Std Devs", 0.1);
-    SmartDashboard.putNumber("Limelight/" + name + "/Velocity Std Devs", 0.5);
+    distanceStdDevMultiplier = new TunableNumber("Limelight/" + name + "/Distance Std Dev Multiplier", 0.1);
+    velocityStdDevMultiplier = new TunableNumber("Limelight/" + name + "/Velocity Std Dev Multiplier", 0.5);
+
     // create the limelight pose object immediately instead of the first time it is used
     RobotContainer.drive.drive.field.getObject(name + " Estimated Pose");
 
+    // setup port forwarding
     for (int port = 5800 + 10 * number; port <= 5809 + 10 * number; port++) {
       PortForwarder.add(port, name + ".local", port);
     }
@@ -57,21 +61,29 @@ public class Limelight extends SubsystemBase {
   @Override
   public void periodic() {}
 
-  /**
-   * Calculate standard deviations for the robot's pose estimator based on the accuracy of the
-   * current detected pose.
-   * @return [x/y std devs, rotation std devs]
-   */
-  public double[] calculateStdDevs() {
-    double distanceStdDevMultiplier = SmartDashboard.getNumber("Limelight/" + name + "/Distance Std Devs", 0.1);
-    double velocityStdDevMultiplier = SmartDashboard.getNumber("Limelight/" + name + "/Velocity Std Devs", 0.5);
-    double tagArea = LimelightHelpers.getTA(name); // SKETCHY
-    double xyStds = distanceStdDevMultiplier * (1 / tagArea) + velocityStdDevMultiplier * RobotContainer.drive.getVelocity();
-    double rotStds = 20;
-    SmartDashboard.putNumber("Limelight/" + name + "/TA", tagArea);
-    SmartDashboard.putNumber("Limelight/" + name + "/XY STDS", xyStds);
-    SmartDashboard.putNumber("Limelight/" + name + "/ROT STDS", rotStds);
-    return new double[] { xyStds, rotStds };
+  // TODO: try all of these (or a combination of these) to see which is most effective
+
+  // why: accuracy decreases with tag distance and velocity
+  public double calculateXYStdDevs1(PoseEstimate measurement) {
+    return measurement.avgTagDist * distanceStdDevMultiplier.get()
+      + Math.max(Math.abs(RobotContainer.drive.getVelocity()) * velocityStdDevMultiplier.get(), 0);
+  }
+
+  // why: accuracy increases substantially with more than 1 tag
+  public double calculateXYStdDevs2(PoseEstimate measurement) {
+    return measurement.tagCount >= 2 ? 0.7 : 1.4;
+  }
+
+  // why: accuracy increases substantially with more than 1 tag (more aggressive version of #2)
+  public double calculateXYStdDevs3(PoseEstimate measurement) {
+    return measurement.tagCount >= 2 ? 0.7 : 9999999;
+  }
+
+  // why: invalid poses often have inaccurate rotation components
+  public double calculateXYStdDevs4(PoseEstimate measurement) {
+    double rotationError = RobotContainer.drive.getPoseEfficiently().getRotation()
+      .minus(measurement.pose.getRotation()).getDegrees();
+    return (rotationError / 45.0); // 1m std dev per ___ deg off
   }
 
   /**
@@ -79,36 +91,19 @@ public class Limelight extends SubsystemBase {
    */
   public void estimateRobotPose() {
     setPipeline(Pipeline.localizeRobot);
-    var detectedPose = getPose();
-    if (isPoseValid(detectedPose)) {
-      double latencyMS = LimelightHelpers.getLatency_Capture(name) / 1000.0;
-      double[] stdDevs = calculateStdDevs();
-
-      RobotContainer.drive.drive.addVisionMeasurement(new Pose2d(detectedPose.get().getTranslation(), RobotContainer.drive.drive.getOdometryHeading()), Timer.getFPGATimestamp() - latencyMS, VecBuilder.fill(stdDevs[0], stdDevs[0], Units.degreesToRadians(stdDevs[1])));
-      
-      SmartDashboard.putNumber("Limelight/" + name + "/Latency (MS)", latencyMS);
-      SmartDashboard.putNumber("Limelight/" + name + "/Odometry Error", getOdometryDifference(detectedPose.get()));
-      SmartDashboard.putNumber("Limelight/" + name + "/Total Target Area", LimelightHelpers.getTA(name));
-    }
-  }
-
-  public void simpleEstimateRobotPose() {
     PoseEstimate measurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(name);
-    if (measurement.tagCount >= 2) {
+    if (measurement.tagCount >= 1) {
+      SmartDashboard.putNumber("Limelight/" + name + "/Distance from Odometry", getOdometryDifference(measurement.pose));
+      
+      double xyStds = calculateXYStdDevs2(measurement);
+      SmartDashboard.putNumber("Limelight/" + name + "/XY Std Devs", xyStds);
+
       RobotContainer.drive.drive.addVisionMeasurement(
         measurement.pose,
-        measurement.timestampSeconds,
-        VecBuilder.fill(.7, .7, 9999999)
+        measurement.latency,
+        VecBuilder.fill(xyStds, xyStds, 9999999) // ignore rotation
       );
-    } /*else if (limelightMeasurement.tagCount == 1) {
-      RobotContainer.drive.drive.addVisionMeasurement(
-        limelightMeasurement.pose,
-        limelightMeasurement.timestampSeconds,
-        VecBuilder.fill(1.4, 1.4, 9999999)
-      );
-    }*/
-    SmartDashboard.putNumber("Limelight/" + name + "/Latency (MS)", measurement.latency);
-    SmartDashboard.putNumber("Limelight/" + name + "/Odometry Error", getOdometryDifference(measurement.pose));
+    }
   }
 
   /**
