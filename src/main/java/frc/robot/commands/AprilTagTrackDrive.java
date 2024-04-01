@@ -98,7 +98,7 @@ public class AprilTagTrackDrive extends Command {
     // TODO: this command never asks for vision measurements itself
       // if vision stops being updated, command will use odometry only (unreliable)
       // this should be fixed, or documented.
-    Transform2d relativePose = RobotContainer.drive.drive.getPose().minus(aprilTagPose);
+    Transform2d relativePose = RobotContainer.drive.getPoseEfficiently().minus(aprilTagPose);
     return Rotation2d.fromRadians(Math.atan2(relativePose.getY(), relativePose.getX()));
   }
 
