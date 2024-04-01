@@ -40,6 +40,8 @@ public class Limelight extends SubsystemBase {
     this.name = name;
     SmartDashboard.putNumber("Limelight/" + name + "/Distance Std Devs", 0.1);
     SmartDashboard.putNumber("Limelight/" + name + "/Velocity Std Devs", 0.5);
+    // create the limelight pose object immediately instead of the first time it is used
+    RobotContainer.drive.drive.field.getObject(name + " Estimated Pose");
   }
 
   @Override
