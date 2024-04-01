@@ -27,7 +27,11 @@ public class ShootNote extends SequentialCommandGroup {
           "Commands/ShootNote"
         ), // deadline
         alignToSpeaker,
-        autoSetShooter
+        autoSetShooter,
+        // run the intake if the note hasn't reached the sensor yet
+        // this is necessary because this command group interrupts any intake commands
+        RobotContainer.intake.getIntakeNote()//, 
+        // TODO: temporarily commented out; makes auto work better but teleop becomes useless
         // RobotContainer.rearLimelight.getEstimateRobotPose(),
         // RobotContainer.sideLimelight.getEstimateRobotPose()
       ),

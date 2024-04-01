@@ -47,8 +47,6 @@ public class Robot extends TimedRobot {
     robotContainer = new RobotContainer();
     RobotContainer.led.setDrive(Pattern.INTAKE_IDLE, BlinkMode.SOLID);
     RobotContainer.led.setHuman(Pattern.FIRE, BlinkMode.FIRE);
-    RobotContainer.drive.drive.field.getObject("limelight Estimated Pose");
-    RobotContainer.drive.drive.field.getObject("limelight-shooter Estimated Pose");
 
     // preload PathPlanner follow path command so it doesn't delay autonomous
     FollowPathCommand.warmupCommand().schedule();
@@ -88,10 +86,7 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {
-    // RobotContainer.rearLimelight.estimateRobotPose();
-    // RobotContainer.sideLimelight.estimateRobotPose();
-  }
+  public void autonomousPeriodic() {}
 
   @Override
   public void autonomousExit() {}

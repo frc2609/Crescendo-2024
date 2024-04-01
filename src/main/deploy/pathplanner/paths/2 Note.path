@@ -1,0 +1,81 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.32,
+        "y": 5.559321187148601
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.3200000000000003,
+        "y": 5.559321187148601
+      },
+      "isLocked": false,
+      "linkedName": "Subwoofer"
+    },
+    {
+      "anchor": {
+        "x": 2.897191974886476,
+        "y": 5.559321187148601
+      },
+      "prevControl": {
+        "x": 1.8971919748864758,
+        "y": 5.559321187148601
+      },
+      "nextControl": {
+        "x": 3.897191974886476,
+        "y": 5.559321187148601
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.9247031587269827,
+        "y": 4.762587072460329
+      },
+      "prevControl": {
+        "x": 2.9805913758546865,
+        "y": 5.248371394629597
+      },
+      "nextControl": {
+        "x": 0.8876340785427408,
+        "y": 4.285460903242856
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.897191974886476,
+        "y": 4.102960442762991
+      },
+      "prevControl": {
+        "x": 1.8971919748864758,
+        "y": 4.102960442762991
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "Test",
+  "previewStartingState": null,
+  "useDefaultConstraints": false
+}

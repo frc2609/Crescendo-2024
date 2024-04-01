@@ -40,6 +40,8 @@ public class Limelight extends SubsystemBase {
     this.name = name;
     SmartDashboard.putNumber("Limelight/" + name + "/Distance Std Devs", 0.1);
     SmartDashboard.putNumber("Limelight/" + name + "/Velocity Std Devs", 0.5);
+    // create the limelight pose object immediately instead of the first time it is used
+    RobotContainer.drive.drive.field.getObject(name + " Estimated Pose");
   }
 
   @Override
@@ -183,7 +185,7 @@ public class Limelight extends SubsystemBase {
    * @return Linear distance between vision and odometry poses.
    */
   public static double getOdometryDifference(Pose2d pose) {
-    var odometryDifference = RobotContainer.drive.drive.getPose().minus(pose);
+    var odometryDifference = RobotContainer.drive.getPoseEfficiently().minus(pose);
     return Math.hypot(odometryDifference.getX(), odometryDifference.getY());
   }
 

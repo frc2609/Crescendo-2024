@@ -114,7 +114,7 @@ public class LED extends SubsystemBase {
   }
 
   public void setBuffer() {
-    for(Segment segment : segments){
+    for (Segment segment : segments) {
       Color color = new Color(0, 0, 0);
       switch (segment.blinkMode) {
       case BLINKING_OFF:

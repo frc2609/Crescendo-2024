@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.BeaverLogger;
+import frc.robot.utils.TalonFXUtil;
 import frc.robot.utils.TunableNumber;
 
 public class ShooterFlywheel extends SubsystemBase {
@@ -86,12 +87,17 @@ public class ShooterFlywheel extends SubsystemBase {
     leftMotor.setNeutralMode(NeutralModeValue.Coast);
     rightMotor.setNeutralMode(NeutralModeValue.Coast);
 
+    TalonFXUtil.setCurrentLimit(leftMotor, 80);
+    TalonFXUtil.setCurrentLimit(rightMotor, 80);
+
     logger.addLoggable("Shooter/Flywheel/Left RPM", () -> leftMotor.getRotorVelocity().getValueAsDouble() * 60, true);
     logger.addLoggable("Shooter/Flywheel/Right RPM", () -> rightMotor.getRotorVelocity().getValueAsDouble() * 60, true);
     logger.addLoggable("Shooter/Flywheel/Left Target RPM", () -> leftMotor.getClosedLoopReference().getValueAsDouble() * 60, true);
     logger.addLoggable("Shooter/Flywheel/Right Target RPM", () -> rightMotor.getClosedLoopReference().getValueAsDouble() * 60, true);
     logger.addLoggable("Shooter/Flywheel/Left Duty Cycle", () -> leftMotor.getDutyCycle().getValueAsDouble(), true);
     logger.addLoggable("Shooter/Flywheel/Right Duty Cycle", () -> rightMotor.getDutyCycle().getValueAsDouble(), true);
+    logger.addLoggable("Shooter/Flywheel/Left Current (A)", () -> leftMotor.getSupplyCurrent().getValueAsDouble(), true);
+    logger.addLoggable("Shooter/Flywheel/Right Current (A)", () -> leftMotor.getSupplyCurrent().getValueAsDouble(), true);
   }
 
   @Override
