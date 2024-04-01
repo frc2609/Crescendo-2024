@@ -37,6 +37,10 @@ public class Intake extends SubsystemBase {
     intakeMotor.setNeutralMode(NeutralMode.Brake);
     intakeMotor.setInverted(true);
     wideIntakeMotor.setInverted(false);
+
+    SmartDashboard.putBoolean("Intake/Feeding", false);
+    SmartDashboard.putBoolean("Intake/Intaking", false);
+    SmartDashboard.putBoolean("Intake/Expelling", false);
   }
 
   @Override
@@ -82,8 +86,14 @@ public class Intake extends SubsystemBase {
    */
   public Command getIntakeNote() {
     return Commands.startEnd(
-      () -> setMotor(0.7),
-      () -> setMotor(0),
+      () -> { 
+        setMotor(0.7);
+        SmartDashboard.putBoolean("Intake/Intaking", true);
+      },
+      () -> {
+        setMotor(0);
+        SmartDashboard.putBoolean("Intake/Intaking", false);
+      },
       this
     ).until(this::getSensor);
   }
@@ -94,10 +104,14 @@ public class Intake extends SubsystemBase {
    */
   public ParallelRaceGroup getExpelNote() {
     return Commands.startEnd(
-      () -> setMotor(-1),
+      () -> {
+        setMotor(-1);
+        SmartDashboard.putBoolean("Intake/Expelling", true);
+      },
       () -> { 
         setMotor(0);
         noteHeld = false;
+        SmartDashboard.putBoolean("Intake/Expelling", false);
       },
       this
     ).withTimeout(0.2);
@@ -109,10 +123,14 @@ public class Intake extends SubsystemBase {
    */
   public ParallelRaceGroup getFeedNote() {
     return Commands.startEnd(
-      () -> setMotor(1),
+      () -> {
+        setMotor(1);
+        SmartDashboard.putBoolean("Intake/Feeding", true);
+      },
       () -> { 
         setMotor(0);
         noteHeld = false;
+        SmartDashboard.putBoolean("Intake/Feeding", false);
       },
       this
     ).withTimeout(1.0);
