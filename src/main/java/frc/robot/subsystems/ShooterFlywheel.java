@@ -72,11 +72,11 @@ public class ShooterFlywheel extends SubsystemBase {
 
   /** Creates a new ShooterFlywheel. */
   public ShooterFlywheel() {
-    slot0Configs.kS = 0.0;
-    slot0Configs.kV = 0.14;
-    slot0Configs.kP = 0.0;
-    slot0Configs.kI = 0.0;
-    slot0Configs.kD = 0.0;
+    slot0Configs.kS = kS.get();
+    slot0Configs.kV = kV.get();
+    slot0Configs.kP = kP.get();
+    slot0Configs.kI = kI.get();
+    slot0Configs.kD = kD.get();
 
     leftMotor.getConfigurator().apply(slot0Configs);
     rightMotor.getConfigurator().apply(slot0Configs);
