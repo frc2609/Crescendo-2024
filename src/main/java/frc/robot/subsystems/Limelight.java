@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.AprilTag;
-import frc.robot.utils.LimeLightHelpers;
+import frc.robot.utils.LimelightHelpers;
 
 public class Limelight extends SubsystemBase {
   public static enum Pipeline {
@@ -55,7 +55,7 @@ public class Limelight extends SubsystemBase {
   public double[] calculateStdDevs() {
     double distanceStdDevMultiplier = SmartDashboard.getNumber("Limelight/" + name + "/Distance Std Devs", 0.1);
     double velocityStdDevMultiplier = SmartDashboard.getNumber("Limelight/" + name + "/Velocity Std Devs", 0.5);
-    double tagArea = LimeLightHelpers.getTA(name); // SKETCHY
+    double tagArea = LimelightHelpers.getTA(name); // SKETCHY
     double xyStds = distanceStdDevMultiplier * (1 / tagArea) + velocityStdDevMultiplier * RobotContainer.drive.getVelocity();
     double rotStds = 20;
     SmartDashboard.putNumber("Limelight/" + name + "/TA", tagArea);
@@ -71,14 +71,14 @@ public class Limelight extends SubsystemBase {
     setPipeline(Pipeline.localizeRobot);
     var detectedPose = getPose();
     if (isPoseValid(detectedPose)) {
-      double latencyMS = LimeLightHelpers.getLatency_Capture(name) / 1000.0;
+      double latencyMS = LimelightHelpers.getLatency_Capture(name) / 1000.0;
       double[] stdDevs = calculateStdDevs();
 
       RobotContainer.drive.drive.addVisionMeasurement(new Pose2d(detectedPose.get().getTranslation(), RobotContainer.drive.drive.getOdometryHeading()), Timer.getFPGATimestamp() - latencyMS, VecBuilder.fill(stdDevs[0], stdDevs[0], Units.degreesToRadians(stdDevs[1])));
       
       SmartDashboard.putNumber("Limelight/" + name + "/Latency (MS)", latencyMS);
       SmartDashboard.putNumber("Limelight/" + name + "/Odometry Error", getOdometryDifference(detectedPose.get()));
-      SmartDashboard.putNumber("Limelight/" + name + "/Total Target Area", LimeLightHelpers.getTA(name));
+      SmartDashboard.putNumber("Limelight/" + name + "/Total Target Area", LimelightHelpers.getTA(name));
     }
   }
 
@@ -88,7 +88,7 @@ public class Limelight extends SubsystemBase {
    * @return The amount of targets detected.
    */
   public int getNumTargetsFast(boolean printTime) {
-    String jsonDump = LimeLightHelpers.getJSONDump(name);
+    String jsonDump = LimelightHelpers.getJSONDump(name);
     double start = Timer.getFPGATimestamp();
     Pattern pattern = Pattern.compile("\"fID\":\\d+");
     Matcher matcher = pattern.matcher(jsonDump);
@@ -110,11 +110,11 @@ public class Limelight extends SubsystemBase {
    */
   public Optional<Pose2d> getPose() {
     // TODO: check in periodic and set to member variable (instead of potentially calling multiple times per loop)
-    if (!LimeLightHelpers.getTV(name)) { 
+    if (!LimelightHelpers.getTV(name)) { 
       SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", false);
       return Optional.empty();
     } else {
-      var pose = LimeLightHelpers.getBotPose2d_wpiBlue(name);
+      var pose = LimelightHelpers.getBotPose2d_wpiBlue(name);
       SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", true);
       RobotContainer.drive.drive.field.getObject(name + " Estimated Pose").setPose(pose);
       return Optional.of(pose);
@@ -136,12 +136,12 @@ public class Limelight extends SubsystemBase {
    */
   public void resetRobotPose() {
     setPipeline(Pipeline.localizeRobot);
-    if (!LimeLightHelpers.getTV(name)) { 
+    if (!LimelightHelpers.getTV(name)) { 
       SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", false);
       return;
     }
     SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", true);
-    var pose = LimeLightHelpers.getBotPose2d_wpiBlue(name);
+    var pose = LimelightHelpers.getBotPose2d_wpiBlue(name);
 
     RobotContainer.drive.drive.field.getObject(name + " Estimated Pose").setPose(pose);
     RobotContainer.drive.drive.resetOdometry(pose);
