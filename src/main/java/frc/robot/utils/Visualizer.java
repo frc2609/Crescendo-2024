@@ -44,7 +44,7 @@ public class Visualizer {
     
     // --- note
     // game pieces don't move with the robot, must do it manually
-    Pose3d intakePose = new Pose3d(RobotContainer.drive.drive.getPose()).transformBy(intakeTransform);
+    Pose3d intakePose = new Pose3d(RobotContainer.drive.getPoseEfficiently()).transformBy(intakeTransform);
     if (RobotContainer.intake.noteHeld) {
       // put the note into the intake
       notePublisher.set(intakePose.transformBy(new Transform3d(new Translation3d(0.16, 0, 0.08), new Rotation3d(0, 0.48869219, 0))));

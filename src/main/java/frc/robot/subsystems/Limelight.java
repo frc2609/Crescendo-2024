@@ -183,7 +183,7 @@ public class Limelight extends SubsystemBase {
    * @return Linear distance between vision and odometry poses.
    */
   public static double getOdometryDifference(Pose2d pose) {
-    var odometryDifference = RobotContainer.drive.drive.getPose().minus(pose);
+    var odometryDifference = RobotContainer.drive.getPoseEfficiently().minus(pose);
     return Math.hypot(odometryDifference.getX(), odometryDifference.getY());
   }
 
