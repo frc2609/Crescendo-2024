@@ -99,6 +99,8 @@ public class ShooterAngle extends SubsystemBase {
     relativeEncoder.setVelocityConversionFactor(velocityConversionFactor);
     SmartDashboard.putNumber("AngleFudge", angleFudge);
 
+    anglePID.setIZone(4.0);
+
     anglePID.setGoal(targetAngle.getDegrees());
 
     SmartDashboard.putData("Shooter/Angle/PID", anglePID);
@@ -194,8 +196,11 @@ public class ShooterAngle extends SubsystemBase {
         percentOutput = 0;
       }
     }
-    percentOutput = MathUtil.clamp(percentOutput, -1, 1);
-    SmartDashboard.putNumber("Shooter/Angle/Percent Output", percentOutput);
+    // there should be no reason we ever drive our shooter down more than 10%... Gravity will do it for us
+    percentOutput = MathUtil.clamp(percentOutput, -0.1, 1);
+    SmartDashboard.putNumber("Shooter/Angle/Target Output Voltage", percentOutput*12.0);
+    SmartDashboard.putNumber("Shooter/Angle/Output duty cycle", angleMotor.getAppliedOutput());
+    SmartDashboard.putNumber("Shooter/Angle/BusVoltage", angleMotor.getBusVoltage());
     angleMotor.setVoltage(percentOutput*12.0);
   }
 
