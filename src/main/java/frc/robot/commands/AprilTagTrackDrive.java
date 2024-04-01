@@ -58,6 +58,7 @@ public class AprilTagTrackDrive extends Command {
     Pose2d aprilTagPose = AprilTag.getPose2d(trackedAprilTagID);
     Rotation2d heading;
 
+    // TODO: report true for limelight pose portion *always* when in simulation
     if (!RobotContainer.drive.odometryOutOfRange() && (RobotContainer.rearLimelight.isPoseValid() || RobotContainer.sideLimelight.isPoseValid())) {
       odometryValidTimer.restart();
       heading = getHeadingToTag();
