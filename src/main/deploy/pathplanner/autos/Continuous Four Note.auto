@@ -1,0 +1,44 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.9213779065894765,
+      "y": 6.982849974219363
+    },
+    "rotation": 37.638071827374105
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "ResetPoseToLimelight"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Continuous Four Note"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeAndShootContinously"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
