@@ -196,7 +196,7 @@ public class ShooterAngle extends SubsystemBase {
     }
     percentOutput = MathUtil.clamp(percentOutput, -1, 1);
     SmartDashboard.putNumber("Shooter/Angle/Percent Output", percentOutput);
-    angleMotor.set(percentOutput);
+    angleMotor.setVoltage(percentOutput*12.0);
   }
 
   public void stop() {
