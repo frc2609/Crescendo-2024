@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.AprilTag;
 import frc.robot.utils.LimelightHelpers;
+import frc.robot.utils.LimelightHelpers.PoseEstimate;
 
 public class Limelight extends SubsystemBase {
   public static enum Pipeline {
@@ -89,6 +90,25 @@ public class Limelight extends SubsystemBase {
       SmartDashboard.putNumber("Limelight/" + name + "/Odometry Error", getOdometryDifference(detectedPose.get()));
       SmartDashboard.putNumber("Limelight/" + name + "/Total Target Area", LimelightHelpers.getTA(name));
     }
+  }
+
+  public void simpleEstimateRobotPose() {
+    PoseEstimate measurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(name);
+    if (measurement.tagCount >= 2) {
+      RobotContainer.drive.drive.addVisionMeasurement(
+        measurement.pose,
+        measurement.timestampSeconds,
+        VecBuilder.fill(.7, .7, 9999999)
+      );
+    } /*else if (limelightMeasurement.tagCount == 1) {
+      RobotContainer.drive.drive.addVisionMeasurement(
+        limelightMeasurement.pose,
+        limelightMeasurement.timestampSeconds,
+        VecBuilder.fill(1.4, 1.4, 9999999)
+      );
+    }*/
+    SmartDashboard.putNumber("Limelight/" + name + "/Latency (MS)", measurement.latency);
+    SmartDashboard.putNumber("Limelight/" + name + "/Odometry Error", getOdometryDifference(measurement.pose));
   }
 
   /**
