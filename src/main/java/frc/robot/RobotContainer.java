@@ -53,8 +53,8 @@ public class RobotContainer {
   public static final Drive drive = new Drive(false);
   public static final Elevator elevator = new Elevator();
   public static final Intake intake = new Intake();
-  public static final Limelight sideLimelight = new Limelight("limelight");
-  public static final Limelight rearLimelight = new Limelight("limelight-shooter");
+  public static final Limelight sideLimelight = new Limelight("limelight", 1);
+  public static final Limelight rearLimelight = new Limelight("limelight-shooter", 0);
   public static final ShooterAngle shooterAngle = new ShooterAngle();
   public static final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
   public static final Visualizer visualizer = new Visualizer();

@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -35,13 +36,21 @@ public class Limelight extends SubsystemBase {
   }
   private final String name;
 
-  /** Creates a new Limelight. */
-  public Limelight(String name) {
+  /**
+   * Creates a new Limelight.
+   * @param name Limelight NetworkTables name.
+   * @param number Determines order of port forwarding (0 is from 5800:5809, 1 is 5810:5819, etc). Should be unique for every Limelight.
+   */
+  public Limelight(String name, int number) {
     this.name = name;
     SmartDashboard.putNumber("Limelight/" + name + "/Distance Std Devs", 0.1);
     SmartDashboard.putNumber("Limelight/" + name + "/Velocity Std Devs", 0.5);
     // create the limelight pose object immediately instead of the first time it is used
     RobotContainer.drive.drive.field.getObject(name + " Estimated Pose");
+
+    for (int port = 5800 + 10 * number; port <= 5809 + 10 * number; port++) {
+      PortForwarder.add(port, name + ".local", port);
+    }
   }
 
   @Override
