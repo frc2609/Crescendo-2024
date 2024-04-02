@@ -15,8 +15,8 @@ public class ShootNoteContinuously extends ParallelCommandGroup {
    */
   public ShootNoteContinuously() {
     addCommands(
-      AprilTagTrackDrive.getAlignToSpeaker(),
-      new AutoSetShooter(SpinType.slowRightMotor)
+      new LineupWithSpeaker2D(),
+      new AutoSetShooter2D(SpinType.slowRightMotor)
     );
   }
 }

@@ -16,8 +16,8 @@ public class ShootNote extends SequentialCommandGroup {
    * then feeds game piece when shooter is ready and heading is aligned.
    */
   public ShootNote() {
-    var alignToSpeaker = AprilTagTrackDrive.getAlignToSpeaker();
-    var autoSetShooter = new AutoSetShooter(SpinType.slowRightMotor);
+    var alignToSpeaker = new LineupWithSpeaker2D();
+    var autoSetShooter = new AutoSetShooter2D(SpinType.slowRightMotor);
 
     addCommands(
       new ParallelDeadlineGroup(
