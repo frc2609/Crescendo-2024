@@ -4,15 +4,11 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
-import frc.robot.Constants.AprilTag;
-import frc.robot.Constants.AprilTag.ID;
 import frc.robot.utils.LimeLightHelpers;
 
 /**
@@ -62,9 +58,9 @@ public class LineupWithSpeaker2D extends Command {
       aligningToTag = false;
     }
     RobotContainer.drive.overrideHeading(heading);
-    SmartDashboard.putNumber("AprilTagTrack/Target Heading (Deg)", heading.getDegrees());
-    SmartDashboard.putBoolean("AprilTagTrack/Aligning to Odometry", aligningToTag);
-    SmartDashboard.putBoolean("AprilTagTrack/At Target", atTarget());
+    SmartDashboard.putNumber("LineupWithSpeaker2D/Target Heading (Deg)", heading.getDegrees());
+    SmartDashboard.putBoolean("LineupWithSpeaker2D/Aligning to Odometry", aligningToTag);
+    SmartDashboard.putBoolean("LineupWithSpeaker2D/At Target", atTarget());
 
   }
 
