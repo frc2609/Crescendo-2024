@@ -10,7 +10,7 @@
     "drive": 0
   },
   "rampRate": {
-    "drive": 0,
+    "drive": 0.25,
     "angle": 0.25
   }
 }
