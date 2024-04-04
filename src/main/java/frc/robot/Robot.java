@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.Constants.Swerve;
 import frc.robot.commands.IdleShooter;
 import frc.robot.commands.TeleopVelocityDrive;
 import frc.robot.subsystems.Elevator;
@@ -96,6 +97,7 @@ public class Robot extends TimedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+    RobotContainer.drive.drive.setMaximumSpeed(6.0);
     RobotContainer.drive.setDefaultCommand(new TeleopVelocityDrive(true));
   }
 
@@ -104,6 +106,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopExit() {
+    RobotContainer.drive.drive.setMaximumSpeed(Swerve.maxModuleSpeed);
     RobotContainer.drive.removeDefaultCommand();
   }
 
