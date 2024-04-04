@@ -54,7 +54,7 @@ public class LineupWithSpeaker2D extends Command {
       heading = RobotContainer.drive.getPoseEfficiently().getRotation();
     }else{
       // limelight doesn't see tag -> turn robot towards the wall
-      heading = new Rotation2d(0);
+      heading = new Rotation2d(RobotContainer.isRedAlliance("LineupWithSpeaker2d") ? 180 : 0);
       aligningToTag = false;
     }
     RobotContainer.drive.overrideHeading(heading);
