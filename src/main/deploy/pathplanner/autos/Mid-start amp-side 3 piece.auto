@@ -52,6 +52,24 @@
           "data": {
             "name": "ShootNote"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 to 8"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "8 to Amp Park"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
         }
       ]
     }
