@@ -14,12 +14,6 @@
         {
           "type": "named",
           "data": {
-            "name": "ResetPoseToLimelight"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "ShootNote"
           }
         },
