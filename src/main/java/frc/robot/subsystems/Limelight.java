@@ -191,6 +191,7 @@ public class Limelight extends SubsystemBase {
 
   /**
    * Check whether pose is within game field.
+   * 
    * @param pose Pose to check.
    * @return Whether pose is within game field.
    */

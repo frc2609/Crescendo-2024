@@ -67,7 +67,10 @@ public class LED extends SubsystemBase {
   
   public LED() {
     segments = new ArrayList<>();
-    segments.add(new Segment("drive", 0, 46, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
+    segments.add(new Segment("drive", 0, 27, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
+    segments.add(new Segment("align", 28, 34, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
+    segments.add(new Segment("flywheel", 35, 40, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
+    segments.add(new Segment("angle", 41, 46, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
     segments.add(new Segment("human", 47, 91, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
     led_dev = new AddressableLED(1);
     led_dev.setLength(92);

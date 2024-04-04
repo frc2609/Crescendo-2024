@@ -20,6 +20,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
+import frc.robot.subsystems.LED.BlinkMode;
+import frc.robot.subsystems.LED.Pattern;
 import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.TalonFXUtil;
 import frc.robot.utils.TunableNumber;
@@ -113,6 +116,11 @@ public class ShooterFlywheel extends SubsystemBase {
     }
 
     SmartDashboard.putBoolean("Shooter/Flywheel/At Set Speed", atSetSpeed());
+    if (atSetSpeed()){
+      RobotContainer.led.setSegmentPattern("flywheel", Pattern.INTAKE_NOTE, BlinkMode.SOLID);
+    }else{
+      RobotContainer.led.setSegmentPattern("flywheel", Pattern.RED, BlinkMode.SOLID);
+    }
     logger.logAll();
   }
 

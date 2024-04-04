@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.LED.BlinkMode;
+import frc.robot.subsystems.LED.Pattern;
 import frc.robot.utils.LimeLightHelpers;
 
 /**
@@ -60,6 +62,11 @@ public class LineupWithSpeaker2D extends Command {
     RobotContainer.drive.overrideHeading(heading);
     SmartDashboard.putNumber("LineupWithSpeaker2D/Target Heading (Deg)", heading.getDegrees());
     SmartDashboard.putBoolean("LineupWithSpeaker2D/Aligning to Odometry", aligningToTag);
+    if(atTarget()){
+      RobotContainer.led.setSegmentPattern("align", Pattern.INTAKE_NOTE, BlinkMode.SOLID);
+    }else{
+      RobotContainer.led.setSegmentPattern("align", Pattern.RED, BlinkMode.SOLID);
+    }
     SmartDashboard.putBoolean("LineupWithSpeaker2D/At Target", atTarget());
 
   }

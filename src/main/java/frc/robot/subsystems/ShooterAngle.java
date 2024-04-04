@@ -26,6 +26,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
+import frc.robot.subsystems.LED.BlinkMode;
+import frc.robot.subsystems.LED.Pattern;
 import frc.robot.utils.Alert;
 import frc.robot.utils.ArmFeedforward;
 import frc.robot.utils.Alert.AlertType;
@@ -156,6 +159,11 @@ public class ShooterAngle extends SubsystemBase {
     // set sim mechanism here (using % output from Spark)
 
     SmartDashboard.putBoolean("Shooter/Angle/At Target", atTarget());
+    if(atTarget()){
+      RobotContainer.led.setSegmentPattern("angle", Pattern.INTAKE_NOTE, BlinkMode.SOLID);
+    }else{
+      RobotContainer.led.setSegmentPattern("angle", Pattern.RED, BlinkMode.SOLID);
+    }
     logger.logAll();
   }
 
