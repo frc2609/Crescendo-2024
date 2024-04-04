@@ -91,7 +91,7 @@ public class RobotContainer {
   private void configureBindings() {
     // Vision
     operatorController.start().onTrue(rearLimelight.getResetRobotPose());
-    operatorController.back().onTrue(sideLimelight.getResetRobotPose());
+    // operatorController.back().onTrue(sideLimelight.getResetRobotPose());
     operatorController.leftStick().whileTrue(rearLimelight.getEstimateRobotPose());
     operatorController.rightStick().whileTrue(sideLimelight.getEstimateRobotPose());
 
