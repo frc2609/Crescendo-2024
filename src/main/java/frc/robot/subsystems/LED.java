@@ -52,7 +52,8 @@ public class LED extends SubsystemBase {
     INTAKE_NOTE,
     INTAKE_IDLE,
     RED,
-    FIRE
+    FIRE,
+    WHITE
   };
 
   public static final Map<Pattern, Color> PATTERN_MAP = new HashMap<Pattern, Color>() {{
@@ -60,6 +61,7 @@ public class LED extends SubsystemBase {
     put(Pattern.INTAKE_NOTE, new Color(0, 100, 0));
     put(Pattern.INTAKE_IDLE, new Color(50, 0, 50));
     put(Pattern.RED, new Color(50, 0, 0));
+    put(Pattern.WHITE, new Color(255, 255, 255));
   }};
 
   

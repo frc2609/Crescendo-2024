@@ -50,7 +50,7 @@ public class Intake extends SubsystemBase {
       RobotContainer.led.setHuman(Pattern.FIRE, BlinkMode.FIRE);
     } else if (Math.abs(intakeMotor.getMotorOutputPercent()) > 0.0) {
       RobotContainer.led.setDrive(Pattern.INTAKE_NO_NOTE, BlinkMode.BLINKING_ON);
-      RobotContainer.led.setHuman(Pattern.INTAKE_NO_NOTE, BlinkMode.BLINKING_ON);
+      RobotContainer.led.setHuman(Pattern.WHITE, BlinkMode.BLINKING_ON);
     } else {
       RobotContainer.led.setDrive(Pattern.RED, BlinkMode.SOLID);
       RobotContainer.led.setHuman(Pattern.RED, BlinkMode.SOLID);
