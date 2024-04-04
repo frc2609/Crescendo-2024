@@ -1,0 +1,102 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.168910700160914,
+        "y": 3.5366726368260153
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.0940667872776535,
+        "y": 2.599805713163495
+      },
+      "isLocked": false,
+      "linkedName": "SafeShootingPos"
+    },
+    {
+      "anchor": {
+        "x": 5.354258240613484,
+        "y": 1.7800471549587875
+      },
+      "prevControl": {
+        "x": 4.02135534861298,
+        "y": 1.7679703547709502
+      },
+      "nextControl": {
+        "x": 6.687161132613989,
+        "y": 1.792123955146625
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.26312459757587,
+        "y": 2.435854001522554
+      },
+      "prevControl": {
+        "x": 6.825713812915803,
+        "y": 2.435854001522554
+      },
+      "nextControl": {
+        "x": 7.7005353822359375,
+        "y": 2.435854001522554
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.281967377058862,
+        "y": 2.435854001522554
+      },
+      "prevControl": {
+        "x": 7.860377261410728,
+        "y": 2.435854001522554
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 2.0999999999999996,
+      "rotationDegrees": 0,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "New Constraints Zone",
+      "minWaypointRelativePos": 1.5,
+      "maxWaypointRelativePos": 3.0,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 2.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0
+      }
+    }
+  ],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 5.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": {
+    "rotation": 0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": false
+}
