@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Mid-start to 2"
+            "pathName": "Mid-start to 2 prep"
           }
         },
         {
@@ -27,12 +27,6 @@
           "type": "path",
           "data": {
             "pathName": "2 prep to 2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "IntakeNote"
           }
         },
         {
