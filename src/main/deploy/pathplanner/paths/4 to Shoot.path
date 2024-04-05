@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.293678213604645,
-        "y": 0.749493538930016
+        "x": 8.35,
+        "y": 0.87
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.81363679198334,
-        "y": 1.2033729082272178
+        "x": 6.869958578378695,
+        "y": 1.3238793692972017
       },
       "isLocked": false,
       "linkedName": "Note 4"
@@ -46,7 +46,25 @@
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "HoldNote"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 4.0,
     "maxAcceleration": 4.0,

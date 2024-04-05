@@ -8,6 +8,12 @@
         {
           "type": "named",
           "data": {
+            "name": "SwitchTo2DPipeline"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "ShootNote"
           }
         },
