@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import frc.robot.commands.AutoScoreAmp;
 import frc.robot.commands.IdleShooter;
 import frc.robot.commands.MoveElevatorToPosition;
+import frc.robot.commands.PassthroughNote;
 // import frc.robot.commands.ResetIntakeAndElevator;
 import frc.robot.commands.MoveElevatorToPosition.Position;
 import frc.robot.commands.SetShooterToPreset.ShooterPreset;
@@ -40,6 +41,7 @@ import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterAngle;
 import frc.robot.subsystems.ShooterFlywheel;
+import frc.robot.subsystems.Limelight.Pipeline;
 import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.Visualizer;
 
@@ -72,6 +74,9 @@ public class RobotContainer {
     NamedCommands.registerCommand("PrintOnCheckpoint", Commands.print("Reached Checkpoint!"));
     NamedCommands.registerCommand("TimedDriveForward", new RunCommand(() -> drive.setChassisSpeeds(new ChassisSpeeds(isRedAlliance("TimedDriveForward") ? -1 : 1, 0, 0), true), drive).withTimeout(2));
     NamedCommands.registerCommand("WaitForButtonPress", Commands.waitUntil(driverController.back()));
+    NamedCommands.registerCommand("HoldNote", RobotContainer.intake.holdNote());
+    NamedCommands.registerCommand("SwitchTo2DPipeline", new InstantCommand(() -> rearLimelight.setPipeline(Pipeline.track2d)));
+    NamedCommands.registerCommand("PassthroughNote", new PassthroughNote());
 
     PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
       drive.drive.field.getObject("target pose").setPose(pose);
