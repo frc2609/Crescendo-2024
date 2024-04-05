@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.LED.BlinkMode;
@@ -50,7 +51,7 @@ public class Intake extends SubsystemBase {
       RobotContainer.led.setHuman(Pattern.FIRE, BlinkMode.FIRE);
     } else if (Math.abs(intakeMotor.getMotorOutputPercent()) > 0.0) {
       RobotContainer.led.setDrive(Pattern.INTAKE_NO_NOTE, BlinkMode.BLINKING_ON);
-      RobotContainer.led.setHuman(Pattern.WHITE, BlinkMode.BLINKING_ON);
+      RobotContainer.led.setHuman(Pattern.WHITE, BlinkMode.SOLID);
     } else {
       RobotContainer.led.setDrive(Pattern.RED, BlinkMode.SOLID);
       RobotContainer.led.setHuman(Pattern.RED, BlinkMode.SOLID);
@@ -64,6 +65,16 @@ public class Intake extends SubsystemBase {
   public boolean getSensor() {
     // intake sensor returns true when no note is present
     return RobotBase.isReal() ? !intakeSensor.get() : noteHeld;
+  }
+
+  public RunCommand holdNote(){
+    return new RunCommand(()-> {
+      if (getSensor()) {
+        setMotor(0.7);
+      } else {
+        setMotor(0);
+      }
+    }, this);
   }
 
   /**

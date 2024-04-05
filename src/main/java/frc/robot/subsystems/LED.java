@@ -58,10 +58,10 @@ public class LED extends SubsystemBase {
 
   public static final Map<Pattern, Color> PATTERN_MAP = new HashMap<Pattern, Color>() {{
     put(Pattern.INTAKE_NO_NOTE, new Color(50, 30, 0));
-    put(Pattern.INTAKE_NOTE, new Color(0, 100, 0));
+    put(Pattern.INTAKE_NOTE, new Color(0, 80, 0));
     put(Pattern.INTAKE_IDLE, new Color(50, 0, 50));
     put(Pattern.RED, new Color(50, 0, 0));
-    put(Pattern.WHITE, new Color(255, 255, 255));
+    put(Pattern.WHITE, new Color(150, 150, 150));
   }};
 
   
@@ -71,7 +71,7 @@ public class LED extends SubsystemBase {
     segments.add(new Segment("align", 28, 34, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
     segments.add(new Segment("flywheel", 35, 40, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
     segments.add(new Segment("angle", 41, 46, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
-    segments.add(new Segment("human", 47, 91, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
+    segments.add(new Segment("human", 60, 80, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
     led_dev = new AddressableLED(1);
     led_dev.setLength(92);
     led = new AddressableLEDBuffer(92);
