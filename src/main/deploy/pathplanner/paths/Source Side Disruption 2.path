@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.289990426134699,
-        "y": 0.7696215392430785
+        "x": 8.082883155780575,
+        "y": 2.0376855589659812
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.869150661378248,
-        "y": 2.2397960180535748
+        "x": 8.19999152123839,
+        "y": 2.974552482628502
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "DistruptorMid1"
     },
     {
       "anchor": {
-        "x": 8.289990426134699,
-        "y": 4.09478126648561
+        "x": 8.082883155780575,
+        "y": 7.4949353893001645
       },
       "prevControl": {
-        "x": 7.2243606025673595,
-        "y": 3.374494441296575
+        "x": 8.0982817797963,
+        "y": 6.63234500945025
       },
       "nextControl": null,
       "isLocked": false,
@@ -39,13 +39,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0,
+    "rotation": 70.6153546301242,
     "rotateFast": false
   },
   "reversed": false,
   "folder": "Source Side Disruption",
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": 65.00788572919731,
     "velocity": 0
   },
   "useDefaultConstraints": true

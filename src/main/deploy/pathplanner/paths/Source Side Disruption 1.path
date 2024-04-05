@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 8.299857368945508,
-        "y": 0.7696215392430785
+        "x": 8.082883155780575,
+        "y": 2.0376855589659812
       },
       "prevControl": {
-        "x": 7.299857368945508,
-        "y": 0.7696215392430785
+        "x": 7.918931444139634,
+        "y": 0.8900235774793939
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "DistruptorMid1"
     }
   ],
   "rotationTargets": [],
@@ -41,7 +41,7 @@
             {
               "type": "named",
               "data": {
-                "name": "IntakeNote"
+                "name": "PassthroughNote"
               }
             }
           ]
@@ -57,7 +57,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0,
+    "rotation": 66.61477894278616,
     "rotateFast": false
   },
   "reversed": false,
