@@ -96,7 +96,6 @@ public class RobotContainer {
   private void configureBindings() {
     // Vision
     operatorController.start().onTrue(rearLimelight.getResetRobotPose());
-    // operatorController.back().onTrue(sideLimelight.getResetRobotPose());
     operatorController.leftStick().whileTrue(rearLimelight.getEstimateRobotPose());
     operatorController.rightStick().whileTrue(sideLimelight.getEstimateRobotPose());
 
@@ -143,12 +142,13 @@ public class RobotContainer {
     // if you need them for something, you can remove them, if not, we're leaving them as backups
     driverController.a().toggleOnTrue(intake.getIntakeNote());
     driverController.b().onTrue(intake.getExpelNote());
-    driverController.y().onTrue(intake.getFeedNote());
+    driverController.y().onTrue(intake.getFeedNoteOnReady());
     driverController.x().onTrue(intake.getTurnOff());
     operatorController.a().toggleOnTrue(intake.getIntakeNote());
     operatorController.b().onTrue(intake.getExpelNote());
-    operatorController.y().onTrue(intake.getFeedNote());
+    operatorController.y().onTrue(intake.getFeedNoteOnReady());
     operatorController.x().onTrue(intake.getTurnOff());
+    operatorController.back().onTrue(intake.getFeedNote());
 
     // Shooter
     operatorController.leftBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtSpeaker, false));
