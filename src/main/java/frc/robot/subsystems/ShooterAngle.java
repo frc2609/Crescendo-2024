@@ -45,7 +45,7 @@ public class ShooterAngle extends SubsystemBase {
   // ** Angle Direction: +ve = Forward, towards elevator. **
   public static final Rotation2d forwardLimit = Rotation2d.fromDegrees(70);
   public static final Rotation2d forwardTolerance = Rotation2d.fromDegrees(3);
-  public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(9.1);
+  public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(8.9);
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(1);
   public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(1.5);
   private double angleFudge = 0.0;
