@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import frc.robot.commands.AutoScoreAmp;
 import frc.robot.commands.IdleShooter;
-import frc.robot.commands.IntakeAndShootContinously;
 import frc.robot.commands.MoveElevatorToPosition;
 import frc.robot.commands.PassthroughNote;
 // import frc.robot.commands.ResetIntakeAndElevator;
@@ -74,7 +73,6 @@ public class RobotContainer {
     NamedCommands.registerCommand("IntakeNoteRepeatedly", RobotContainer.intake.getIntakeNoteRepeatedly());
     NamedCommands.registerCommand("ShootNote", new ShootNote());
     NamedCommands.registerCommand("ShootNoteContinuously", new ShootNoteContinuously());
-    NamedCommands.registerCommand("IntakeAndShootContinously", new IntakeAndShootContinously());
     NamedCommands.registerCommand("PrintOnCheckpoint", Commands.print("Reached Checkpoint!"));
     NamedCommands.registerCommand("TimedDriveForward", new RunCommand(() -> drive.setChassisSpeeds(new ChassisSpeeds(isRedAlliance("TimedDriveForward") ? -1 : 1, 0, 0), true), drive).withTimeout(2));
     NamedCommands.registerCommand("WaitForButtonPress", Commands.waitUntil(driverController.back()));
