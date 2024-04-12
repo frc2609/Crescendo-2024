@@ -4,27 +4,23 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
-import frc.robot.Constants.AprilTag;
-import frc.robot.Constants.AprilTag.ID;
-import frc.robot.subsystems.Limelight;
-import frc.robot.subsystems.LED.BlinkMode;
-import frc.robot.subsystems.LED.Pattern;
+import frc.robot.subsystems.Limelight.Pipeline;
 import frc.robot.subsystems.ShooterFlywheel.SpinType;
 import frc.robot.utils.LimeLightHelpers;
 
 /**
- * Calculate shooter angle and RPM using the robot's distance from the speaker.
- * Assumes odometry is accurate and projectile flies in a straight line at calculated RPM.
+ * Calculate shooter angle and RPM using the robot's distance from the speaker according to the
+ * rear Limelight.
+ * Assumes projectile flies in a straight line at calculated RPM.
  * Works the best within alliance area.
  * Does not stop shooter when complete (call 'IdleShooter' if desired).
  */
 public class AutoSetShooter2D extends Command {
+  // TODO: move common constants into Constants.java...
   // Units in meters, positive = up or forward
   public static final double speakerHeight = 1.98;
   public static double heightOffset = 0; // 0.7
@@ -39,6 +35,7 @@ public class AutoSetShooter2D extends Command {
   public static final double farDistance = 5.0;
   public static final double farRPM = 5800;
   public static final double rpmEquationSlope = (farRPM - closeRPM) / (farDistance - closeDistance);
+  public static final double limelightPitch = 15;
   public static final double limelightHeight = 0.64;
   public static final double heightToTag = 1.343 - limelightHeight; // speaker tag height - limelight height (both from floor)
 
@@ -56,15 +53,15 @@ public class AutoSetShooter2D extends Command {
   @Override
   public void initialize() {
     isRunning = true;
-    LimeLightHelpers.setPipelineIndex("limelight-shooter", 1);
+    RobotContainer.rearLimelight.setPipeline(Pipeline.track2d);
   }
 
   @Override
   public void execute() {
     double distanceToSpeaker;
-    if(LimeLightHelpers.getTV("limelight-shooter")){
+    if (LimeLightHelpers.getTV("limelight-shooter")) {
       isRunning = true;
-      distanceToSpeaker = heightToTag/Math.tan(Math.toRadians(LimeLightHelpers.getTY("limelight-shooter")+15)); // 15 deg = limelight tilt angle from horizon
+      distanceToSpeaker = heightToTag / Math.tan(Math.toRadians(LimeLightHelpers.getTY("limelight-shooter") + limelightPitch));
       
       final double pivotDistanceToSpeaker = distanceToSpeaker + shooterDistanceFromCenter;
       heightOffset = SmartDashboard.getNumber("Height Offset", heightOffset);
@@ -72,7 +69,6 @@ public class AutoSetShooter2D extends Command {
     
       final Rotation2d angle = Rotation2d.fromRadians(Math.atan(targetHeight / pivotDistanceToSpeaker));
       final double rpm = rpmEquationSlope * (distanceToSpeaker - closeDistance) + closeRPM;
-
       
       RobotContainer.shooterAngle.setAngle(angle);
       RobotContainer.shooterFlywheel.setSpeed(rpm, spinType);
@@ -80,13 +76,12 @@ public class AutoSetShooter2D extends Command {
       SmartDashboard.putNumber("AutoSetShooter/Distance to Shooter Pivot (m)", pivotDistanceToSpeaker);
       SmartDashboard.putNumber("AutoSetShooter/Calculated Angle (deg)", angle.getDegrees());
       SmartDashboard.putNumber("AutoSetShooter/Calculated RPM", rpm);
-    }else{
+    } else {
       // No target found
       isRunning = false;
     }
 
     SmartDashboard.putBoolean("AutoSetShooter/At Target", atTarget());
-
   }
 
   @Override

@@ -11,28 +11,20 @@ import frc.robot.subsystems.ShooterFlywheel.SpinType;
 public class PassthroughNote extends Command {
   /** Creates a new PassthroughNote. */
   public PassthroughNote() {
-    // Use addRequirements() here to declare subsystem dependencies.
-    
+    // prevent shooter angle from moving while this is running
+    addRequirements(RobotContainer.intake, RobotContainer.shooterFlywheel, RobotContainer.shooterAngle);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
+  public void initialize() {
     RobotContainer.intake.setMotor(1);
     RobotContainer.shooterFlywheel.setSpeed(2000, SpinType.disable);
   }
 
-  // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return false;
+  public void end(boolean interrupted) {
+    RobotContainer.intake.setMotor(0);
+    RobotContainer.shooterFlywheel.coast();
   }
 }

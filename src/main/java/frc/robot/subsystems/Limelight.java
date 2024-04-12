@@ -24,6 +24,9 @@ import frc.robot.utils.LimeLightHelpers;
 
 public class Limelight extends SubsystemBase {
   public static enum Pipeline {
+    // front limelight
+    noteDetection(0),
+    // other limelights
     localizeRobot(0),
     track2d(1);
 

@@ -14,8 +14,8 @@ import frc.robot.subsystems.LED.Pattern;
 import frc.robot.utils.LimeLightHelpers;
 
 /**
- * Align robot heading to AprilTag according to automatically-detected alliance colour.
- * Works standalone or alongside a command controlling robot translation (or PathPlanner).
+ * Align robot heading to AprilTag using 2D tracking according to automatically-detected alliance
+ * colour. Works standalone or alongside a command controlling robot translation (or PathPlanner).
  */
 public class LineupWithSpeaker2D extends Command {
   private Timer odometryValidTimer = new Timer();
@@ -25,7 +25,6 @@ public class LineupWithSpeaker2D extends Command {
 
   /**
    * Creates a new LineupWithSpeaker2D.
-   * This class creates a command that turns the robot towards the speaker AprilTag using 2D tracking
    */
   public LineupWithSpeaker2D() {
     // does not require drive since this is intended to be used in addition to a command controlling translation
@@ -37,7 +36,8 @@ public class LineupWithSpeaker2D extends Command {
     odometryValidTimer.restart();
     isRunning = true;
     // Switch to 2D pipeline
-    // Note: the tag filter should be set to IDs 4 and 7
+    // TODO: the tag filter should be set to IDs 4 and 7
+    // TODO: set tag filter according to alliance colour
     LimeLightHelpers.setPipelineIndex("limelight-shooter", 1);
   }
 
@@ -45,30 +45,29 @@ public class LineupWithSpeaker2D extends Command {
   @Override
   public void execute() {
     Rotation2d heading;
-    if(LimeLightHelpers.getTV("limelight-shooter")){
+    if (LimeLightHelpers.getTV("limelight-shooter")) {
       aligningToTag = true;
       heading = RobotContainer.drive.drive.getOdometryHeading().plus(Rotation2d.fromDegrees(-LimeLightHelpers.getTX("limelight-shooter")));
       odometryValidTimer.restart();
-    }else if(!odometryValidTimer.hasElapsed(0.5)){
+    } else if (!odometryValidTimer.hasElapsed(0.5)) {
       // if we lose heading, wait for a bit before reverting to gyro
       aligningToTag = false;
       // stay at current heading and wait for the limelight to give an angle again
       heading = RobotContainer.drive.getPoseEfficiently().getRotation();
-    }else{
+    } else {
       // limelight doesn't see tag -> turn robot towards the wall
       heading = new Rotation2d(RobotContainer.isRedAlliance("LineupWithSpeaker2d") ? 180 : 0);
       aligningToTag = false;
     }
     RobotContainer.drive.overrideHeading(heading);
-    SmartDashboard.putNumber("LineupWithSpeaker2D/Target Heading (Deg)", heading.getDegrees());
-    SmartDashboard.putBoolean("LineupWithSpeaker2D/Aligning to Odometry", aligningToTag);
-    if(atTarget()){
+    if (atTarget()) {
       RobotContainer.led.setSegmentPattern("align", Pattern.INTAKE_NOTE, BlinkMode.SOLID);
-    }else{
+    } else {
       RobotContainer.led.setSegmentPattern("align", Pattern.RED, BlinkMode.SOLID);
     }
+    SmartDashboard.putNumber("LineupWithSpeaker2D/Target Heading (Deg)", heading.getDegrees());
+    SmartDashboard.putBoolean("LineupWithSpeaker2D/Aligning to Tag", aligningToTag);
     SmartDashboard.putBoolean("LineupWithSpeaker2D/At Target", atTarget());
-
   }
 
   @Override
@@ -80,5 +79,4 @@ public class LineupWithSpeaker2D extends Command {
   public boolean atTarget() {
     return isRunning && aligningToTag && RobotContainer.drive.drive.swerveController.thetaController.atSetpoint();
   }
-
 }
