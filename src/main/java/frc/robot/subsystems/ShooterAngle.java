@@ -63,8 +63,6 @@ public class ShooterAngle extends SubsystemBase {
   private final TunableNumber angleKGGain = new TunableNumber("Shooter Angle kG", 0.005);
   private final TunableNumber angleKVGain = new TunableNumber("Shooter Angle kV", 0.001);
 
-  private double kv = 0.0;
-
   private final CANSparkMax angleMotor = new CANSparkMax(11, MotorType.kBrushless);
   private final RelativeEncoder relativeEncoder = angleMotor.getEncoder(); // unit: DEGREES
   private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(5);
@@ -117,7 +115,7 @@ public class ShooterAngle extends SubsystemBase {
     }
 
     double voltage = anglePID.calculate(getAbsoluteAngle().getDegrees(), targetAngle.getDegrees()) + angleFF.calculate(Rotation2d.fromDegrees(getAbsoluteAngle().getDegrees()));
-    double velocityFF = MathUtil.clamp(kv * anglePID.getSetpoint().velocity, -0.4, 0.4);
+    double velocityFF = MathUtil.clamp(angleKVGain.get() * anglePID.getSetpoint().velocity, -0.4, 0.4);
     voltage += velocityFF;
     setMotor(voltage);
 
@@ -136,7 +134,6 @@ public class ShooterAngle extends SubsystemBase {
       anglePID.setD(angleDGain.get()); // this doesn't work properly
       angleFF.kG = angleKGGain.get();
       angleFF.kS = angleKSGain.get();
-      kv = angleKVGain.get();
     }
 
     // set sim mechanism here (using % output from Spark)
