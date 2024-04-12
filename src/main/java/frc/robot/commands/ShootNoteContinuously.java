@@ -31,7 +31,7 @@ public class ShootNoteContinuously extends ParallelCommandGroup {
             () -> alignToSpeaker.atTarget() && autoSetShooter.atTarget(),
             5,
             "Commands/ShootNote"
-          ), // deadline
+          ),
           RobotContainer.intake.getFeedNote()
         )
       )
