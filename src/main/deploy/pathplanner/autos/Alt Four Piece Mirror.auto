@@ -40,6 +40,12 @@
           "data": {
             "name": "ShootNote"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 Piece Shoot to 6"
+          }
         }
       ]
     }
