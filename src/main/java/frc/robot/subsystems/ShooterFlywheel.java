@@ -115,12 +115,13 @@ public class ShooterFlywheel extends SubsystemBase {
       rightMotor.getConfigurator().apply(slot0Configs);
     }
 
-    SmartDashboard.putBoolean("Shooter/Flywheel/At Set Speed", atSetSpeed());
-    if (atSetSpeed()){
+    if (atSetSpeed()) {
       RobotContainer.led.setSegmentPattern("flywheel", Pattern.INTAKE_NOTE, BlinkMode.SOLID);
-    }else{
+    } else {
       RobotContainer.led.setSegmentPattern("flywheel", Pattern.RED, BlinkMode.SOLID);
     }
+
+    SmartDashboard.putBoolean("Shooter/Flywheel/At Set Speed", atSetSpeed());
     logger.logAll();
   }
 
