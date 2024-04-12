@@ -77,7 +77,7 @@ public final class Constants {
     /** Make sure to adjust this as the wheels wear. */
     // to adjust fudge factor: REMOVE IT first, drive for a certain distance according to odometry,
     // measure how far the robot actually moved, and put measurements into (actual / expected):
-    public static final double wheelDiameter = Units.inchesToMeters(3.8);
+    public static final double wheelDiameter = Units.inchesToMeters(3.8); // * (actual / expected);
     // 5 : 1 drives 4 : 1 ultraplanetary attached to 22T pulley spinning 64T module pulley
     public static final double angleGearRatio = (64.0 / 22.0) * UltraPlanetaryRatios.fiveToOne * UltraPlanetaryRatios.fourToOne;
     // 15 : 24 gearing connected to 3 : 1 bevel gears
