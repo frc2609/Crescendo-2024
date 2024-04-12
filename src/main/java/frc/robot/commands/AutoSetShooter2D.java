@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Limelight.Pipeline;
 import frc.robot.subsystems.ShooterFlywheel.SpinType;
-import frc.robot.utils.LimeLightHelpers;
+import frc.robot.utils.LimelightHelpers;
 
 /**
  * Calculate shooter angle and RPM using the robot's distance from the speaker according to the
@@ -59,9 +59,9 @@ public class AutoSetShooter2D extends Command {
   @Override
   public void execute() {
     double distanceToSpeaker;
-    if (LimeLightHelpers.getTV("limelight-shooter")) {
+    if (LimelightHelpers.getTV("limelight-shooter")) {
       isRunning = true;
-      distanceToSpeaker = heightToTag / Math.tan(Math.toRadians(LimeLightHelpers.getTY("limelight-shooter") + limelightPitch));
+      distanceToSpeaker = heightToTag / Math.tan(Math.toRadians(LimelightHelpers.getTY("limelight-shooter") + limelightPitch));
       
       final double pivotDistanceToSpeaker = distanceToSpeaker + shooterDistanceFromCenter;
       heightOffset = SmartDashboard.getNumber("Height Offset", heightOffset);
