@@ -43,7 +43,6 @@ public class ShooterAngle extends SubsystemBase {
   public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(9.1);
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(1);
   public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(1.5);
-  private double angleFudge = 0.0;
 
   // Model constants
   public static final double massKg = 6.5;
@@ -90,10 +89,8 @@ public class ShooterAngle extends SubsystemBase {
     absoluteEncoder.setPositionOffset(absoluteEncoderOffset);
     relativeEncoder.setPositionConversionFactor(positionConversionFactor);
     relativeEncoder.setVelocityConversionFactor(velocityConversionFactor);
-    SmartDashboard.putNumber("AngleFudge", angleFudge);
 
     anglePID.setIZone(4.0);
-
     anglePID.setGoal(targetAngle.getDegrees());
 
     SmartDashboard.putData("Shooter/Angle/PID", anglePID);
