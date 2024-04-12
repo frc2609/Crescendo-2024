@@ -33,7 +33,7 @@ import frc.robot.utils.TunableNumber;
 
 // TODO: add back simulation
 // TODO: javadocs
-// TODO: override does nothing
+// TODO: test override
 
 public class ShooterAngle extends SubsystemBase {
   // ** Angle Direction: +ve = Forward, towards elevator. **
