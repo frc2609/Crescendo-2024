@@ -70,12 +70,12 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("ResetPoseToLimelight", rearLimelight.getResetRobotPose());
     NamedCommands.registerCommand("IntakeNote", intake.getIntakeNote());
+    NamedCommands.registerCommand("IntakeNoteRepeatedly", RobotContainer.intake.getIntakeNoteRepeatedly());
     NamedCommands.registerCommand("ShootNote", new ShootNote());
     NamedCommands.registerCommand("ShootNoteContinuously", new ShootNoteContinuously());
     NamedCommands.registerCommand("PrintOnCheckpoint", Commands.print("Reached Checkpoint!"));
     NamedCommands.registerCommand("TimedDriveForward", new RunCommand(() -> drive.setChassisSpeeds(new ChassisSpeeds(isRedAlliance("TimedDriveForward") ? -1 : 1, 0, 0), true), drive).withTimeout(2));
     NamedCommands.registerCommand("WaitForButtonPress", Commands.waitUntil(driverController.back()));
-    NamedCommands.registerCommand("HoldNote", RobotContainer.intake.holdNote());
     NamedCommands.registerCommand("SwitchTo2DPipeline", new InstantCommand(() -> rearLimelight.setPipeline(Pipeline.track2d)));
     NamedCommands.registerCommand("PassthroughNote", new PassthroughNote());
 

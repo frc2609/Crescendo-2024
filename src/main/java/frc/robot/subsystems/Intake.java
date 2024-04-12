@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -73,16 +72,6 @@ public class Intake extends SubsystemBase {
     return RobotBase.isReal() ? !intakeSensor.get() : noteHeld;
   }
 
-  public RunCommand holdNote(){
-    return new RunCommand(()-> {
-      if (getSensor()) {
-        setMotor(0.7);
-      } else {
-        setMotor(0);
-      }
-    }, this);
-  }
-
   /**
    * Set the intake motor. Runs motor at desired percent until called again.
    * @param percentOutput Output to run motor at between -1 and 1.
@@ -112,9 +101,8 @@ public class Intake extends SubsystemBase {
   }
 
   /**
-   * Run the intake while the sensor detects a note.
-   * Steam train mode.
-   * @return Command that intakes a note while the sensor doesn't report a piece.
+   * Run the intake when the sensor doesn't detect a note.
+   * @return Command that runs the intake a note whenever the sensor doesn't detect a note.
    */
   public Command getIntakeNoteRepeatedly() {
     return Commands.runEnd(
