@@ -100,6 +100,19 @@ public class Intake extends SubsystemBase {
   }
 
   /**
+   * Run the intake while the sensor detects a note.
+   * Steam train mode.
+   * @return Command that intakes a note while the sensor doesn't report a piece.
+   */
+  public Command getIntakeNoteRepeatedly() {
+    return Commands.runEnd(
+      () -> setMotor(getSensor() ? 0.0 : 1.0),
+      () -> setMotor(0),
+      this
+    );
+  }
+
+  /**
    * Expel the note (score on amp or trap), stopping after a timeout expires.
    * @return Command composition that expels a note.
    */
