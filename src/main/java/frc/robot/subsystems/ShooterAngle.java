@@ -66,8 +66,6 @@ public class ShooterAngle extends SubsystemBase {
   private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(5);
 
   // p = volts/degree of error
-  // when you tune these, REMEMBER THERE IS A VOLTAGE LIMIT ON THE MOTOR!
-  // TODO: no there isn't, should it be?
   public final ProfiledPIDController anglePID = new ProfiledPIDController(0.02, 0.0, 0.0, new Constraints(280, 700));
   public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.005, comDistanceFromPivotMeters, comAngleFromForwardDegrees, massKg, "Shooter/Angle");
 
