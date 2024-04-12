@@ -92,12 +92,12 @@ public class LED extends SubsystemBase {
   public Color getMovingFireColor(int position, int totalLEDs) {
     // Calculate offset based on time for movement
     double time = Timer.getFPGATimestamp();
-    int offset = (int)(time*30) % totalLEDs;
+    int offset = (int)(time * 30) % totalLEDs;
 
     // Adjust position by offset for movement
     position = (position + offset) % totalLEDs;
 
-    // Your existing color gradient calculation
+    // Calculate color gradient
     float ratio = (float) position / totalLEDs;
     if (ratio < 0.5) {
       return interpolateColor(new Color(80, 80, 0), new Color(80, 20, 0), 0.5);
@@ -115,7 +115,7 @@ public class LED extends SubsystemBase {
 
   // Maps doubles from [0,1] to integers in [0,255]
   private int doubleToInt(double zeroToOne) {
-    return (int)(zeroToOne*255.0);
+    return (int)(zeroToOne * 255.0);
   }
 
   public void setBuffer() {
