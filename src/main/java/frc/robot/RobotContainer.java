@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import frc.robot.commands.AutoScoreAmp;
 import frc.robot.commands.IdleShooter;
 import frc.robot.commands.MoveElevatorToPosition;
+import frc.robot.commands.PassthroughNote;
 // import frc.robot.commands.ResetIntakeAndElevator;
 import frc.robot.commands.MoveElevatorToPosition.Position;
 import frc.robot.commands.SetShooterToPreset.ShooterPreset;
@@ -40,6 +41,7 @@ import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterAngle;
 import frc.robot.subsystems.ShooterFlywheel;
+import frc.robot.subsystems.Limelight.Pipeline;
 import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.NetworkPushButton;
 import frc.robot.utils.Visualizer;
@@ -68,11 +70,14 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("ResetPoseToLimelight", rearLimelight.getResetRobotPose());
     NamedCommands.registerCommand("IntakeNote", intake.getIntakeNote());
+    NamedCommands.registerCommand("IntakeNoteRepeatedly", RobotContainer.intake.getIntakeNoteRepeatedly());
     NamedCommands.registerCommand("ShootNote", new ShootNote());
     NamedCommands.registerCommand("ShootNoteContinuously", new ShootNoteContinuously());
     NamedCommands.registerCommand("PrintOnCheckpoint", Commands.print("Reached Checkpoint!"));
     NamedCommands.registerCommand("TimedDriveForward", new RunCommand(() -> drive.setChassisSpeeds(new ChassisSpeeds(isRedAlliance("TimedDriveForward") ? -1 : 1, 0, 0), true), drive).withTimeout(2));
     NamedCommands.registerCommand("WaitForButtonPress", Commands.waitUntil(driverController.back()));
+    NamedCommands.registerCommand("SwitchTo2DPipeline", new InstantCommand(() -> rearLimelight.setPipeline(Pipeline.track2d)));
+    NamedCommands.registerCommand("PassthroughNote", new PassthroughNote());
 
     PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
       drive.drive.field.getObject("target pose").setPose(pose);
@@ -92,7 +97,6 @@ public class RobotContainer {
   private void configureBindings() {
     // Vision
     operatorController.start().onTrue(rearLimelight.getResetRobotPose());
-    operatorController.back().onTrue(sideLimelight.getResetRobotPose());
     operatorController.leftStick().whileTrue(rearLimelight.getEstimateRobotPose());
     operatorController.rightStick().whileTrue(sideLimelight.getEstimateRobotPose());
 
@@ -133,17 +137,18 @@ public class RobotContainer {
     // Intake
     // Fake the note being picked up during simulation.
     new NetworkPushButton("Intake NoteHeld Override", () -> intake.noteHeld = true, true);
-    new Trigger(() -> driverController.getRightTriggerAxis() > 0.2).toggleOnTrue(intake.getIntakeNote());
+    new Trigger(() -> driverController.getRightTriggerAxis() > 0.2).whileTrue(intake.getIntakeNoteRepeatedly());
     // we have no use for these buttons currently, but these buttons aren't strictly necessary
     // if you need them for something, you can remove them, if not, we're leaving them as backups
     driverController.a().toggleOnTrue(intake.getIntakeNote());
     driverController.b().onTrue(intake.getExpelNote());
-    driverController.y().onTrue(intake.getFeedNote());
+    driverController.y().onTrue(intake.getFeedNoteOnReady());
     driverController.x().onTrue(intake.getTurnOff());
     operatorController.a().toggleOnTrue(intake.getIntakeNote());
     operatorController.b().onTrue(intake.getExpelNote());
-    operatorController.y().onTrue(intake.getFeedNote());
+    operatorController.y().onTrue(intake.getFeedNoteOnReady());
     operatorController.x().onTrue(intake.getTurnOff());
+    operatorController.back().onTrue(intake.getFeedNote());
 
     // Shooter
     operatorController.leftBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtSpeaker, false));

@@ -121,7 +121,7 @@ public class Elevator extends SubsystemBase {
   }
 
   /**
-   * Set the height of the intake the elevator will attempt to reach .
+   * Set the height of the intake the elevator will attempt to reach.
    * @param height Height to hold intake at.
    */
   public void setHeight(double height) {
@@ -133,14 +133,14 @@ public class Elevator extends SubsystemBase {
     SmartDashboard.putNumber("Elevator/Desired Height Setpoint (m)", height);
     height = MathUtil.clamp(height, lowerLimitMeters, upperLimitMeters);
     SmartDashboard.putNumber("Elevator/Actual Height Setpoint (m)", targetHeight);
-    // set angle
+    // set height
     targetHeight = height; // used to check 'atTarget()'
     liftPID.setReference(height / positionConversion, ControlType.kSmartMotion);
   }
 
   /**
    * Set motor output, accounting for forward/backward soft limits.
-   * @param percentOutput Voltage from -12 to 12
+   * @param percentOutput Percent Output from -1 to 1
    */
   public void setMotor(double percentOutput) {
     SmartDashboard.putNumber("Elevator/Desired Percent Output", percentOutput);
@@ -161,7 +161,7 @@ public class Elevator extends SubsystemBase {
     // simulation
     if (RobotBase.isSimulation()) {
       if (DriverStation.isEnabled()) {
-        elevatorSim.setInputVoltage(percentOutput);
+        elevatorSim.setInputVoltage(percentOutput * 12);
       } else {
         elevatorSim.setInputVoltage(0);
       }

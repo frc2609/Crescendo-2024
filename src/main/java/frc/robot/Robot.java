@@ -10,7 +10,6 @@ import java.nio.file.Files;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
 
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -20,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.Constants.Swerve;
 import frc.robot.commands.IdleShooter;
 import frc.robot.commands.TeleopVelocityDrive;
 import frc.robot.subsystems.Elevator;
@@ -42,8 +42,6 @@ public class Robot extends TimedRobot {
 
     // PathPlanner logs its own info automatically (no need to here)
     
-    CameraServer.startAutomaticCapture();
-
     robotContainer = new RobotContainer();
     RobotContainer.led.setDrive(Pattern.INTAKE_IDLE, BlinkMode.SOLID);
     RobotContainer.led.setHuman(Pattern.FIRE, BlinkMode.FIRE);
@@ -96,6 +94,7 @@ public class Robot extends TimedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+    RobotContainer.drive.drive.setMaximumSpeed(6.0);
     RobotContainer.drive.setDefaultCommand(new TeleopVelocityDrive(true));
   }
 
@@ -104,6 +103,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopExit() {
+    RobotContainer.drive.drive.setMaximumSpeed(Swerve.maxModuleSpeed);
     RobotContainer.drive.removeDefaultCommand();
   }
 

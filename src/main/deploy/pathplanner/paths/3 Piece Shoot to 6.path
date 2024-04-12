@@ -3,25 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.082883155780575,
-        "y": 2.0376855589659812
+        "x": 2.0400914981573175,
+        "y": 4.941973022319797
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.19999152123839,
-        "y": 2.974552482628502
+        "x": 3.2697293354643757,
+        "y": 5.2230330994185525
       },
       "isLocked": false,
-      "linkedName": "DistruptorMid1"
+      "linkedName": "temp"
     },
     {
       "anchor": {
-        "x": 8.082883155780575,
-        "y": 7.4949353893001645
+        "x": 5.108330673152073,
+        "y": 4.42669621430541
       },
       "prevControl": {
-        "x": 8.0982817797963,
-        "y": 6.63234500945025
+        "x": 4.0192228743943925,
+        "y": 5.234743935964334
+      },
+      "nextControl": {
+        "x": 5.911428701385875,
+        "y": 3.830849290131944
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.293678213604645,
+        "y": 4.11050362756931
+      },
+      "prevControl": {
+        "x": 7.005486193568678,
+        "y": 4.11050362756931
       },
       "nextControl": null,
       "isLocked": false,
@@ -39,13 +55,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 70.6153546301242,
+    "rotation": 0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Source Side Disruption",
+  "folder": null,
   "previewStartingState": {
-    "rotation": 65.00788572919731,
+    "rotation": 0,
     "velocity": 0
   },
   "useDefaultConstraints": true

@@ -16,8 +16,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.commands.WaitForCounter;
 import frc.robot.subsystems.LED.BlinkMode;
 import frc.robot.subsystems.LED.Pattern;
 
@@ -54,7 +56,7 @@ public class Intake extends SubsystemBase {
       RobotContainer.led.setHuman(Pattern.FIRE, BlinkMode.FIRE);
     } else if (Math.abs(intakeMotor.getMotorOutputPercent()) > 0.0) {
       RobotContainer.led.setDrive(Pattern.INTAKE_NO_NOTE, BlinkMode.BLINKING_ON);
-      RobotContainer.led.setHuman(Pattern.INTAKE_NO_NOTE, BlinkMode.BLINKING_ON);
+      RobotContainer.led.setHuman(Pattern.WHITE, BlinkMode.SOLID);
     } else {
       RobotContainer.led.setDrive(Pattern.RED, BlinkMode.SOLID);
       RobotContainer.led.setHuman(Pattern.RED, BlinkMode.SOLID);
@@ -99,6 +101,18 @@ public class Intake extends SubsystemBase {
   }
 
   /**
+   * Run the intake when the sensor doesn't detect a note.
+   * @return Command that runs the intake a note whenever the sensor doesn't detect a note.
+   */
+  public Command getIntakeNoteRepeatedly() {
+    return Commands.runEnd(
+      () -> setMotor(getSensor() ? 0.0 : 1.0),
+      () -> setMotor(0),
+      this
+    );
+  }
+
+  /**
    * Expel the note (score on amp or trap), stopping after a timeout expires.
    * @return Command composition that expels a note.
    */
@@ -134,6 +148,18 @@ public class Intake extends SubsystemBase {
       },
       this
     ).withTimeout(1.0);
+  }
+
+  /**
+   * Feed the note to the shooter once the shooter reaches its setpoint.
+   * @return Command composition that waits until shooter is ready then feeds note.
+   */
+  public SequentialCommandGroup getFeedNoteOnReady() {
+    return new WaitForCounter(
+      () -> RobotContainer.shooterAngle.atTarget() && RobotContainer.shooterFlywheel.atSetSpeed(),
+      3,
+      "FeedNoteOnReady"
+    ).andThen(getFeedNote());
   }
 
   /**
