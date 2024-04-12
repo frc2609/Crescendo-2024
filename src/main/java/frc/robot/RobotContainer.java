@@ -43,6 +43,7 @@ import frc.robot.subsystems.ShooterAngle;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.Limelight.Pipeline;
 import frc.robot.utils.BeaverLogger;
+import frc.robot.utils.NetworkPushButton;
 import frc.robot.utils.Visualizer;
 
 public class RobotContainer {
@@ -135,8 +136,7 @@ public class RobotContainer {
     
     // Intake
     // Fake the note being picked up during simulation.
-    // Doesn't require intake so intake commands aren't cancelled when run.
-    // operatorController.back().onTrue(new InstantCommand(() -> intake.noteHeld = true));
+    new NetworkPushButton("Intake NoteHeld Override", () -> intake.noteHeld = true, true);
     new Trigger(() -> driverController.getRightTriggerAxis() > 0.2).whileTrue(intake.getIntakeNoteRepeatedly());
     // we have no use for these buttons currently, but these buttons aren't strictly necessary
     // if you need them for something, you can remove them, if not, we're leaving them as backups
