@@ -10,7 +10,6 @@ import java.nio.file.Files;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
 
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -43,8 +42,6 @@ public class Robot extends TimedRobot {
 
     // PathPlanner logs its own info automatically (no need to here)
     
-    CameraServer.startAutomaticCapture();
-
     robotContainer = new RobotContainer();
     RobotContainer.led.setDrive(Pattern.INTAKE_IDLE, BlinkMode.SOLID);
     RobotContainer.led.setHuman(Pattern.FIRE, BlinkMode.FIRE);
