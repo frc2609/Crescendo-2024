@@ -105,7 +105,7 @@ public class ShooterAngle extends SubsystemBase {
   public void periodic() {
     if (anglePID.getSetpoint().velocity != 0.0 || Math.abs(anglePID.getSetpoint().position - forwardLimit.getDegrees()) < setpointTolerance.getDegrees() || DriverStation.isDisabled()) {
       // don't calculate I on ramp-up or near rest
-      // TODO: this also resets previous error (i.e. 'd')
+      // this also resets derivative, but it isn't used anyways (because our code doesn't run at a consistent period)
       anglePID.reset(anglePID.getSetpoint());
     }
 
