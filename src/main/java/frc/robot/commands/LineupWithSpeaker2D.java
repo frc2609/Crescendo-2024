@@ -66,7 +66,7 @@ public class LineupWithSpeaker2D extends Command {
       RobotContainer.led.setSegmentPattern("align", Pattern.RED, BlinkMode.SOLID);
     }
     SmartDashboard.putNumber("LineupWithSpeaker2D/Target Heading (Deg)", heading.getDegrees());
-    SmartDashboard.putBoolean("LineupWithSpeaker2D/Aligning to Odometry", aligningToTag);
+    SmartDashboard.putBoolean("LineupWithSpeaker2D/Aligning to Tag", aligningToTag);
     SmartDashboard.putBoolean("LineupWithSpeaker2D/At Target", atTarget());
   }
 
