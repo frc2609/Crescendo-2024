@@ -110,8 +110,6 @@ public class ShooterAngle extends SubsystemBase {
 
   @Override
   public void periodic() {
-    //test
-    // setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("Test/Shooter Target Angle (Deg)", 0)));
     if (anglePID.getSetpoint().velocity != 0.0 || Math.abs(anglePID.getSetpoint().position - forwardLimit.getDegrees()) < setpointTolerance.getDegrees() || DriverStation.isDisabled()) {
       // don't calculate I on ramp-up or near rest
       // TODO: this also resets previous error (i.e. 'd')
