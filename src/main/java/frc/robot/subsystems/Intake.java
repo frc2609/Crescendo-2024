@@ -17,8 +17,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.commands.WaitForCounter;
 import frc.robot.subsystems.LED.BlinkMode;
 import frc.robot.subsystems.LED.Pattern;
 
@@ -140,6 +142,18 @@ public class Intake extends SubsystemBase {
       },
       this
     ).withTimeout(1.0);
+  }
+
+  /**
+   * Feed the note to the shooter once the shooter reaches its setpoint.
+   * @return Command composition that waits until shooter is ready then feeds note.
+   */
+  public SequentialCommandGroup getFeedNoteOnReady() {
+    return new WaitForCounter(
+      () -> RobotContainer.shooterAngle.atTarget() && RobotContainer.shooterFlywheel.atSetSpeed(),
+      3,
+      "FeedNoteOnReady"
+    ).andThen(getFeedNote());
   }
 
   /**
