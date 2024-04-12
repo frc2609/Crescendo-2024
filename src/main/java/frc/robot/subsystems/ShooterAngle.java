@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import java.util.function.Supplier;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
@@ -64,7 +63,6 @@ public class ShooterAngle extends SubsystemBase {
   private final TunableNumber angleKVGain = new TunableNumber("Shooter Angle kV", 0.001);
 
   private final CANSparkMax angleMotor = new CANSparkMax(11, MotorType.kBrushless);
-  private final RelativeEncoder relativeEncoder = angleMotor.getEncoder(); // unit: DEGREES
   private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(5);
 
   // p = volts/degree of error
@@ -85,8 +83,6 @@ public class ShooterAngle extends SubsystemBase {
     angleMotor.setSmartCurrentLimit(40);
 
     absoluteEncoder.setPositionOffset(absoluteEncoderOffset);
-    relativeEncoder.setPositionConversionFactor(positionConversionFactor);
-    relativeEncoder.setVelocityConversionFactor(velocityConversionFactor);
 
     anglePID.setIZone(4.0);
     anglePID.setGoal(targetAngle.getDegrees());
@@ -100,7 +96,6 @@ public class ShooterAngle extends SubsystemBase {
     logger.addLoggable("Shooter/Angle/Raw Absolute Position (0-1)", this::getRawAbsolutePosition, true);
     logger.addLoggable("Shooter/Angle/Absolute Position (0-1)", this::getAbsolutePosition, true);
     logger.addLoggable("Shooter/Angle/Absolute Angle (deg)", () -> getAbsoluteAngle().getDegrees(), true);
-    logger.addLoggable("Shooter/Angle/Relative Angle (deg)", () -> getRelativeAngle().getDegrees(), true);
     logger.addLoggable("Shooter/Angle/Applied Output (-1-1)", angleMotor::getAppliedOutput, true);
     logger.addLoggable("Shooter/Angle/Motion Profile Setpoint (Deg)", () -> anglePID.getSetpoint().position, true);
     logger.addLoggable("Shooter/Angle/Bus Voltage", angleMotor::getBusVoltage, true);
@@ -150,10 +145,6 @@ public class ShooterAngle extends SubsystemBase {
     }
 
     logger.logAll();
-  }
-
-  public void syncRelativeEncoder() {
-    relativeEncoder.setPosition(getAbsoluteAngle().getDegrees());
   }
 
   // set angle using PIDF
@@ -233,14 +224,6 @@ public class ShooterAngle extends SubsystemBase {
   }
 
   // get angle (in various formats)
-
-  /**
-   * Get the angle of the shooter according to the relative encoder.
-   * @return The angle of the shooter as a Rotation2d.
-   */
-  public Rotation2d getRelativeAngle() {
-    return Rotation2d.fromDegrees(RobotBase.isSimulation() ? targetAngle.getDegrees() : relativeEncoder.getPosition());
-  }
 
   /**
    * Get the angle of the shooter according to the absolute encoder.
