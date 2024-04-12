@@ -3,53 +3,49 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.35,
-        "y": 0.87
+        "x": 2.2274648828898216,
+        "y": 4.731177964495728
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.869958578378695,
-        "y": 1.3238793692972017
+        "x": 2.438259940713889,
+        "y": 4.50867207012588
       },
       "isLocked": false,
-      "linkedName": "Note 4"
+      "linkedName": "1 prep"
     },
     {
       "anchor": {
-        "x": 4.663318884412376,
-        "y": 1.8268905011419148
+        "x": 3.1643318065523425,
+        "y": 4.321298685393376
       },
       "prevControl": {
-        "x": 5.68558256779929,
-        "y": 1.4108529555774727
-      },
-      "nextControl": {
-        "x": 3.6561869414751653,
-        "y": 2.2367697802442676
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.168910700160914,
-        "y": 3.5366726368260153
-      },
-      "prevControl": {
-        "x": 2.719320017812645,
-        "y": 3.1619258673610067
+        "x": 3.023801768002965,
+        "y": 4.4384070508511915
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "SafeShootingPos"
+      "linkedName": "Note 1 fudged"
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "New Constraints Zone",
+      "minWaypointRelativePos": 0.5,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 2.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0
+      }
+    }
+  ],
   "eventMarkers": [
     {
       "name": "New Event Marker",
-      "waypointRelativePos": 0,
+      "waypointRelativePos": 0.0,
       "command": {
         "type": "parallel",
         "data": {
@@ -57,7 +53,7 @@
             {
               "type": "named",
               "data": {
-                "name": "IntakeNoteRepeatedly"
+                "name": "IntakeNote"
               }
             }
           ]
@@ -73,13 +69,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -38.15722658736903,
+    "rotation": -8.130102354155929,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": -18.92464441605123,
     "velocity": 0
   },
   "useDefaultConstraints": true

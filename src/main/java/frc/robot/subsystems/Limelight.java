@@ -25,8 +25,11 @@ import frc.robot.utils.LimelightHelpers.PoseEstimate;
 
 public class Limelight extends SubsystemBase {
   public static enum Pipeline {
+    // front limelight
+    noteDetection(0),
+    // other limelights
     localizeRobot(0),
-    trackNote(1);
+    track2d(1);
 
     public int id;
 
@@ -204,6 +207,7 @@ public class Limelight extends SubsystemBase {
 
   /**
    * Check whether pose is within game field.
+   * 
    * @param pose Pose to check.
    * @return Whether pose is within game field.
    */

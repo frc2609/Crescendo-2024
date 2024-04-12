@@ -3,45 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.35,
-        "y": 0.87
+        "x": 3.1643318065523425,
+        "y": 4.321298685393376
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.869958578378695,
-        "y": 1.3238793692972017
+        "x": 2.7427416909042077,
+        "y": 4.9771055319571404
       },
       "isLocked": false,
-      "linkedName": "Note 4"
+      "linkedName": "Note 1 fudged"
     },
     {
       "anchor": {
-        "x": 4.663318884412376,
-        "y": 1.8268905011419148
+        "x": 2.531946633080141,
+        "y": 5.410406484151056
       },
       "prevControl": {
-        "x": 5.68558256779929,
-        "y": 1.4108529555774727
-      },
-      "nextControl": {
-        "x": 3.6561869414751653,
-        "y": 2.2367697802442676
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.168910700160914,
-        "y": 3.5366726368260153
-      },
-      "prevControl": {
-        "x": 2.719320017812645,
-        "y": 3.1619258673610067
+        "x": 2.918404239090931,
+        "y": 4.766310474133074
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "SafeShootingPos"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -57,7 +41,7 @@
             {
               "type": "named",
               "data": {
-                "name": "IntakeNoteRepeatedly"
+                "name": "IntakeNote"
               }
             }
           ]
@@ -67,13 +51,13 @@
   ],
   "globalConstraints": {
     "maxVelocity": 4.0,
-    "maxAcceleration": 4.0,
+    "maxAcceleration": 6.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -38.15722658736903,
+    "rotation": 0,
     "rotateFast": false
   },
   "reversed": false,
@@ -82,5 +66,5 @@
     "rotation": 0,
     "velocity": 0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

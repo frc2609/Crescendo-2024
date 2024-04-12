@@ -8,6 +8,12 @@
         {
           "type": "named",
           "data": {
+            "name": "SwitchTo2DPipeline"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "ShootNote"
           }
         },
@@ -49,7 +55,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Shoot to 6"
+                  "pathName": "Shoot to 5"
                 }
               },
               {

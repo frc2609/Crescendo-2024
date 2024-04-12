@@ -1,0 +1,73 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.26,
+      "y": 5.57
+    },
+    "rotation": 0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Mid-start to 2 prep"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 prep to 2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 to 3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 to 8"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "8 to Amp Park"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
