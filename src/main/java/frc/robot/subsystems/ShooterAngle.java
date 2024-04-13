@@ -55,19 +55,14 @@ public class ShooterAngle extends SubsystemBase {
   public static final double positionConversionFactor = (15.0 / 22.0) * (1.0 / 81.0) * 360; // deg
   public static final double velocityConversionFactor = positionConversionFactor / 60; // deg/s
   
-  private final TunableNumber anglePGain = new TunableNumber("Shooter Angle P", 0.01);
-  private final TunableNumber angleIGain = new TunableNumber("Shooter Angle I", 0.1);
-  private final TunableNumber angleDGain = new TunableNumber("Shooter Angle D", 0.0);
-  private final TunableNumber angleKSGain = new TunableNumber("Shooter Angle kS", 0.0);
-  private final TunableNumber angleKGGain = new TunableNumber("Shooter Angle kG", 0.005);
   private final TunableNumber angleKVGain = new TunableNumber("Shooter Angle kV", 0.001);
 
   private final CANSparkMax angleMotor = new CANSparkMax(11, MotorType.kBrushless);
   private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(5);
 
   // p = volts/degree of error
-  public final ProfiledPIDController anglePID = new ProfiledPIDController(0.02, 0.0, 0.0, new Constraints(280, 700));
-  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.005, comDistanceFromPivotMeters, comAngleFromForwardDegrees, massKg, "Shooter/Angle");
+  public final ProfiledPIDController anglePID = new ProfiledPIDController(0.01, 0.0, 0.0, new Constraints(280, 700));
+  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.009, comDistanceFromPivotMeters, comAngleFromForwardDegrees, massKg, "Shooter/Angle");
 
   private Rotation2d targetAngle = reverseLimit; // used for 'atTarget()' exclusively
   private final Alert absoluteAngleOutOfRange = new Alert("Shooter Absolute Angle Out of Reasonable Range", AlertType.ERROR);
@@ -107,10 +102,10 @@ public class ShooterAngle extends SubsystemBase {
       anglePID.reset(anglePID.getSetpoint());
     }
 
-    double voltage = anglePID.calculate(getAbsoluteAngle().getDegrees(), targetAngle.getDegrees()) + angleFF.calculate(Rotation2d.fromDegrees(getAbsoluteAngle().getDegrees()));
+    double percentOutput = anglePID.calculate(getAbsoluteAngle().getDegrees(), targetAngle.getDegrees()) + angleFF.calculate(Rotation2d.fromDegrees(getAbsoluteAngle().getDegrees()));
     double velocityFF = MathUtil.clamp(angleKVGain.get() * anglePID.getSetpoint().velocity, -0.4, 0.4);
-    voltage += velocityFF;
-    setMotor(voltage);
+    percentOutput += velocityFF;
+    setMotor(percentOutput);
 
     // set alerts
     if (pastForwardLimit() || pastReverseLimit()) {
@@ -120,20 +115,11 @@ public class ShooterAngle extends SubsystemBase {
       absoluteAngleOutOfRange.set(false);
     }
 
-    // check tunable numbers
-    if (anglePGain.hasChanged(hashCode()) || angleDGain.hasChanged(hashCode()) || angleIGain.hasChanged(hashCode()) || angleKGGain.hasChanged(hashCode()) || angleKSGain.hasChanged(hashCode()) || angleKVGain.hasChanged(hashCode())) {
-      anglePID.setP(anglePGain.get());
-      anglePID.setI(angleIGain.get());
-      anglePID.setD(angleDGain.get()); // this doesn't work properly
-      angleFF.kG = angleKGGain.get();
-      angleFF.kS = angleKSGain.get();
-    }
-
     // set sim mechanism here (using % output from Spark)
 
     SmartDashboard.putNumber("Shooter/Angle/Velocity Setpoint", anglePID.getSetpoint().velocity);
-    SmartDashboard.putNumber("Shooter/Angle/Velocity FF", velocityFF);
-    SmartDashboard.putNumber("Shooter/Angle/Calculated Voltage", voltage);
+    SmartDashboard.putNumber("Shooter/Angle/Velocity FF Percent Output", velocityFF);
+    SmartDashboard.putNumber("Shooter/Angle/PIDF Percent Output", percentOutput);
     SmartDashboard.putBoolean("Shooter/Angle/At Target", atTarget());
     
     if (atTarget()) {
@@ -179,9 +165,9 @@ public class ShooterAngle extends SubsystemBase {
       }
     }
     // there should be no reason we ever drive our shooter down more than 10%... Gravity will do it for us
-    double voltage = 12 * MathUtil.clamp(percentOutput, -0.1, 1);
-    SmartDashboard.putNumber("Shooter/Angle/Target Voltage", voltage);
-    angleMotor.setVoltage(voltage);
+    percentOutput = MathUtil.clamp(percentOutput, -0.1, 1);
+    SmartDashboard.putNumber("Shooter/Angle/Actual Percent Output", percentOutput);
+    angleMotor.setVoltage(percentOutput * 12);
   }
 
   public void stop() {
@@ -218,7 +204,7 @@ public class ShooterAngle extends SubsystemBase {
   }
 
   public Command getPercentOutputControl(Supplier<Double> percentOutputAxis) {
-    return new RunCommand(() -> setMotor(MathUtil.clamp(percentOutputAxis.get(), -1, 1)), this);
+    return new RunCommand(() -> setMotor(MathUtil.clamp(percentOutputAxis.get() * 12, -1, 1)), this);
   }
 
   // get angle (in various formats)
