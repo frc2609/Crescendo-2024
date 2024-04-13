@@ -30,7 +30,7 @@ public class Climber extends SubsystemBase {
 
     climberMotor.restoreFactoryDefaults();
     climberMotor.setIdleMode(IdleMode.kBrake);
-    climberMotor.setInverted(false);
+    climberMotor.setInverted(true);
     climberMotor.setSmartCurrentLimit(40);
 
     climberPID = climberMotor.getPIDController();
