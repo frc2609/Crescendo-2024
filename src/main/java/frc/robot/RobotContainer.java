@@ -113,7 +113,7 @@ public class RobotContainer {
       .whileTrue(climber.getMove(() -> 0.8))
       .onFalse(climber.getHold());
     driverController.povDown()
-      .whileTrue(climber.getMove(() -> 0.6))
+      .whileTrue(climber.getMove(() -> -0.6))
       .onFalse(climber.getHold());
     
     // Drive
