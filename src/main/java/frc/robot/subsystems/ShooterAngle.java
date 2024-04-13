@@ -39,7 +39,7 @@ public class ShooterAngle extends SubsystemBase {
   // ** Angle Direction: +ve = Forward, towards elevator. **
   public static final Rotation2d forwardLimit = Rotation2d.fromDegrees(70);
   public static final Rotation2d forwardTolerance = Rotation2d.fromDegrees(3);
-  public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(8.9);
+  public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(15.1);
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(1);
   public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(1.5);
 
@@ -50,7 +50,7 @@ public class ShooterAngle extends SubsystemBase {
   public static final double armLengthMeters = 0.35;
 
   // measure at 90 degrees
-  public static final double absoluteEncoderOffset = 0.598 - (90.0 / 360.0);
+  public static final double absoluteEncoderOffset = 0.771 - (90.0 / 360.0);
   // 15:22 chain and 1:81 planetary
   public static final double positionConversionFactor = (15.0 / 22.0) * (1.0 / 81.0) * 360; // deg
   public static final double velocityConversionFactor = positionConversionFactor / 60; // deg/s
