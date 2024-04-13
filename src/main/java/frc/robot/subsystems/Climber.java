@@ -13,24 +13,20 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.BeaverLogger;
 
 public class Climber extends SubsystemBase {
-  public final Supplier<Double> raiseAxis;
-  public final Supplier<Double> lowerAxis;
   private final CANSparkMax climberMotor = new CANSparkMax(16, MotorType.kBrushless);
   private final SparkPIDController climberPID;
   private final BeaverLogger logger = new BeaverLogger();
 
-  public Climber(Supplier<Double> raiseAxis, Supplier<Double> lowerAxis) {
-    this.raiseAxis = raiseAxis;
-    this.lowerAxis = lowerAxis;
-
+  public Climber() {
     climberMotor.restoreFactoryDefaults();
     climberMotor.setIdleMode(IdleMode.kBrake);
-    climberMotor.setInverted(false);
+    climberMotor.setInverted(true);
     climberMotor.setSmartCurrentLimit(40);
 
     climberPID = climberMotor.getPIDController();
@@ -55,33 +51,36 @@ public class Climber extends SubsystemBase {
   }
 
   /**
-   * Set the climber motor to 'Climber::raiseAxis'.
+   * Move the climber at the speed specified by 'percentOutput'.
    * Does not restrict movement at climber limits.
-   * @return Command to continually set the climber to 'raiseAxis'.
+   * <p>Positive speeds raise the climber (lowering the robot) and negative speeds lower it
+   * (raising the robot).
+   * @param percentOutput A supplier used to set the speed of the motor (e.g. a controller axis).
+   * @return A command to move the climber at the speed specified by the 'percentOutput' supplier.
    */
-  public RunCommand raise() {
-    return new RunCommand(() -> setMotor(raiseAxis.get()), this);
-  }
-
-  /**
-   * Set the climber motor to 'Climber::lowerAxis'.
-   * Does not restrict movement at climber limits.
-   * @return Command to continually set the climber to 'lowerAxis'.
-   */
-  public RunCommand lower() {
-    return new RunCommand(() -> setMotor(-lowerAxis.get()), this);
+  public RunCommand getMove(Supplier<Double> percentOutput) {
+    return new RunCommand(() -> setMotor(percentOutput.get()), this);
   }
 
   /**
    * Hold the climber's current position using PID.
-   * @return An InstantCommand that sets the reference of the climber PID to its current position.
+   * @return A command that sets the reference of the climber PID to its current position.
    */
-  public InstantCommand hold() {
+  public Command getHold() {
     return new InstantCommand(() -> setReference(climberMotor.getEncoder().getPosition()), this);
   }
 
-  public InstantCommand stop() {
-    return new InstantCommand(climberMotor::disable, this); // TODO: set 0
+  /**
+   * Stop the climber.
+   * @return A command that stops the climber.
+   */
+  public Command getStop() {
+    return new InstantCommand(this::stop).ignoringDisable(true);
+  }
+
+  public void stop() {
+    SmartDashboard.putNumber("Climber/Desired Percent Output", 0);
+    climberMotor.disable();
   }
 
   // wrappers for setMotor/setReference that log input values

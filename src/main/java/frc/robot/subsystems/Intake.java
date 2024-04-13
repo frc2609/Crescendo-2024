@@ -82,41 +82,21 @@ public class Intake extends SubsystemBase {
     wideIntakeMotor.set(percentOutput);
   }
 
-  /**
-   * Run the intake until the sensor detects a note.
-   * @return Command that intakes a note.
-   */
-  public Command getIntakeNote() {
-    return Commands.startEnd(
-      () -> { 
-        setMotor(0.7);
-        SmartDashboard.putBoolean("Intake/Intaking", true);
-      },
-      () -> {
-        setMotor(0);
-        SmartDashboard.putBoolean("Intake/Intaking", false);
-      },
-      this
-    ).until(this::getSensor);
-  }
-
-  /**
-   * Run the intake when the sensor doesn't detect a note.
-   * @return Command that runs the intake a note whenever the sensor doesn't detect a note.
-   */
-  public Command getIntakeNoteRepeatedly() {
-    return Commands.runEnd(
-      () -> setMotor(getSensor() ? 0.0 : 1.0),
-      () -> setMotor(0),
-      this
-    );
-  }
+  // -- Command Factories
 
   /**
    * Expel the note (score on amp or trap), stopping after a timeout expires.
    * @return Command composition that expels a note.
    */
-  public ParallelRaceGroup getExpelNote() {
+  public Command getExpelNote() {
+    return getExpelNoteContinuously().withTimeout(0.2);
+  }
+
+  /**
+   * Expel the note (score on amp or trap), stopping when interrupted.
+   * @return Command composition that expels a note.
+   */
+  public Command getExpelNoteContinuously() {
     return Commands.startEnd(
       () -> {
         setMotor(-1);
@@ -128,7 +108,7 @@ public class Intake extends SubsystemBase {
         SmartDashboard.putBoolean("Intake/Expelling", false);
       },
       this
-    ).withTimeout(0.2);
+    );
   }
 
   /**
@@ -160,6 +140,43 @@ public class Intake extends SubsystemBase {
       3,
       "FeedNoteOnReady"
     ).andThen(getFeedNote());
+  }
+
+  /**
+   * Run the intake until the sensor detects a note.
+   * @return Command that intakes a note.
+   */
+  public Command getIntakeNote() {
+    return Commands.startEnd(
+      () -> { 
+        setMotor(0.7);
+        SmartDashboard.putBoolean("Intake/Intaking", true);
+      },
+      () -> {
+        setMotor(0);
+        SmartDashboard.putBoolean("Intake/Intaking", false);
+      },
+      this
+    ).until(this::getSensor);
+  }
+
+  /**
+   * Run the intake when the sensor doesn't detect a note.
+   * @return Command that runs the intake a note whenever the sensor doesn't detect a note.
+   */
+  public Command getIntakeNoteContinuously() {
+    return Commands.runEnd(
+      () -> {
+        boolean sensor = getSensor(); // use the same value for both lines below
+        setMotor(sensor ? 0.0 : 1.0);
+        SmartDashboard.putBoolean("Intake/Intaking", sensor);
+      },
+      () -> { 
+        setMotor(0);
+        SmartDashboard.putBoolean("Intake/Intaking", false);
+      },
+      this
+    );
   }
 
   /**
