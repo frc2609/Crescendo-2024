@@ -59,7 +59,7 @@ public class AprilTagTrackDrive extends Command {
     Rotation2d heading;
 
     // TODO: report true for limelight pose portion *always* when in simulation
-    if (!RobotContainer.drive.odometryOutOfRange() && (RobotContainer.rearLimelight.isPoseValid() || RobotContainer.sideLimelight.isPoseValid())) {
+    if (!RobotContainer.drive.odometryOutOfRange() && RobotContainer.rearLimelight.isPoseValid()) {
       odometryValidTimer.restart();
       heading = getHeadingToTag();
       aligningToTag = true;
