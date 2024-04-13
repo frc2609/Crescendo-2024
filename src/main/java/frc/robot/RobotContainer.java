@@ -50,7 +50,7 @@ public class RobotContainer {
   public static final CommandXboxController driverController = new CommandXboxController(0);
   public static final CommandXboxController operatorController = new CommandXboxController(1);
 
-  public static final Climber climber = new Climber(operatorController::getLeftTriggerAxis, operatorController::getRightTriggerAxis);
+  public static final Climber climber = new Climber(() -> 0.8, () -> 0.6);
   public static final Drive drive = new Drive(false);
   public static final Elevator elevator = new Elevator();
   public static final Intake intake = new Intake();
@@ -69,7 +69,7 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("ResetPoseToLimelight", rearLimelight.getResetRobotPose());
     NamedCommands.registerCommand("IntakeNote", intake.getIntakeNote());
-    NamedCommands.registerCommand("IntakeNoteRepeatedly", RobotContainer.intake.getIntakeNoteRepeatedly());
+    NamedCommands.registerCommand("IntakeNoteContinuously", RobotContainer.intake.getIntakeNoteContinuously());
     NamedCommands.registerCommand("ShootNote", new ShootNote());
     NamedCommands.registerCommand("ShootNoteContinuously", new ShootNoteContinuously());
     NamedCommands.registerCommand("PrintOnCheckpoint", Commands.print("Reached Checkpoint!"));
@@ -94,10 +94,6 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    // Vision
-    operatorController.start().onTrue(rearLimelight.getResetRobotPose());
-    operatorController.leftStick().whileTrue(rearLimelight.getEstimateRobotPose());
-
     // Automation
     driverController.leftBumper().toggleOnTrue(
       new ShootNote().handleInterrupt(() -> new IdleShooter().schedule())
@@ -111,37 +107,29 @@ public class RobotContainer {
         new ResetIntakeAndElevator()
       )
     );
-    // new Trigger(() -> driverController.getRightTriggerAxis() > 0.05)
-    //   .whileTrue(new AutoScoreAmp(driverController::getRightTriggerAxis))
-    //   .onFalse(new ResetIntakeAndElevator()); // if the above command is interrupted
-
-    // Swerve
-    driverController.start().onTrue(new InstantCommand(drive::teleopResetGyro).ignoringDisable(true));
-
-    // Elevator
-    driverController.povUp().onTrue(new MoveElevatorToPosition(Position.amp));
-    driverController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
-    operatorController.povUp().onTrue(new MoveElevatorToPosition(Position.amp));
-    operatorController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
 
     // Climber
-    new Trigger(() -> climber.raiseAxis.get() > 0.1)
+    driverController.povUp()
       .whileTrue(climber.raise())
       .onFalse(climber.hold());
-    new Trigger(() -> climber.lowerAxis.get() > 0.1)
+    driverController.povDown()
       .whileTrue(climber.lower())
       .onFalse(climber.hold());
     
+    // Drive
+    driverController.start().onTrue(new InstantCommand(drive::teleopResetGyro).ignoringDisable(true));
+    
+    // Elevator
+    driverController.povRight().onTrue(new MoveElevatorToPosition(Position.amp));
+    driverController.povLeft().onTrue(new MoveElevatorToPosition(Position.intake));
+    operatorController.povUp().onTrue(new MoveElevatorToPosition(Position.amp));
+    operatorController.povDown().onTrue(new MoveElevatorToPosition(Position.intake));
+
     // Intake
     // Fake the note being picked up during simulation.
     new NetworkPushButton("Intake NoteHeld Override", () -> intake.noteHeld = true, true);
-    new Trigger(() -> driverController.getRightTriggerAxis() > 0.2).whileTrue(intake.getIntakeNoteRepeatedly());
-    // we have no use for these buttons currently, but these buttons aren't strictly necessary
-    // if you need them for something, you can remove them, if not, we're leaving them as backups
-    driverController.a().toggleOnTrue(intake.getIntakeNote());
-    driverController.b().onTrue(intake.getExpelNote());
-    driverController.y().onTrue(intake.getFeedNoteOnReady());
-    driverController.x().onTrue(intake.getTurnOff());
+    new Trigger(() -> driverController.getLeftTriggerAxis() > 0.2).whileTrue(intake.getExpelNoteContinuously());
+    new Trigger(() -> driverController.getRightTriggerAxis() > 0.2).whileTrue(intake.getIntakeNoteContinuously());
     operatorController.a().toggleOnTrue(intake.getIntakeNote());
     operatorController.b().onTrue(intake.getExpelNote());
     operatorController.y().onTrue(intake.getFeedNoteOnReady());
@@ -153,6 +141,10 @@ public class RobotContainer {
     operatorController.rightBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtPodium, true));
     operatorController.povLeft().whileTrue(new SetShooterToPreset(ShooterPreset.kThrowNoteLow, false));
     operatorController.povRight().whileTrue(new SetShooterToPreset(ShooterPreset.kThrowNoteHigh, false));
+
+    // Vision
+    operatorController.start().onTrue(rearLimelight.getResetRobotPose());
+    operatorController.leftStick().whileTrue(rearLimelight.getEstimateRobotPose());
   }
 
   public Command getAutonomousCommand() {
