@@ -50,7 +50,7 @@ public class RobotContainer {
   public static final CommandXboxController driverController = new CommandXboxController(0);
   public static final CommandXboxController operatorController = new CommandXboxController(1);
 
-  public static final Climber climber = new Climber(() -> 0.8, () -> 0.6);
+  public static final Climber climber = new Climber();
   public static final Drive drive = new Drive(false);
   public static final Elevator elevator = new Elevator();
   public static final Intake intake = new Intake();
@@ -110,11 +110,11 @@ public class RobotContainer {
 
     // Climber
     driverController.povUp()
-      .whileTrue(climber.raise())
-      .onFalse(climber.hold());
+      .whileTrue(climber.getMove(() -> 0.8))
+      .onFalse(climber.getHold());
     driverController.povDown()
-      .whileTrue(climber.lower())
-      .onFalse(climber.hold());
+      .whileTrue(climber.getMove(() -> 0.6))
+      .onFalse(climber.getHold());
     
     // Drive
     driverController.start().onTrue(new InstantCommand(drive::teleopResetGyro).ignoringDisable(true));
