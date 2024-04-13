@@ -1,4 +1,54 @@
 ## Controls
+### Driver:
+| Axis             | Function |
+| ---------------- | -------- |
+| Left Joystick X  | Drive left/right
+| Left Joystick Y  | Drive forward/back
+| Right Joystick X | Rotate left/right
+| Right Joystick Y | None
+| Left Trigger     | Expel note while held
+| Right Trigger    | Intake note while held (pause if intake sensor is triggered)
+
+| Button       | Function |
+| ------------ | -------- |
+| Left Stick   | None
+| Right Stick  | None
+| Left Bumper  | Auto shoot
+| Right Bumper | While held: Raise elevator to amp. When released: Score amp then drop elevator.
+| Start        | Reset yaw
+| Select       | None
+| A            | None
+| B            | None
+| X            | None
+| Y            | None
+
+| DPAD  | Function |
+| ----- | -------- |
+| Up    | Climber up (while held)
+| Down  | Climber down (while held)
+| Left  | None
+| Right | None
+
+### Operator:
+| Button       | Function |
+| ------------ | -------- |
+| Left Stick   | Add vision estimate from Limelight
+| Right Stick  | None
+| Left Bumper  | Set shooter to speaker preset
+| Right Bumper | Set shooter to podium preset
+| Start        | Reset odometry to Limelight
+| Back         | Feed note (ignoring shooter status)
+| A            | Intake note (stop when intake sensor triggered)
+| B            | Expel note
+| X            | Turn off intake
+| Y            | Feed note when shooter ready
+
+| POV   | Function |
+| ----- | -------- |
+| Up    | Move elevator to amp
+| Down  | Move elevator to intake
+| Left  | Set shooter to low throw preset
+| Right | Set shooter to high throw preset
 
 ## Code Formatting
 - Check formatting: `./gradlew spotlessCheck` (output is difficult to read through powershell, so this may be of limited use)
