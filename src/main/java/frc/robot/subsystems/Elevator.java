@@ -169,6 +169,8 @@ public class Elevator extends SubsystemBase {
   }
 
   public void stop() {
+    SmartDashboard.putNumber("Elevator/Desired Percent Output", 0);
+    SmartDashboard.putNumber("Elevator/Actual Percent Output", 0);
     liftMotor.disable();
   }
 
