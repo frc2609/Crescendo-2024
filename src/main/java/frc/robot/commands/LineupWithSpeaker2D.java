@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.LED.BlinkMode;
 import frc.robot.subsystems.LED.Pattern;
-import frc.robot.utils.LimeLightHelpers;
+import frc.robot.utils.LimelightHelpers;
 
 /**
  * Align robot heading to AprilTag using 2D tracking according to automatically-detected alliance
@@ -38,16 +38,16 @@ public class LineupWithSpeaker2D extends Command {
     // Switch to 2D pipeline
     // TODO: the tag filter should be set to IDs 4 and 7
     // TODO: set tag filter according to alliance colour
-    LimeLightHelpers.setPipelineIndex("limelight-shooter", 1);
+    LimelightHelpers.setPipelineIndex("limelight-shooter", 1);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     Rotation2d heading;
-    if (LimeLightHelpers.getTV("limelight-shooter")) {
+    if (LimelightHelpers.getTV("limelight-shooter")) {
       aligningToTag = true;
-      heading = RobotContainer.drive.drive.getOdometryHeading().plus(Rotation2d.fromDegrees(-LimeLightHelpers.getTX("limelight-shooter")));
+      heading = RobotContainer.drive.drive.getOdometryHeading().plus(Rotation2d.fromDegrees(-LimelightHelpers.getTX("limelight-shooter")));
       odometryValidTimer.restart();
     } else if (!odometryValidTimer.hasElapsed(0.5)) {
       // if we lose heading, wait for a bit before reverting to gyro

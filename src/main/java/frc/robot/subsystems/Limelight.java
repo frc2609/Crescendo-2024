@@ -4,13 +4,12 @@
 
 package frc.robot.subsystems;
 
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,7 +19,9 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.AprilTag;
-import frc.robot.utils.LimeLightHelpers;
+import frc.robot.utils.LimelightHelpers;
+import frc.robot.utils.TunableNumber;
+import frc.robot.utils.LimelightHelpers.PoseEstimate;
 
 public class Limelight extends SubsystemBase {
   public static enum Pipeline {
@@ -37,34 +38,53 @@ public class Limelight extends SubsystemBase {
     }
   }
   private final String name;
+  private final TunableNumber velocityStdDevMultiplier;
+  private final TunableNumber distanceStdDevMultiplier;
 
-  /** Creates a new Limelight. */
+  /**
+   * Creates a new Limelight.
+   * @param name Limelight NetworkTables name.
+   */
   public Limelight(String name) {
     this.name = name;
-    SmartDashboard.putNumber("Limelight/" + name + "/Distance Std Devs", 0.1);
-    SmartDashboard.putNumber("Limelight/" + name + "/Velocity Std Devs", 0.5);
+    distanceStdDevMultiplier = new TunableNumber("Limelight/" + name + "/Distance Std Dev Multiplier", 0.1);
+    velocityStdDevMultiplier = new TunableNumber("Limelight/" + name + "/Velocity Std Dev Multiplier", 0.5);
+
     // create the limelight pose object immediately instead of the first time it is used
     RobotContainer.drive.drive.field.getObject(name + " Estimated Pose");
+
+    // setup port forwarding
+    for (int port = 5800; port <= 5809; port++) {
+      PortForwarder.add(port, name + ".local", port);
+    }
   }
 
   @Override
   public void periodic() {}
 
-  /**
-   * Calculate standard deviations for the robot's pose estimator based on the accuracy of the
-   * current detected pose.
-   * @return [x/y std devs, rotation std devs]
-   */
-  public double[] calculateStdDevs() {
-    double distanceStdDevMultiplier = SmartDashboard.getNumber("Limelight/" + name + "/Distance Std Devs", 0.1);
-    double velocityStdDevMultiplier = SmartDashboard.getNumber("Limelight/" + name + "/Velocity Std Devs", 0.5);
-    double tagArea = LimeLightHelpers.getTA(name); // SKETCHY
-    double xyStds = distanceStdDevMultiplier * (1 / tagArea) + velocityStdDevMultiplier * RobotContainer.drive.getVelocity();
-    double rotStds = 20;
-    SmartDashboard.putNumber("Limelight/" + name + "/TA", tagArea);
-    SmartDashboard.putNumber("Limelight/" + name + "/XY STDS", xyStds);
-    SmartDashboard.putNumber("Limelight/" + name + "/ROT STDS", rotStds);
-    return new double[] { xyStds, rotStds };
+  // TODO: try all of these (or a combination of these) to see which is most effective
+
+  // why: accuracy decreases with tag distance and velocity
+  public double calculateXYStdDevs1(PoseEstimate measurement) {
+    return measurement.avgTagDist * distanceStdDevMultiplier.get()
+      + Math.max(Math.abs(RobotContainer.drive.getVelocity()) * velocityStdDevMultiplier.get(), 0);
+  }
+
+  // why: accuracy increases substantially with more than 1 tag
+  public double calculateXYStdDevs2(PoseEstimate measurement) {
+    return measurement.tagCount >= 2 ? 0.7 : 1.4;
+  }
+
+  // why: accuracy increases substantially with more than 1 tag (more aggressive version of #2)
+  public double calculateXYStdDevs3(PoseEstimate measurement) {
+    return measurement.tagCount >= 2 ? 0.7 : 9999999;
+  }
+
+  // why: invalid poses often have inaccurate rotation components
+  public double calculateXYStdDevs4(PoseEstimate measurement) {
+    double rotationError = RobotContainer.drive.getPoseEfficiently().getRotation()
+      .minus(measurement.pose.getRotation()).getDegrees();
+    return (rotationError / 45.0); // 1m std dev per ___ deg off
   }
 
   /**
@@ -72,16 +92,19 @@ public class Limelight extends SubsystemBase {
    */
   public void estimateRobotPose() {
     setPipeline(Pipeline.localizeRobot);
-    var detectedPose = getPose();
-    if (isPoseValid(detectedPose)) {
-      double latencyMS = LimeLightHelpers.getLatency_Capture(name) / 1000.0;
-      double[] stdDevs = calculateStdDevs();
-
-      RobotContainer.drive.drive.addVisionMeasurement(new Pose2d(detectedPose.get().getTranslation(), RobotContainer.drive.drive.getOdometryHeading()), Timer.getFPGATimestamp() - latencyMS, VecBuilder.fill(stdDevs[0], stdDevs[0], Units.degreesToRadians(stdDevs[1])));
+    PoseEstimate measurement = getPoseEstimate();
+    if (measurement.tagCount >= 1) {
+      SmartDashboard.putNumber("Limelight/" + name + "/Distance from Odometry", getOdometryDifference(measurement.pose));
       
-      SmartDashboard.putNumber("Limelight/" + name + "/Latency (MS)", latencyMS);
-      SmartDashboard.putNumber("Limelight/" + name + "/Odometry Error", getOdometryDifference(detectedPose.get()));
-      SmartDashboard.putNumber("Limelight/" + name + "/Total Target Area", LimeLightHelpers.getTA(name));
+      double xyStds = calculateXYStdDevs2(measurement);
+      SmartDashboard.putNumber("Limelight/" + name + "/XY Std Devs", xyStds);
+
+      RobotContainer.drive.drive.addVisionMeasurement(
+        // ignore rotation
+        new Pose2d(measurement.pose.getTranslation(), RobotContainer.drive.drive.getOdometryHeading()),
+        measurement.timestampSeconds,
+        VecBuilder.fill(xyStds, xyStds, 1)
+      );
     }
   }
 
@@ -91,7 +114,7 @@ public class Limelight extends SubsystemBase {
    * @return The amount of targets detected.
    */
   public int getNumTargetsFast(boolean printTime) {
-    String jsonDump = LimeLightHelpers.getJSONDump(name);
+    String jsonDump = LimelightHelpers.getJSONDump(name);
     double start = Timer.getFPGATimestamp();
     Pattern pattern = Pattern.compile("\"fID\":\\d+");
     Matcher matcher = pattern.matcher(jsonDump);
@@ -108,30 +131,25 @@ public class Limelight extends SubsystemBase {
   }
 
   /**
-   * Get the current detected pose. May or may not be valid.
-   * @return The current detected robot pose if valid or Optional.empty() if not.
+   * Get the current pose estimate from LimelightHelpers.
+   * <p>Also logs some data to SmartDashboard.
+   * @return Current pose estimate.
    */
-  public Optional<Pose2d> getPose() {
-    // TODO: check in periodic and set to member variable (instead of potentially calling multiple times per loop)
-    if (!LimeLightHelpers.getTV(name)) { 
-      SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", false);
-      return Optional.empty();
-    } else {
-      var pose = LimeLightHelpers.getBotPose2d_wpiBlue(name);
-      SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", true);
-      RobotContainer.drive.drive.field.getObject(name + " Estimated Pose").setPose(pose);
-      return Optional.of(pose);
-    }
+  public PoseEstimate getPoseEstimate() {
+    PoseEstimate measurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(name);
+    SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", measurement.tagCount >= 1);
+    RobotContainer.drive.drive.field.getObject(name + " Estimated Pose").setPose(measurement.pose);
+    return measurement;
   }
 
   /**
-   * Check if the current detected pose is valid.
-   * @return If the current detected pose is valid.
+   * Check if the provided pose estimate is valid and within the field.
+   * @return If the provided pose estimate is valid.
    */
   public boolean isPoseValid() {
-    // sketchy, could be valid when called but invalid when actually detecting
-    // TODO: record pose to member then check that for validity
-    return isPoseValid(getPose());
+    // TODO: still sketchy, as pose can change between calls to getPoseEstimate()
+    var measurement = getPoseEstimate();
+    return poseWithinField(measurement.pose) && measurement.tagCount >= 1;
   }
 
   /**
@@ -139,15 +157,10 @@ public class Limelight extends SubsystemBase {
    */
   public void resetRobotPose() {
     setPipeline(Pipeline.localizeRobot);
-    if (!LimeLightHelpers.getTV(name)) { 
-      SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", false);
-      return;
+    PoseEstimate measurement = getPoseEstimate();
+    if (measurement.tagCount >= 1) {
+      RobotContainer.drive.drive.resetOdometry(measurement.pose);
     }
-    SmartDashboard.putBoolean("Limelight/" + name + "/Pose Valid", true);
-    var pose = LimeLightHelpers.getBotPose2d_wpiBlue(name);
-
-    RobotContainer.drive.drive.field.getObject(name + " Estimated Pose").setPose(pose);
-    RobotContainer.drive.drive.resetOdometry(pose);
   }
 
   /**
@@ -198,22 +211,9 @@ public class Limelight extends SubsystemBase {
    * @param pose Pose to check.
    * @return Whether pose is within game field.
    */
-  public static boolean isPoseValid(Pose2d pose) {
+  public static boolean poseWithinField(Pose2d pose) {
     return (pose.getX() >= 0 && pose.getX() <= AprilTag.fieldLayout.getFieldLength())
       && (pose.getY() >= 0 && pose.getY() <= AprilTag.fieldLayout.getFieldWidth());
-  }
-
-  /**
-   * Check whether pose is present and within game field.
-   * @param pose Optional<Pose2d> to check.
-   * @return Whether pose is present and within game field.
-   */
-  public static boolean isPoseValid(Optional<Pose2d> pose) {
-    if (pose.isPresent()) {
-      return isPoseValid(pose.get());
-    } else {
-      return false;
-    }
   }
 
   /**
