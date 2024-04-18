@@ -17,6 +17,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -66,6 +67,10 @@ public class ShooterAngle extends SubsystemBase {
   private Rotation2d targetAngle = reverseLimit; // used for 'atTarget()' exclusively
   private final Alert absoluteAngleOutOfRange = new Alert("Shooter Absolute Angle Out of Reasonable Range", AlertType.ERROR);
   private final BeaverLogger logger = new BeaverLogger();
+
+  // for velocity calculation;
+  private Rotation2d prevAngle;
+  private double prevTime = -1; 
   
   /** Creates a new NewShooterAngle. */
   public ShooterAngle() {
@@ -95,14 +100,31 @@ public class ShooterAngle extends SubsystemBase {
 
   @Override
   public void periodic() {
+    double current_velocity = 0.0;
+    double current_time = Timer.getFPGATimestamp();
+
+    // make sure it's not the first loop
+    if(prevTime != -1){
+      current_velocity = getAbsoluteAngle().minus(prevAngle).getDegrees()/(current_time-prevTime);
+    }
+    prevTime = current_time;
+    prevAngle = getAbsoluteAngle();
+
+    // TODO: make sure these are in the same units
+    SmartDashboard.putNumber("Shooter/Angle/Velocity", current_velocity);
+    SmartDashboard.putNumber("Shooter/Angle/Desired Velocity", anglePID.getSetpoint().velocity);
+
+
     if (anglePID.getSetpoint().velocity != 0.0 || Math.abs(anglePID.getSetpoint().position - forwardLimit.getDegrees()) < setpointTolerance.getDegrees() || DriverStation.isDisabled()) {
       // don't calculate I on ramp-up or near rest
       // this also resets derivative, but it isn't used anyways (because our code doesn't run at a consistent period)
       anglePID.reset(anglePID.getSetpoint());
     }
 
-    if(anglePID.getSetpoint().position == anglePID.getGoal().position && Math.abs(anglePID.getSetpoint().position-getAbsoluteAngle().getDegrees()) > anglePID.getIZone()){
-      anglePID.reset(getAbsoluteAngle().getDegrees()); // TODO add velocity as well to this
+    // if motion profile is finished but the angle is outside of the I zone
+    if(anglePID.getSetpoint().position == targetAngle.getDegrees() && Math.abs(anglePID.getSetpoint().position-getAbsoluteAngle().getDegrees()) > anglePID.getIZone()){
+      // re-profile from the current state to the target
+      anglePID.reset(getAbsoluteAngle().getDegrees(), current_velocity);
     }
 
     double percentOutput = anglePID.calculate(getAbsoluteAngle().getDegrees(), targetAngle.getDegrees()) + angleFF.calculate(Rotation2d.fromDegrees(getAbsoluteAngle().getDegrees()));
