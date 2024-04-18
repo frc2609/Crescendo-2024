@@ -31,9 +31,9 @@ public class AutoSetShooter2D extends Command {
   // generate a linear equation that passes through these two points
   // distance for RPM is measured from the center of the robot
   public static final double closeDistance = 1.4;
-  public static final double closeRPM = 3700;
+  public static final double closeRPM = 4700;
   public static final double farDistance = 5.0;
-  public static final double farRPM = 5800;
+  public static final double farRPM = 4700;
   public static final double rpmEquationSlope = (farRPM - closeRPM) / (farDistance - closeDistance);
   public static final double limelightPitch = 15;
   public static final double limelightHeight = 0.64;
