@@ -50,6 +50,7 @@ public class Robot extends TimedRobot {
     FollowPathCommand.warmupCommand().schedule();
     
     SmartDashboard.putNumber("Height Offset", 0.0);
+    SmartDashboard.putNumber("Angle Offset", 2.0);
     SmartDashboard.putBoolean("Revert RPM change", false);
   }
 

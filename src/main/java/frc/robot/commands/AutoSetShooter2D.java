@@ -79,7 +79,7 @@ public class AutoSetShooter2D extends Command {
       heightOffset = SmartDashboard.getNumber("Height Offset", heightOffset);
       targetHeight = speakerHeight + heightOffset - noteHeight;
     
-      final Rotation2d angle = Rotation2d.fromRadians(Math.atan(targetHeight / pivotDistanceToSpeaker)).minus(Rotation2d.fromDegrees(4));
+      final Rotation2d angle = Rotation2d.fromRadians(Math.atan(targetHeight / pivotDistanceToSpeaker)).minus(Rotation2d.fromDegrees(SmartDashboard.getNumber("Angle Offset", 4.0)));
       final double rpm = rpmEquationSlope * (distanceToSpeaker - closeDistance) + closeRPM;
       
       RobotContainer.shooterAngle.setAngle(angle);
