@@ -42,6 +42,7 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterAngle;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.Limelight.Pipeline;
+import frc.robot.subsystems.ShooterFlywheel.SpinType;
 import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.NetworkPushButton;
 import frc.robot.utils.Visualizer;
@@ -70,8 +71,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("ResetPoseToLimelight", rearLimelight.getResetRobotPose());
     NamedCommands.registerCommand("IntakeNote", intake.getIntakeNote());
     NamedCommands.registerCommand("IntakeNoteContinuously", RobotContainer.intake.getIntakeNoteContinuously());
-    NamedCommands.registerCommand("ShootNote", new ShootNote());
-    NamedCommands.registerCommand("ShootNoteContinuously", new ShootNoteContinuously());
+    NamedCommands.registerCommand("ShootNote", new ShootNote(SpinType.disable));
+    NamedCommands.registerCommand("ShootNoteContinuously", new ShootNoteContinuously(SpinType.disable));
     NamedCommands.registerCommand("PrintOnCheckpoint", Commands.print("Reached Checkpoint!"));
     NamedCommands.registerCommand("TimedDriveForward", new RunCommand(() -> drive.setChassisSpeeds(new ChassisSpeeds(isRedAlliance("TimedDriveForward") ? -1 : 1, 0, 0), true), drive).withTimeout(2));
     NamedCommands.registerCommand("WaitForButtonPress", Commands.waitUntil(driverController.back()));
@@ -96,7 +97,7 @@ public class RobotContainer {
   private void configureBindings() {
     // Automation
     driverController.leftBumper().toggleOnTrue(
-      new ShootNote().handleInterrupt(() -> new IdleShooter().schedule())
+      new ShootNote(SpinType.slowRightMotor).handleInterrupt(() -> new IdleShooter().schedule())
     );
     driverController.rightBumper().onTrue(
       new SequentialCommandGroup(

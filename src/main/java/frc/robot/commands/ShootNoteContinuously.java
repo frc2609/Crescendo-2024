@@ -16,10 +16,11 @@ public class ShootNoteContinuously extends ParallelCommandGroup {
    * Aligns robot to the speaker while setting the shooter according to current distance from the
    * speaker. While there is no note, runs the intake. When there is a note, attempts to shoot it.
    * Runs until cancelled.
+   * @param spinType Type of spin to put on the note.
    */
-  public ShootNoteContinuously() {
+  public ShootNoteContinuously(SpinType spinType) {
     var alignToSpeaker = new LineupWithSpeaker2D();
-    var autoSetShooter = new AutoSetShooter2D(SpinType.slowRightMotor);
+    var autoSetShooter = new AutoSetShooter2D(spinType);
 
     addCommands(
       alignToSpeaker,
