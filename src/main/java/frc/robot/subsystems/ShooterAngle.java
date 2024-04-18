@@ -60,7 +60,7 @@ public class ShooterAngle extends SubsystemBase {
   private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(5);
 
   // p = volts/degree of error
-  public final ProfiledPIDController anglePID = new ProfiledPIDController(0.01, 0.0, 0.0, new Constraints(280, 700));
+  public final ProfiledPIDController anglePID = new ProfiledPIDController(0.01, 0.05, 0.0, new Constraints(280, 700));
   public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.0035, comDistanceFromPivotMeters, comAngleFromForwardDegrees, massKg, "Shooter/Angle");
 
   private Rotation2d targetAngle = reverseLimit; // used for 'atTarget()' exclusively
@@ -99,6 +99,10 @@ public class ShooterAngle extends SubsystemBase {
       // don't calculate I on ramp-up or near rest
       // this also resets derivative, but it isn't used anyways (because our code doesn't run at a consistent period)
       anglePID.reset(anglePID.getSetpoint());
+    }
+
+    if(anglePID.getSetpoint().position == anglePID.getGoal().position && Math.abs(anglePID.getSetpoint().position-getAbsoluteAngle().getDegrees()) > anglePID.getIZone()){
+      anglePID.reset(getAbsoluteAngle().getDegrees()); // TODO add velocity as well to this
     }
 
     double percentOutput = anglePID.calculate(getAbsoluteAngle().getDegrees(), targetAngle.getDegrees()) + angleFF.calculate(Rotation2d.fromDegrees(getAbsoluteAngle().getDegrees()));
