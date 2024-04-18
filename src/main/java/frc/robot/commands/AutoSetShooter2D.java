@@ -31,10 +31,10 @@ public class AutoSetShooter2D extends Command {
   // generate a linear equation that passes through these two points
   // distance for RPM is measured from the center of the robot
   public static final double closeDistance = 1.4;
-  public static final double closeRPM = 4700;
+  public static double closeRPM = 4500;
   public static final double farDistance = 5.0;
-  public static final double farRPM = 4700;
-  public static final double rpmEquationSlope = (farRPM - closeRPM) / (farDistance - closeDistance);
+  public static double farRPM = 4500;
+  public static double rpmEquationSlope = (farRPM - closeRPM) / (farDistance - closeDistance);
   public static final double limelightPitch = 15;
   public static final double limelightHeight = 0.64;
   public static final double heightToTag = 1.343 - limelightHeight; // speaker tag height - limelight height (both from floor)
@@ -47,18 +47,30 @@ public class AutoSetShooter2D extends Command {
   public AutoSetShooter2D(SpinType spinType) {
     this.spinType = spinType;
     addRequirements(RobotContainer.shooterAngle, RobotContainer.shooterFlywheel);
+    // These don't get put to smartdash -> moved to robotinit
     SmartDashboard.putNumber("Height Offset", heightOffset);
+    SmartDashboard.putBoolean("Revert RPM change", false);
   }
 
   @Override
   public void initialize() {
     isRunning = true;
     RobotContainer.rearLimelight.setPipeline(Pipeline.track2d);
+    if(SmartDashboard.getBoolean("Revert RPM change", false)){
+      closeRPM = 3700;
+      farRPM = 5800;
+      rpmEquationSlope = (farRPM - closeRPM) / (farDistance - closeDistance);
+    }
   }
 
   @Override
   public void execute() {
     double distanceToSpeaker;
+    if(SmartDashboard.getBoolean("Revert RPM change", false)){
+      closeRPM = 3700;
+      farRPM = 5800;
+      rpmEquationSlope = (farRPM - closeRPM) / (farDistance - closeDistance);
+    }
     if (LimelightHelpers.getTV("limelight-shooter")) {
       isRunning = true;
       distanceToSpeaker = heightToTag / Math.tan(Math.toRadians(LimelightHelpers.getTY("limelight-shooter") + limelightPitch));

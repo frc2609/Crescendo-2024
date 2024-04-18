@@ -48,6 +48,9 @@ public class Robot extends TimedRobot {
 
     // preload PathPlanner follow path command so it doesn't delay autonomous
     FollowPathCommand.warmupCommand().schedule();
+    
+    SmartDashboard.putNumber("Height Offset", 0.0);
+    SmartDashboard.putBoolean("Revert RPM change", false);
   }
 
   @Override
