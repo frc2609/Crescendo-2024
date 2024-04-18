@@ -61,7 +61,7 @@ public class ShooterAngle extends SubsystemBase {
   private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(5);
 
   // p = volts/degree of error
-  public final ProfiledPIDController anglePID = new ProfiledPIDController(0.01, 0.05, 0.0, new Constraints(280, 700));
+  public final ProfiledPIDController anglePID = new ProfiledPIDController(0.01, 0.08, 0.0, new Constraints(280, 700));
   public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.0035, comDistanceFromPivotMeters, comAngleFromForwardDegrees, massKg, "Shooter/Angle");
 
   private Rotation2d targetAngle = reverseLimit; // used for 'atTarget()' exclusively
