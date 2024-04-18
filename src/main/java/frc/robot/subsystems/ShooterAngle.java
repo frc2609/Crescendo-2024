@@ -44,10 +44,9 @@ public class ShooterAngle extends SubsystemBase {
   public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(1.5);
 
   // Model constants
-  public static final double massKg = 6.5;
+  public static final double massKg = 8.69;
   public static final double comDistanceFromPivotMeters = 0.20;
-  public static final double comAngleFromForwardDegrees = 12;
-  public static final double armLengthMeters = 0.35;
+  public static final double comAngleFromForwardDegrees = 11.1;
 
   // measure at 90 degrees
   public static final double absoluteEncoderOffset = 0.771 - (90.0 / 360.0);
@@ -62,7 +61,7 @@ public class ShooterAngle extends SubsystemBase {
 
   // p = volts/degree of error
   public final ProfiledPIDController anglePID = new ProfiledPIDController(0.01, 0.0, 0.0, new Constraints(280, 700));
-  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.009, comDistanceFromPivotMeters, comAngleFromForwardDegrees, massKg, "Shooter/Angle");
+  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.0035, comDistanceFromPivotMeters, comAngleFromForwardDegrees, massKg, "Shooter/Angle");
 
   private Rotation2d targetAngle = reverseLimit; // used for 'atTarget()' exclusively
   private final Alert absoluteAngleOutOfRange = new Alert("Shooter Absolute Angle Out of Reasonable Range", AlertType.ERROR);
