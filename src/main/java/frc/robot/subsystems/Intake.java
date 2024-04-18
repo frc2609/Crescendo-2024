@@ -149,7 +149,7 @@ public class Intake extends SubsystemBase {
   public Command getIntakeNote() {
     return Commands.startEnd(
       () -> { 
-        setMotor(0.7);
+        setMotor(1.0);
         SmartDashboard.putBoolean("Intake/Intaking", true);
       },
       () -> {
