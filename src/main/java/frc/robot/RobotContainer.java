@@ -110,10 +110,16 @@ public class RobotContainer {
 
     // Climber
     driverController.povUp()
-      .whileTrue(climber.getMove(() -> 0.8))
+      .whileTrue(climber.getMove(() -> 0.6))
       .onFalse(climber.getHold());
     driverController.povDown()
-      .whileTrue(climber.getMove(() -> -0.6))
+      .whileTrue(climber.getMove(() -> -0.8))
+      .onFalse(climber.getHold());
+    new Trigger(() -> operatorController.getLeftTriggerAxis() > 0.1)
+      .whileTrue(climber.getMove(operatorController::getLeftTriggerAxis))
+      .onFalse(climber.getHold());
+      new Trigger(() -> operatorController.getRightTriggerAxis() > 0.1)
+      .whileTrue(climber.getMove(() -> -operatorController.getRightTriggerAxis()))
       .onFalse(climber.getHold());
     
     // Drive
