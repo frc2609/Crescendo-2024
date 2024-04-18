@@ -122,7 +122,9 @@ public class ShooterAngle extends SubsystemBase {
     }
 
     // if motion profile is finished but the angle is outside of the I zone
-    if(anglePID.getSetpoint().position == targetAngle.getDegrees() && Math.abs(anglePID.getSetpoint().position-getAbsoluteAngle().getDegrees()) > anglePID.getIZone()){
+    SmartDashboard.putNumber("Shooter/Angle/pos setp", anglePID.getSetpoint().position);
+    SmartDashboard.putNumber("Shooter/Angle/target angle", targetAngle.getDegrees());
+    if(anglePID.getSetpoint().velocity == 0.0 && anglePID.getSetpoint().position == targetAngle.getDegrees() && Math.abs(anglePID.getSetpoint().position-getAbsoluteAngle().getDegrees()) > anglePID.getIZone()){
       // re-profile from the current state to the target
       anglePID.reset(getAbsoluteAngle().getDegrees(), current_velocity);
     }
