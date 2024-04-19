@@ -150,6 +150,8 @@ public class ShooterAngle extends SubsystemBase {
       // re-profile from the current state to the target because velocity has been below 1.5 for 0.5 seconds
       anglePID.reset(getAbsoluteAngle().getDegrees(), current_velocity);
       SmartDashboard.putBoolean("Shooter/Angle/stuckInIZone", true);
+      anglePID.setI(anglePID.getI()+0.01);
+      stuckTimer.reset();
     }
 
     SmartDashboard.putNumber("Shooter/Angle/Stuck timer", stuckTimer.get());
@@ -180,6 +182,7 @@ public class ShooterAngle extends SubsystemBase {
     }
     else if (atTarget()) {
       RobotContainer.led.setSegmentPattern("angle", Pattern.INTAKE_NOTE, BlinkMode.SOLID);
+      anglePID.setI(0.08);
     } else {
       RobotContainer.led.setSegmentPattern("angle", Pattern.RED, BlinkMode.SOLID);
     }
