@@ -40,7 +40,7 @@ public class ShooterAngle extends SubsystemBase {
   // ** Angle Direction: +ve = Forward, towards elevator. **
   public static final Rotation2d forwardLimit = Rotation2d.fromDegrees(70);
   public static final Rotation2d forwardTolerance = Rotation2d.fromDegrees(3);
-  public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(15.1);
+  public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(8.7);
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(1);
   public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(1.5);
 
@@ -71,6 +71,9 @@ public class ShooterAngle extends SubsystemBase {
   // for velocity calculation;
   private Rotation2d prevAngle;
   private double prevTime = -1; 
+
+  // for getting the shooter un-stuck
+  private Timer stuckTimer = new Timer();
   
   /** Creates a new NewShooterAngle. */
   public ShooterAngle() {
@@ -102,6 +105,7 @@ public class ShooterAngle extends SubsystemBase {
   public void periodic() {
     double current_velocity = 0.0;
     double current_time = Timer.getFPGATimestamp();
+    boolean isStuck = false; // for LED purposes
 
     // make sure it's not the first loop
     if(prevTime != -1){
@@ -124,10 +128,32 @@ public class ShooterAngle extends SubsystemBase {
     // if motion profile is finished but the angle is outside of the I zone
     SmartDashboard.putNumber("Shooter/Angle/pos setp", anglePID.getSetpoint().position);
     SmartDashboard.putNumber("Shooter/Angle/target angle", targetAngle.getDegrees());
+    SmartDashboard.putBoolean("Shooter/Angle/stuckOutIZone", false);
+    // re-profile if outside I-zone
     if(anglePID.getSetpoint().velocity == 0.0 && anglePID.getSetpoint().position == targetAngle.getDegrees() && Math.abs(anglePID.getSetpoint().position-getAbsoluteAngle().getDegrees()) > anglePID.getIZone()){
       // re-profile from the current state to the target
       anglePID.reset(getAbsoluteAngle().getDegrees(), current_velocity);
+      isStuck = true;
+      SmartDashboard.putBoolean("Shooter/Angle/stuckOutIZone", true);
     }
+    // check if re-profiling inside I zone is neccessary
+    else if(!atTarget() && Math.abs(current_velocity) < 1.5){
+      isStuck = true;
+      stuckTimer.start();
+    }else{
+      isStuck = false;
+      stuckTimer.reset();
+    }
+    SmartDashboard.putBoolean("Shooter/Angle/stuckInIZone", false);
+
+    if(stuckTimer.hasElapsed(0.5)){
+      // re-profile from the current state to the target because velocity has been below 1.5 for 0.5 seconds
+      anglePID.reset(getAbsoluteAngle().getDegrees(), current_velocity);
+      SmartDashboard.putBoolean("Shooter/Angle/stuckInIZone", true);
+    }
+
+    SmartDashboard.putNumber("Shooter/Angle/Stuck timer", stuckTimer.get());
+    SmartDashboard.putBoolean("Shooter/Angle/isStuck", isStuck);
 
     double percentOutput = anglePID.calculate(getAbsoluteAngle().getDegrees(), targetAngle.getDegrees()) + angleFF.calculate(Rotation2d.fromDegrees(getAbsoluteAngle().getDegrees()));
     double velocityFF = MathUtil.clamp(angleKVGain.get() * anglePID.getSetpoint().velocity, -0.4, 0.4);
@@ -149,7 +175,10 @@ public class ShooterAngle extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/Angle/PIDF Percent Output", percentOutput);
     SmartDashboard.putBoolean("Shooter/Angle/At Target", atTarget());
     
-    if (atTarget()) {
+    if(isStuck){
+      RobotContainer.led.setSegmentPattern("angle", Pattern.RED, BlinkMode.BLINKING_ON);
+    }
+    else if (atTarget()) {
       RobotContainer.led.setSegmentPattern("angle", Pattern.INTAKE_NOTE, BlinkMode.SOLID);
     } else {
       RobotContainer.led.setSegmentPattern("angle", Pattern.RED, BlinkMode.SOLID);
