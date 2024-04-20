@@ -53,9 +53,9 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Angle Offset", 2.0);
     SmartDashboard.putBoolean("Revert RPM change", false);
     
-    SmartDashboard.putNumber("Angle setp", 20.0);
-    SmartDashboard.putNumber("RPM setp", 3500.0);
-    SmartDashboard.putBoolean("spin enabled", true);
+    SmartDashboard.putNumber("Angle setp", 36.71);
+    SmartDashboard.putNumber("RPM setp", 4500.0);
+    SmartDashboard.putBoolean("spin enabled", false);
   }
 
   @Override
