@@ -31,6 +31,7 @@ import frc.robot.commands.MoveElevatorToPosition.Position;
 import frc.robot.commands.SetShooterToPreset.ShooterPreset;
 import frc.robot.commands.ResetIntakeAndElevator;
 import frc.robot.commands.SetShooterToPreset;
+import frc.robot.commands.SetShooterToSmartDash;
 import frc.robot.commands.ShootNote;
 import frc.robot.commands.ShootNoteContinuously;
 import frc.robot.subsystems.Climber;
@@ -144,7 +145,8 @@ public class RobotContainer {
     operatorController.back().onTrue(intake.getFeedNote());
 
     // Shooter
-    operatorController.leftBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtSpeaker, false));
+    // operatorController.leftBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtSpeaker, false));
+    operatorController.leftBumper().whileTrue(new SetShooterToSmartDash());
     operatorController.rightBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtPodium, true));
     operatorController.povLeft().whileTrue(new SetShooterToPreset(ShooterPreset.kThrowNoteLow, false));
     operatorController.povRight().whileTrue(new SetShooterToPreset(ShooterPreset.kThrowNoteHigh, false));
