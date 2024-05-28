@@ -48,6 +48,14 @@ public class Robot extends TimedRobot {
 
     // preload PathPlanner follow path command so it doesn't delay autonomous
     FollowPathCommand.warmupCommand().schedule();
+    
+    SmartDashboard.putNumber("Height Offset", 0.0);
+    SmartDashboard.putNumber("Angle Offset", 2.0);
+    SmartDashboard.putBoolean("Revert RPM change", false);
+    
+    SmartDashboard.putNumber("Angle Setpoint", 36.71);
+    SmartDashboard.putNumber("RPM Setpoint", 4500.0);
+    SmartDashboard.putBoolean("Spin Enabled", false);
   }
 
   @Override

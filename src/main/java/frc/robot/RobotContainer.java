@@ -31,6 +31,7 @@ import frc.robot.commands.MoveElevatorToPosition.Position;
 import frc.robot.commands.SetShooterToPreset.ShooterPreset;
 import frc.robot.commands.ResetIntakeAndElevator;
 import frc.robot.commands.SetShooterToPreset;
+import frc.robot.commands.SetShooterToDashboard;
 import frc.robot.commands.ShootNote;
 import frc.robot.commands.ShootNoteContinuously;
 import frc.robot.subsystems.Climber;
@@ -42,6 +43,7 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterAngle;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.Limelight.Pipeline;
+import frc.robot.subsystems.ShooterFlywheel.SpinType;
 import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.NetworkPushButton;
 import frc.robot.utils.Visualizer;
@@ -70,8 +72,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("ResetPoseToLimelight", rearLimelight.getResetRobotPose());
     NamedCommands.registerCommand("IntakeNote", intake.getIntakeNote());
     NamedCommands.registerCommand("IntakeNoteContinuously", RobotContainer.intake.getIntakeNoteContinuously());
-    NamedCommands.registerCommand("ShootNote", new ShootNote());
-    NamedCommands.registerCommand("ShootNoteContinuously", new ShootNoteContinuously());
+    NamedCommands.registerCommand("ShootNote", new ShootNote(SpinType.disable));
+    NamedCommands.registerCommand("ShootNoteContinuously", new ShootNoteContinuously(SpinType.disable));
     NamedCommands.registerCommand("PrintOnCheckpoint", Commands.print("Reached Checkpoint!"));
     NamedCommands.registerCommand("TimedDriveForward", new RunCommand(() -> drive.setChassisSpeeds(new ChassisSpeeds(isRedAlliance("TimedDriveForward") ? -1 : 1, 0, 0), true), drive).withTimeout(2));
     NamedCommands.registerCommand("WaitForButtonPress", Commands.waitUntil(driverController.back()));
@@ -96,7 +98,7 @@ public class RobotContainer {
   private void configureBindings() {
     // Automation
     driverController.leftBumper().toggleOnTrue(
-      new ShootNote().handleInterrupt(() -> new IdleShooter().schedule())
+      new ShootNote(SpinType.slowRightMotor).handleInterrupt(() -> new IdleShooter().schedule())
     );
     driverController.rightBumper().onTrue(
       new SequentialCommandGroup(
@@ -110,10 +112,16 @@ public class RobotContainer {
 
     // Climber
     driverController.povUp()
-      .whileTrue(climber.getMove(() -> 0.8))
+      .whileTrue(climber.getMove(() -> 0.6))
       .onFalse(climber.getHold());
     driverController.povDown()
-      .whileTrue(climber.getMove(() -> -0.6))
+      .whileTrue(climber.getMove(() -> -0.8))
+      .onFalse(climber.getHold());
+    new Trigger(() -> operatorController.getLeftTriggerAxis() > 0.1)
+      .whileTrue(climber.getMove(operatorController::getLeftTriggerAxis))
+      .onFalse(climber.getHold());
+      new Trigger(() -> operatorController.getRightTriggerAxis() > 0.1)
+      .whileTrue(climber.getMove(() -> -operatorController.getRightTriggerAxis()))
       .onFalse(climber.getHold());
     
     // Drive
@@ -137,7 +145,8 @@ public class RobotContainer {
     operatorController.back().onTrue(intake.getFeedNote());
 
     // Shooter
-    operatorController.leftBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtSpeaker, false));
+    // operatorController.leftBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtSpeaker, false));
+    operatorController.leftBumper().whileTrue(new SetShooterToDashboard());
     operatorController.rightBumper().whileTrue(new SetShooterToPreset(ShooterPreset.kAtPodium, true));
     operatorController.povLeft().whileTrue(new SetShooterToPreset(ShooterPreset.kThrowNoteLow, false));
     operatorController.povRight().whileTrue(new SetShooterToPreset(ShooterPreset.kThrowNoteHigh, false));

@@ -14,4 +14,5 @@ When Robot Connected:
 - DS reports full Comms, Robot Code, Joysticks
 - Auto selected
 - Limelights report correct auto pose
+- Reset robot pose to odometry (press start on operator controller)
 - Stand behind auto line !

@@ -14,10 +14,11 @@ public class ShootNote extends SequentialCommandGroup {
   /**
    * Aligns robot to the speaker, sets the shooter according to current distance from the speaker,
    * then feeds game piece when shooter is ready and heading is aligned.
+   * @param spinType Type of spin to put on the note.
    */
-  public ShootNote() {
+  public ShootNote(SpinType spinType) {
     var alignToSpeaker = new LineupWithSpeaker2D();
-    var autoSetShooter = new AutoSetShooter2D(SpinType.slowRightMotor);
+    var autoSetShooter = new AutoSetShooter2D(spinType);
 
     addCommands(
       new ParallelDeadlineGroup(

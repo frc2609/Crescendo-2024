@@ -17,6 +17,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -39,15 +40,14 @@ public class ShooterAngle extends SubsystemBase {
   // ** Angle Direction: +ve = Forward, towards elevator. **
   public static final Rotation2d forwardLimit = Rotation2d.fromDegrees(70);
   public static final Rotation2d forwardTolerance = Rotation2d.fromDegrees(3);
-  public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(15.1);
+  public static final Rotation2d reverseLimit = Rotation2d.fromDegrees(8.7);
   public static final Rotation2d reverseTolerance = Rotation2d.fromDegrees(1);
   public static final Rotation2d setpointTolerance = Rotation2d.fromDegrees(1.5);
 
   // Model constants
-  public static final double massKg = 6.5;
+  public static final double massKg = 8.69;
   public static final double comDistanceFromPivotMeters = 0.20;
-  public static final double comAngleFromForwardDegrees = 12;
-  public static final double armLengthMeters = 0.35;
+  public static final double comAngleFromForwardDegrees = 11.1;
 
   // measure at 90 degrees
   public static final double absoluteEncoderOffset = 0.771 - (90.0 / 360.0);
@@ -61,12 +61,19 @@ public class ShooterAngle extends SubsystemBase {
   private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(5);
 
   // p = volts/degree of error
-  public final ProfiledPIDController anglePID = new ProfiledPIDController(0.01, 0.0, 0.0, new Constraints(280, 700));
-  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.009, comDistanceFromPivotMeters, comAngleFromForwardDegrees, massKg, "Shooter/Angle");
+  public final ProfiledPIDController anglePID = new ProfiledPIDController(0.01, 0.08, 0.0, new Constraints(280, 700));
+  public final ArmFeedforward angleFF = new ArmFeedforward(0.0, 0.0035, comDistanceFromPivotMeters, comAngleFromForwardDegrees, massKg, "Shooter/Angle");
 
   private Rotation2d targetAngle = reverseLimit; // used for 'atTarget()' exclusively
   private final Alert absoluteAngleOutOfRange = new Alert("Shooter Absolute Angle Out of Reasonable Range", AlertType.ERROR);
   private final BeaverLogger logger = new BeaverLogger();
+
+  // for velocity calculation;
+  private Rotation2d prevAngle;
+  private double prevTime = -1; 
+
+  // for getting the shooter un-stuck
+  private Timer stuckTimer = new Timer();
   
   /** Creates a new NewShooterAngle. */
   public ShooterAngle() {
@@ -96,11 +103,58 @@ public class ShooterAngle extends SubsystemBase {
 
   @Override
   public void periodic() {
+    double current_velocity = 0.0;
+    double current_time = Timer.getFPGATimestamp();
+    boolean isStuck = false; // for LED purposes
+
+    // make sure it's not the first loop
+    if (prevTime != -1) {
+      current_velocity = getAbsoluteAngle().minus(prevAngle).getDegrees() / (current_time - prevTime);
+    }
+    prevTime = current_time;
+    prevAngle = getAbsoluteAngle();
+
+    // TODO: make sure these are in the same units
+    SmartDashboard.putNumber("Shooter/Angle/Velocity", current_velocity);
+    SmartDashboard.putNumber("Shooter/Angle/Desired Velocity", anglePID.getSetpoint().velocity);
+
     if (anglePID.getSetpoint().velocity != 0.0 || Math.abs(anglePID.getSetpoint().position - forwardLimit.getDegrees()) < setpointTolerance.getDegrees() || DriverStation.isDisabled()) {
       // don't calculate I on ramp-up or near rest
       // this also resets derivative, but it isn't used anyways (because our code doesn't run at a consistent period)
       anglePID.reset(anglePID.getSetpoint());
     }
+
+    // if motion profile is finished but the angle is outside of the I zone
+    SmartDashboard.putNumber("Shooter/Angle/pos setp", anglePID.getSetpoint().position);
+    SmartDashboard.putNumber("Shooter/Angle/target angle", targetAngle.getDegrees());
+    SmartDashboard.putBoolean("Shooter/Angle/stuckOutIZone", false);
+    // re-profile if outside I-zone
+    if (anglePID.getSetpoint().velocity == 0.0 && anglePID.getSetpoint().position == targetAngle.getDegrees() && Math.abs(anglePID.getSetpoint().position-getAbsoluteAngle().getDegrees()) > anglePID.getIZone()) {
+      // re-profile from the current state to the target
+      anglePID.reset(getAbsoluteAngle().getDegrees(), current_velocity);
+      isStuck = true;
+      SmartDashboard.putBoolean("Shooter/Angle/stuckOutIZone", true);
+    }
+    // check if re-profiling inside I zone is neccessary
+    else if (!atTarget() && Math.abs(current_velocity) < 1.5) {
+      isStuck = true;
+      stuckTimer.start();
+    } else {
+      isStuck = false;
+      stuckTimer.reset();
+    }
+    SmartDashboard.putBoolean("Shooter/Angle/stuckInIZone", false);
+
+    if (stuckTimer.hasElapsed(0.5)) {
+      // re-profile from the current state to the target because velocity has been below 1.5 for 0.5 seconds
+      anglePID.reset(getAbsoluteAngle().getDegrees(), current_velocity);
+      SmartDashboard.putBoolean("Shooter/Angle/stuckInIZone", true);
+      anglePID.setI(anglePID.getI() + 0.01);
+      stuckTimer.reset();
+    }
+
+    SmartDashboard.putNumber("Shooter/Angle/Stuck timer", stuckTimer.get());
+    SmartDashboard.putBoolean("Shooter/Angle/isStuck", isStuck);
 
     double percentOutput = anglePID.calculate(getAbsoluteAngle().getDegrees(), targetAngle.getDegrees()) + angleFF.calculate(Rotation2d.fromDegrees(getAbsoluteAngle().getDegrees()));
     double velocityFF = MathUtil.clamp(angleKVGain.get() * anglePID.getSetpoint().velocity, -0.4, 0.4);
@@ -122,8 +176,11 @@ public class ShooterAngle extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/Angle/PIDF Percent Output", percentOutput);
     SmartDashboard.putBoolean("Shooter/Angle/At Target", atTarget());
     
-    if (atTarget()) {
+    if (isStuck) {
+      RobotContainer.led.setSegmentPattern("angle", Pattern.RED, BlinkMode.BLINKING_ON);
+    } else if (atTarget()) {
       RobotContainer.led.setSegmentPattern("angle", Pattern.INTAKE_NOTE, BlinkMode.SOLID);
+      anglePID.setI(0.08);
     } else {
       RobotContainer.led.setSegmentPattern("angle", Pattern.RED, BlinkMode.SOLID);
     }

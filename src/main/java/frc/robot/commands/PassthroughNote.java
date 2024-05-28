@@ -24,7 +24,7 @@ public class PassthroughNote extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    RobotContainer.intake.setMotor(0);
-    RobotContainer.shooterFlywheel.coast();
+    // RobotContainer.intake.setMotor(0);
+    // RobotContainer.shooterFlywheel.coast();
   }
 }
