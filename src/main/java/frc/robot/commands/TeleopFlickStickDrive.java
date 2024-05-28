@@ -24,7 +24,9 @@ public class TeleopFlickStickDrive extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    RobotContainer.drive.drive.swerveController.lastAngleScalar = RobotContainer.drive.drive.getOdometryHeading().getRadians();
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
