@@ -21,7 +21,7 @@ public class SetShooterToDashboard extends Command {
 
   @Override
   public void execute() {
-    RobotContainer.shooterAngle.setAngle(new Rotation2d(Math.toRadians(SmartDashboard.getNumber("Shooter Angle Setpoint", 20.0))));
+    RobotContainer.shooterAngle.setAngle(new Rotation2d(Math.toRadians(SmartDashboard.getNumber("Angle Setpoint", 20.0))));
     
     RobotContainer.shooterFlywheel.setSpeed(
       SmartDashboard.getNumber("RPM Setpoint", 3500.0),

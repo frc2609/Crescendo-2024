@@ -108,8 +108,8 @@ public class ShooterAngle extends SubsystemBase {
     boolean isStuck = false; // for LED purposes
 
     // make sure it's not the first loop
-    if(prevTime != -1){
-      current_velocity = getAbsoluteAngle().minus(prevAngle).getDegrees()/(current_time-prevTime);
+    if (prevTime != -1) {
+      current_velocity = getAbsoluteAngle().minus(prevAngle).getDegrees() / (current_time - prevTime);
     }
     prevTime = current_time;
     prevAngle = getAbsoluteAngle();
@@ -117,7 +117,6 @@ public class ShooterAngle extends SubsystemBase {
     // TODO: make sure these are in the same units
     SmartDashboard.putNumber("Shooter/Angle/Velocity", current_velocity);
     SmartDashboard.putNumber("Shooter/Angle/Desired Velocity", anglePID.getSetpoint().velocity);
-
 
     if (anglePID.getSetpoint().velocity != 0.0 || Math.abs(anglePID.getSetpoint().position - forwardLimit.getDegrees()) < setpointTolerance.getDegrees() || DriverStation.isDisabled()) {
       // don't calculate I on ramp-up or near rest
@@ -130,27 +129,27 @@ public class ShooterAngle extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/Angle/target angle", targetAngle.getDegrees());
     SmartDashboard.putBoolean("Shooter/Angle/stuckOutIZone", false);
     // re-profile if outside I-zone
-    if(anglePID.getSetpoint().velocity == 0.0 && anglePID.getSetpoint().position == targetAngle.getDegrees() && Math.abs(anglePID.getSetpoint().position-getAbsoluteAngle().getDegrees()) > anglePID.getIZone()){
+    if (anglePID.getSetpoint().velocity == 0.0 && anglePID.getSetpoint().position == targetAngle.getDegrees() && Math.abs(anglePID.getSetpoint().position-getAbsoluteAngle().getDegrees()) > anglePID.getIZone()) {
       // re-profile from the current state to the target
       anglePID.reset(getAbsoluteAngle().getDegrees(), current_velocity);
       isStuck = true;
       SmartDashboard.putBoolean("Shooter/Angle/stuckOutIZone", true);
     }
     // check if re-profiling inside I zone is neccessary
-    else if(!atTarget() && Math.abs(current_velocity) < 1.5){
+    else if (!atTarget() && Math.abs(current_velocity) < 1.5) {
       isStuck = true;
       stuckTimer.start();
-    }else{
+    } else {
       isStuck = false;
       stuckTimer.reset();
     }
     SmartDashboard.putBoolean("Shooter/Angle/stuckInIZone", false);
 
-    if(stuckTimer.hasElapsed(0.5)){
+    if (stuckTimer.hasElapsed(0.5)) {
       // re-profile from the current state to the target because velocity has been below 1.5 for 0.5 seconds
       anglePID.reset(getAbsoluteAngle().getDegrees(), current_velocity);
       SmartDashboard.putBoolean("Shooter/Angle/stuckInIZone", true);
-      anglePID.setI(anglePID.getI()+0.01);
+      anglePID.setI(anglePID.getI() + 0.01);
       stuckTimer.reset();
     }
 
@@ -177,10 +176,9 @@ public class ShooterAngle extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/Angle/PIDF Percent Output", percentOutput);
     SmartDashboard.putBoolean("Shooter/Angle/At Target", atTarget());
     
-    if(isStuck){
+    if (isStuck) {
       RobotContainer.led.setSegmentPattern("angle", Pattern.RED, BlinkMode.BLINKING_ON);
-    }
-    else if (atTarget()) {
+    } else if (atTarget()) {
       RobotContainer.led.setSegmentPattern("angle", Pattern.INTAKE_NOTE, BlinkMode.SOLID);
       anglePID.setI(0.08);
     } else {

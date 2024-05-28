@@ -38,7 +38,7 @@ public class LED extends SubsystemBase {
       this.blinking_i = 0;
     }
   }
-  
+
   public enum BlinkMode {
     SOLID,
     BLINKING_ON,
@@ -62,7 +62,6 @@ public class LED extends SubsystemBase {
     put(Pattern.INTAKE_IDLE, new Color(50, 0, 50));
     put(Pattern.RED, new Color(50, 0, 0));
   }};
-
   
   public LED() {
     segments = new ArrayList<>();
@@ -91,7 +90,7 @@ public class LED extends SubsystemBase {
   public Color getMovingFireColor(int position, int totalLEDs) {
     // Calculate offset based on time for movement
     double time = Timer.getFPGATimestamp();
-    int offset = (int)(time * 30) % totalLEDs;
+    int offset = (int) (time * 30) % totalLEDs;
 
     // Adjust position by offset for movement
     position = (position + offset) % totalLEDs;
@@ -106,71 +105,71 @@ public class LED extends SubsystemBase {
   }
 
   private Color interpolateColor(Color startColor, Color endColor, double ratio) {
-    int red = (doubleToInt(startColor.red) + (int)(ratio * (doubleToInt(endColor.red) - doubleToInt(startColor.red))));
-    int green = (doubleToInt(startColor.green) + (int)(ratio * (doubleToInt(endColor.green) - doubleToInt(startColor.green))));
-    int blue = (doubleToInt(startColor.blue) + (int)(ratio * (doubleToInt(endColor.blue) - doubleToInt(startColor.blue))));
+    int red = (doubleToInt(startColor.red) + (int) (ratio * (doubleToInt(endColor.red) - doubleToInt(startColor.red))));
+    int green = (doubleToInt(startColor.green) + (int) (ratio * (doubleToInt(endColor.green) - doubleToInt(startColor.green))));
+    int blue = (doubleToInt(startColor.blue) + (int) (ratio * (doubleToInt(endColor.blue) - doubleToInt(startColor.blue))));
     return new Color(red, green, blue);
   }
 
   // Maps doubles from [0,1] to integers in [0,255]
   private int doubleToInt(double zeroToOne) {
-    return (int)(zeroToOne * 255.0);
+    return (int) (zeroToOne * 255.0);
   }
 
   public void setBuffer() {
     for (Segment segment : segments) {
       Color color = new Color(0, 0, 0);
       switch (segment.blinkMode) {
-      case BLINKING_OFF:
-        color = new Color(0, 0, 0);
-        for (int i = segment.start; i < segment.end; i++) {
-          led.setLED(i, color);
-        }
-        if (segment.blinking_i < 2) {
-          segment.blinking_i++;
-        } else {
-          segment.blinking_i = 0;
-          segment.blinkMode = BlinkMode.BLINKING_ON;
-        }
-        break;
-      case BLINKING_ON:
-        color = PATTERN_MAP.getOrDefault(segment.pattern, new Color(0, 0, 0));
-        for (int i = segment.start; i < segment.end; i++) {
-          led.setLED(i, color);
-        }
-        if (segment.blinking_i < 2) {
-          segment.blinking_i++;
-        } else {
-          segment.blinking_i = 0;
-          segment.blinkMode = BlinkMode.BLINKING_OFF;
-        }
-        break;
-      case SOLID:
-        color = PATTERN_MAP.getOrDefault(segment.pattern, new Color(0, 0, 0));
-        for (int i = segment.start; i < segment.end; i++) {
-          led.setLED(i, color);
-        }
-        break;
-      case OFF:
-        color = new Color(0, 0, 0);
-        for (int i = segment.start; i < segment.end; i++) {
-          led.setLED(i, color);
-        }
-        break;
-      case FIRE:
-        color = new Color(0, 0, 0);
-        int length = segment.end-segment.start;
-        for (int i = segment.start; i < segment.end; i++) {
-          color = getMovingFireColor(i - segment.start, length);
-          led.setLED(i, color);
-        }
-        break;
-      default:
-        color = new Color(10, 10, 10);
-        for (int i = segment.start; i < segment.end; i++) {
-          led.setLED(i, color);
-        }
-        DriverStation.reportError("INVALID LED STATE", null);
+        case BLINKING_OFF:
+          color = new Color(0, 0, 0);
+          for (int i = segment.start; i < segment.end; i++) {
+            led.setLED(i, color);
+          }
+          if (segment.blinking_i < 2) {
+            segment.blinking_i++;
+          } else {
+            segment.blinking_i = 0;
+            segment.blinkMode = BlinkMode.BLINKING_ON;
+          }
+          break;
+        case BLINKING_ON:
+          color = PATTERN_MAP.getOrDefault(segment.pattern, new Color(0, 0, 0));
+          for (int i = segment.start; i < segment.end; i++) {
+            led.setLED(i, color);
+          }
+          if (segment.blinking_i < 2) {
+            segment.blinking_i++;
+          } else {
+            segment.blinking_i = 0;
+            segment.blinkMode = BlinkMode.BLINKING_OFF;
+          }
+          break;
+        case SOLID:
+          color = PATTERN_MAP.getOrDefault(segment.pattern, new Color(0, 0, 0));
+          for (int i = segment.start; i < segment.end; i++) {
+            led.setLED(i, color);
+          }
+          break;
+        case OFF:
+          color = new Color(0, 0, 0);
+          for (int i = segment.start; i < segment.end; i++) {
+            led.setLED(i, color);
+          }
+          break;
+        case FIRE:
+          color = new Color(0, 0, 0);
+          int length = segment.end - segment.start;
+          for (int i = segment.start; i < segment.end; i++) {
+            color = getMovingFireColor(i - segment.start, length);
+            led.setLED(i, color);
+          }
+          break;
+        default:
+          color = new Color(10, 10, 10);
+          for (int i = segment.start; i < segment.end; i++) {
+            led.setLED(i, color);
+          }
+          DriverStation.reportError("INVALID LED STATE", null);
       }
     }
   }

@@ -56,7 +56,7 @@ public class AutoSetShooter2D extends Command {
   public void initialize() {
     isRunning = true;
     RobotContainer.rearLimelight.setPipeline(Pipeline.track2d);
-    if(SmartDashboard.getBoolean("Revert RPM change", false)){
+    if (SmartDashboard.getBoolean("Revert RPM change", false)) {
       closeRPM = 3700;
       farRPM = 5800;
       rpmEquationSlope = (farRPM - closeRPM) / (farDistance - closeDistance);
@@ -66,7 +66,7 @@ public class AutoSetShooter2D extends Command {
   @Override
   public void execute() {
     double distanceToSpeaker;
-    if(SmartDashboard.getBoolean("Revert RPM change", false)){
+    if (SmartDashboard.getBoolean("Revert RPM change", false)) {
       closeRPM = 3700;
       farRPM = 5800;
       rpmEquationSlope = (farRPM - closeRPM) / (farDistance - closeDistance);
@@ -74,17 +74,17 @@ public class AutoSetShooter2D extends Command {
     if (LimelightHelpers.getTV("limelight-shooter")) {
       isRunning = true;
       distanceToSpeaker = heightToTag / Math.tan(Math.toRadians(LimelightHelpers.getTY("limelight-shooter") + limelightPitch));
-      
+
       final double pivotDistanceToSpeaker = distanceToSpeaker + shooterDistanceFromCenter;
       heightOffset = SmartDashboard.getNumber("Height Offset", heightOffset);
       targetHeight = speakerHeight + heightOffset - noteHeight;
-    
+
       final Rotation2d angle = Rotation2d.fromRadians(Math.atan(targetHeight / pivotDistanceToSpeaker)).minus(Rotation2d.fromDegrees(SmartDashboard.getNumber("Angle Offset", 4.0)));
       final double rpm = rpmEquationSlope * (distanceToSpeaker - closeDistance) + closeRPM;
-      
+
       RobotContainer.shooterAngle.setAngle(angle);
       RobotContainer.shooterFlywheel.setSpeed(rpm, spinType);
-      
+
       SmartDashboard.putNumber("AutoSetShooter/Distance to Shooter Pivot (m)", pivotDistanceToSpeaker);
       SmartDashboard.putNumber("AutoSetShooter/Calculated Angle (deg)", angle.getDegrees());
       SmartDashboard.putNumber("AutoSetShooter/Calculated RPM", rpm);
