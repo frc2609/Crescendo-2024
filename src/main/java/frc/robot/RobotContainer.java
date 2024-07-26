@@ -59,6 +59,7 @@ public class RobotContainer {
   public static final Limelight rearLimelight = new Limelight("limelight-shooter");
   public static final ShooterAngle shooterAngle = new ShooterAngle();
   public static final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
+  public static final Vision vision = new Vision();
   public static final Visualizer visualizer = new Visualizer();
   public static final PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
   public static final LED led = new LED();

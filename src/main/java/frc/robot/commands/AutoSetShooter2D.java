@@ -55,7 +55,7 @@ public class AutoSetShooter2D extends Command {
   @Override
   public void initialize() {
     isRunning = true;
-    RobotContainer.rearLimelight.setPipeline(Pipeline.track2d);
+    // RobotContainer.rearLimelight.setPipeline(Pipeline.track2d);
     if (SmartDashboard.getBoolean("Revert RPM change", false)) {
       closeRPM = 3700;
       farRPM = 5800;

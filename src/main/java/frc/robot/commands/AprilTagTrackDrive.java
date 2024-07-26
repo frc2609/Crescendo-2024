@@ -59,19 +59,20 @@ public class AprilTagTrackDrive extends Command {
     Rotation2d heading;
 
     // TODO: report true for limelight pose portion *always* when in simulation
-    if (!RobotContainer.drive.odometryOutOfRange() && RobotContainer.rearLimelight.isPoseValid()) {
-      odometryValidTimer.restart();
-      heading = getHeadingToTag();
-      aligningToTag = true;
-    } else if (!odometryValidTimer.hasElapsed(0.5)) {
-      // if we lose heading, wait for a bit before reverting to gyro
-      heading = getHeadingToTag();
-      aligningToTag = true;
-    } else {
-      // only align to tag heading because odometry isn't reliable
-      heading = aprilTagPose.getRotation();
-      aligningToTag = false;
-    }
+    // if (!RobotContainer.drive.odometryOutOfRange() && RobotContainer.rearLimelight.isPoseValid()) {
+    //   odometryValidTimer.restart();
+    //   heading = getHeadingToTag();
+    //   aligningToTag = true;
+    // } else if (!odometryValidTimer.hasElapsed(0.5)) {
+    //   // if we lose heading, wait for a bit before reverting to gyro
+    //   heading = getHeadingToTag();
+    //   aligningToTag = true;
+    // } else {
+    //   // only align to tag heading because odometry isn't reliable
+    //   heading = aprilTagPose.getRotation();
+    //   aligningToTag = false;
+    // }
+    heading = getHeadingToTag(); // Not working
 
     heading.plus(Rotation2d.fromDegrees(180)) // so the robot's front faces the apriltag
       .plus(headingOffset);

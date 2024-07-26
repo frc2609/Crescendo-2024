@@ -154,6 +154,14 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().cancelAll();
   }
 
+  @Override
+  public void simulationPeriodic() {
+    RobotContainer.drive.drive.odometryLock.lock();
+    RobotContainer.vision.visionSim.update(RobotContainer.drive.drive.swerveDriveOdometry.getPoseMeters());
+    RobotContainer.drive.drive.odometryLock.unlock();
+    RobotContainer.vision.estimatePose();
+  }
+
   /**
    * Report current branch and commit SHA to SmartDashboard. Cannot report whether any files have
    * been modified since the last commit.

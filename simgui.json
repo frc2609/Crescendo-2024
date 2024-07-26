@@ -8,6 +8,7 @@
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/Pigeon 2 (v6) [2]": "Gyro",
       "/SmartDashboard/Shooter/Angle/PID": "ProfiledPIDController",
+      "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d",
       "/SmartDashboard/navX-Sensor[1]": "Gyro",
       "/SmartDashboard/navX-Sensor[4]": "Gyro"
     },
@@ -33,6 +34,17 @@
         "window": {
           "visible": true
         }
+      },
+      "/SmartDashboard/VisionSystemSim-main/Sim Field": {
+        "bottom": 1476,
+        "height": 8.210550308227539,
+        "left": 150,
+        "right": 2961,
+        "top": 79,
+        "width": 16.541748046875,
+        "window": {
+          "visible": true
+        }
       }
     }
   },
@@ -41,18 +53,14 @@
       "open": false
     },
     "transitory": {
-      "PathPlanner": {
-        "open": true
-      },
       "SmartDashboard": {
-        "Auto Chooser": {
-          "open": true
-        },
-        "Field": {
-          "open": true
-        },
         "Shooter": {
           "Angle": {
+            "open": true
+          }
+        },
+        "VisionSystemSim-main": {
+          "Sim Field": {
             "open": true
           },
           "open": true
@@ -77,6 +85,12 @@
             },
             "open": true
           }
+        }
+      },
+      "photonvision": {
+        "open": true,
+        "rear": {
+          "open": true
         }
       }
     }
