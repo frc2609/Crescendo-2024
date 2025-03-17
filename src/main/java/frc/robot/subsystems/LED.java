@@ -64,21 +64,23 @@ public class LED extends SubsystemBase {
   }};
   
   public LED() {
+    // Declare segments
     segments = new ArrayList<>();
     segments.add(new Segment("drive", 0, 27, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
     segments.add(new Segment("align", 28, 34, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
     segments.add(new Segment("flywheel", 35, 40, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
     segments.add(new Segment("angle", 41, 46, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
     segments.add(new Segment("human", 47, 91, Pattern.INTAKE_IDLE, BlinkMode.SOLID));
-    led_dev = new AddressableLED(1);
-    led_dev.setLength(92);
-    led = new AddressableLEDBuffer(92);
-    setDrive(Pattern.INTAKE_IDLE, BlinkMode.SOLID);
+    led_dev = new AddressableLED(1); // create LED Device on PWM 1
+    led_dev.setLength(92); // set number of pixels
+    led = new AddressableLEDBuffer(92); // create a new LED buffer (this must be the same length as in the line above)
+    // set default colors
+    setDrive(Pattern.INTAKE_IDLE, BlinkMode.SOLID); 
     setHuman(Pattern.FIRE, BlinkMode.FIRE);
     // setHuman(Pattern.CUBE, BlinkMode.SOLID);
-    setBuffer();
-    led_dev.setData(led);
-    led_dev.start();
+    setBuffer(); // populate buffers based on each pattern
+    led_dev.setData(led); // push buffer to LEDs
+    led_dev.start(); // start LED device
   }
 
   @Override
@@ -87,6 +89,7 @@ public class LED extends SubsystemBase {
     led_dev.setData(led);
   }
 
+  // ---- START OF helper functions for fire animation ----
   public Color getMovingFireColor(int position, int totalLEDs) {
     // Calculate offset based on time for movement
     double time = Timer.getFPGATimestamp();
@@ -115,6 +118,7 @@ public class LED extends SubsystemBase {
   private int doubleToInt(double zeroToOne) {
     return (int) (zeroToOne * 255.0);
   }
+  // ---- END OF helper functions for fire animation ----
 
   public void setBuffer() {
     for (Segment segment : segments) {
